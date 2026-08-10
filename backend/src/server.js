@@ -2,7 +2,7 @@ const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const connectDatabase = require('./databases/db');
-const healthRoutes = require('./routes/healthRoutes');
+const authRouter = require('./routes/authRouter');
 const { PORT } = require('./config/env');
 
 const app = express();
@@ -15,7 +15,7 @@ app.get('/', (_request, response) => {
   response.json({ message: 'Buy2Eat API is running' });
 });
 
-app.use('/api/health', healthRoutes);
+app.use('/api/v1/buy2eat/auth', authRouter);
 
 async function startServer() {
   try {
