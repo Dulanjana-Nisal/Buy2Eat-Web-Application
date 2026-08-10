@@ -1,7 +1,12 @@
 const asyncHandler = require('../middleware/asyncHandler');
 
+// login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
-	res.status(200).json({success: true, message: 'Test login auth api'})
+	const {email, password} = req.body;
+
+	if(!email || !password) return res.status(400).json({
+		
+	})
 });
 
 module.exports = { authLogin };

@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const connectDatabase = require('./databases/db');
 const authRouter = require('./routes/authRouter');
 const { PORT } = require('./config/env');
+const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.get('/', (_request, response) => {
 });
 
 app.use('/api/v1/buy2eat/auth', authRouter);
+app.use(errorHandlerMiddleware);
 
 async function startServer() {
   try {
