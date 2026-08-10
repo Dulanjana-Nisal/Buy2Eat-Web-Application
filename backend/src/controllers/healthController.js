@@ -1,9 +1,10 @@
-function getHealth(_request, response) {
-  response.json({
-    status: 'ok',
-    service: 'buy2eat-api',
-    timestamp: new Date().toISOString(),
-  });
-}
+const asyncHandler = require('../middleware/asyncHandler');
+
+const getHealth = asyncHandler(async (_request, response) => {
+	response.json({
+		status: 'ok',
+		message: 'Buy2Eat API is healthy',
+	});
+});
 
 module.exports = { getHealth };
