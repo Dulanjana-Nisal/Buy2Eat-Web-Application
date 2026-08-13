@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// reviewsModel Schema
 const reviewsModel = mongoose.Schema({
     customer_id: {
         type: mongoose.Schema.Types.ObjectId,

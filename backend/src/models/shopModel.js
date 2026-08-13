@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// shopsModel Schema
 const shopsModel = mongoose.Schema({
     seller_id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -36,7 +37,7 @@ const shopsModel = mongoose.Schema({
     },
     description: {
         type: String,
-        minlength: [3, 'Comment must have more than 3 letters!'],
+        minlength: [3, 'Description must have more than 3 letters!'],
         required: [true, 'Description is required!']
     },
 }, { timestamps: true })

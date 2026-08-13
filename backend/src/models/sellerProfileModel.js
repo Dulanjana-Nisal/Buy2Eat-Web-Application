@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// SellerProfileModel Schema
 const sellerProfileModel = mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
