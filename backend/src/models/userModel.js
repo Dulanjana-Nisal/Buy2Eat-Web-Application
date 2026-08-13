@@ -22,6 +22,6 @@ const UserModel = mongoose.Schema({
         enum: ['admin','customer','seller'],
         required: [true, 'Role is required!']
     }
-})
+}, { timestamps: true })
 
-module.exports = mongoose.models('User', UserModel)
+module.exports = mongoose.models('Users', UserModel)
