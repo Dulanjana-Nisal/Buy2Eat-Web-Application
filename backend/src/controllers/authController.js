@@ -228,6 +228,8 @@ const registerSellers = asyncHandler(async (req, res) => {
 			role: user.role,
 		},
 		sellerProfile,
+		accessToken: accessToken,
+		refreshToken: refreshToken
 	});
 });
 
