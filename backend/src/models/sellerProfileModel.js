@@ -35,4 +35,4 @@ const sellerProfileModel = mongoose.Schema({
     }
 })
 
-module.exports = mongoose.models('SellerProfile', sellerProfileModel)
+module.exports = mongoose.model('SellerProfile', sellerProfileModel)

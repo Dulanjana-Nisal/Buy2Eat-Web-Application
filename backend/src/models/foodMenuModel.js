@@ -78,4 +78,4 @@ const foodMenuModel = mongoose.Schema({
     }
 }, { timestamps: true })
 
-module.exports = mongoose.models('FoodMenu', foodMenuModel)
+module.exports = mongoose.model('FoodMenu', foodMenuModel)

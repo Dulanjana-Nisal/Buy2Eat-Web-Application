@@ -79,4 +79,4 @@ const customerProfileModel = mongoose.Schema({
     }
 })
 
-module.exports = mongoose.models('CustomerProfile', customerProfileModel)
+module.exports = mongoose.model('CustomerProfile', customerProfileModel)

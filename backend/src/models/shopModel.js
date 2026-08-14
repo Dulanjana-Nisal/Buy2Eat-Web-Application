@@ -42,4 +42,4 @@ const shopsModel = mongoose.Schema({
     },
 }, { timestamps: true })
 
-module.exports = mongoose.models('Shops', shopsModel)
+module.exports = mongoose.model('Shops', shopsModel)
