@@ -29,5 +29,18 @@ const authLogin = asyncHandler(async (req, res) => {
 	// get response form server
 	res.status(200).json({success: true, message: 'User logged!'})
 });
+
+// Register auth for customers
+const registerCustomers = asyncHandler( async (req,res) => {
+	const { email, password } = req.body;
+
+	// check email and password is entered
+	if(!email || !password) return res.status(400).json({
+		success: false,
+		message: 'Please provide email and password'
+	})
+
+	
+});
  
 module.exports = { authLogin };
