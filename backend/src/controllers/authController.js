@@ -155,6 +155,8 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			role: user.role,
 		},
 		customerProfile,
+		accessToken: accessToken,
+		refreshToken: refreshToken
 	});
 });
 

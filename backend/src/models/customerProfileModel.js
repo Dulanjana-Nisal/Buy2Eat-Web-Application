@@ -7,7 +7,6 @@ const addressesModel = mongoose.Schema({
     },
     street: {
         type: String,
-        required: [true, 'Street is required!']
     },
     city: {
         type: String,
@@ -74,8 +73,9 @@ const customerProfileModel = mongoose.Schema({
     favorite_shops: [favoriteShopsModel],
     favorite_foods: [favoriteFoodsModel],
     phone_number: {
-        type: Number,
-        required: [true, 'Phone Number is required!']
+        type: String,
+        required: [true, 'Phone Number is required!'],
+        minlength: [10, 'Phone Number must have 10 numbers']
     }
 })
 
