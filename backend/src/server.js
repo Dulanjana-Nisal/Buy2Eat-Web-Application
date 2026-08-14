@@ -5,12 +5,14 @@ const connectDatabase = require('./databases/db');
 const authRouter = require('./routes/authRouter');
 const { PORT } = require('./config/env');
 const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(cookieParser());
 
 app.get('/', (_request, response) => {
   response.json({ message: 'Buy2Eat API is running' });
