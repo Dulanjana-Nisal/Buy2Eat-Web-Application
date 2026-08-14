@@ -83,6 +83,8 @@ const authLogin = asyncHandler(async (req, res) => {
 			email: user.email,
 			role: user.role,
 		},
+		accessToken:accessToken,
+		refreshToken: refreshToken
 	});
 });
 
