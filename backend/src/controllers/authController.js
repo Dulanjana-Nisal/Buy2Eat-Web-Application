@@ -5,6 +5,7 @@ const CustomerProfile = require('../models/customerProfileModel');
 const SellerProfile = require('../models/sellerProfileModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sendEmailOTP = require('../utils/sendEmails');
 
 // cookie options
 const cookieOptions = {
@@ -75,6 +76,10 @@ const authLogin = asyncHandler(async (req, res) => {
 	const { accessToken, refreshToken } = createTokenPair(user);
 	setAuthCookies(res, accessToken, refreshToken);
 
+	// send otp via email
+	sendEmailOTP(email, '123456')
+
+	// send response
 	return res.status(200).json({
 		success: true,
 		message: 'User logged in successfully!',
@@ -147,7 +152,10 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const {accessToken, refreshToken} = createTokenPair(user)
 	setAuthCookies(res, accessToken, refreshToken)
 
-	// get response
+	// send otp via email
+	sendEmailOTP(email, '123456')
+
+	// send response
 	return res.status(201).json({
 		success: true,
 		message: 'Customer registered successfully!',
@@ -219,6 +227,10 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const {accessToken, refreshToken} = createTokenPair(user);
 	setAuthCookies(res, accessToken, refreshToken);
 
+	// send otp via email
+	sendEmailOTP(email, '123456')
+
+	// send response
 	return res.status(201).json({
 		success: true,
 		message: 'Seller registered successfully!',
