@@ -5,7 +5,9 @@ const CustomerProfile = require('../models/customerProfileModel');
 const SellerProfile = require('../models/sellerProfileModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const sendEmailOTP = require('../utils/sendEmails');
+const registrationOtpModel = require('../models/registrationOtpModel');
 
 // cookie options
 const cookieOptions = {
@@ -88,7 +90,7 @@ const authLogin = asyncHandler(async (req, res) => {
 			email: user.email,
 			role: user.role,
 		},
-		accessToken:accessToken,
+		accessToken: accessToken,
 		refreshToken: refreshToken
 	});
 });
@@ -129,45 +131,39 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
 
-	// create user 
-	const user = await Users.create({
-		email: normalizedEmail,
-		password: hashedPassword,
+	// generate otp
+	const generateOtp = crypto.randomInt(100000, 1000000).toString();
+	const hashOtp = await bcrypt.hash(generateOtp, 10);
+
+	// delete old OTP from same email
+	await registrationOtpModel.deleteMany({email: normalizedEmail})
+
+	// save otp in database
+	await registrationOtpModel.create({
+		email: email,
+		hash_otp: hashOtp,
+		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
 		role: 'customer',
-	});
-
-	// create customer profile
-	const customerProfile = await CustomerProfile.create({
-		user_id: user._id,
-		first_name,
-		last_name,
-		addresses,
-		profile_image,
-		favorite_shops,
-		favorite_foods,
-		phone_number,
-	});
-
-	// create jwt token and save it in to cookie
-	const {accessToken, refreshToken} = createTokenPair(user)
-	setAuthCookies(res, accessToken, refreshToken)
+		hash_password: hashedPassword,
+		profile_data: {
+			first_name,
+			last_name,
+			addresses,
+			profile_image,
+			favorite_shops,
+			favorite_foods,
+			phone_number,
+		}
+	})
 
 	// send otp via email
-	sendEmailOTP(email, '123456')
+	sendEmailOTP(email, first_name, last_name, generateOtp)
 
 	// send response
-	return res.status(201).json({
+	res.status(200).json({
 		success: true,
-		message: 'Customer registered successfully!',
-		user: {
-			_id: user._id,
-			email: user.email,
-			role: user.role,
-		},
-		customerProfile,
-		accessToken: accessToken,
-		refreshToken: refreshToken
-	});
+		message: 'OTP send successfully...'
+	})
 });
 
 // Register auth for sellers
@@ -205,41 +201,120 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
 
-	// create user
-	const user = await Users.create({
-		email: normalizedEmail,
-		password: hashedPassword,
+	// generate otp
+	const generateOtp = crypto.randomInt(100000, 1000000).toString();
+	const hashOtp = await bcrypt.hash(generateOtp, 10);
+
+	// delete old OTP from same email
+	await registrationOtpModel.deleteMany({email: normalizedEmail})
+
+	// save otp in database
+	const createOtp = await registrationOtpModel.create({
+		email: email,
+		hash_otp: hashOtp,
+		hash_password: hashedPassword,
+		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
 		role: 'seller',
-	});
-
-	// create seller profile
-	const sellerProfile = await SellerProfile.create({
-		user_id: user._id,
-		first_name,
-		last_name,
-		profile_image,
-		phone_number,
-		ratings,
-		rank,
-	});
-
-	// create jwt and save it into cookie
-	const {accessToken, refreshToken} = createTokenPair(user);
-	setAuthCookies(res, accessToken, refreshToken);
+		profile_data: {
+			first_name,
+			last_name,
+			profile_image,
+			phone_number,
+			ratings,
+			rank,
+		}
+	})
 
 	// send otp via email
-	sendEmailOTP(email, '123456')
+	sendEmailOTP(email, first_name, last_name, generateOtp)
+
+	// send response
+	res.status(200).json({
+		success: true,
+		message: 'OTP send successfully...',
+	})
+});
+
+// verify otp controller
+const verifyOtp = asyncHandler(async (req, res) => {
+	const { email, otp } = req.body;
+
+	// check that email and otp is entered
+	if (!email || !otp) return res.status(400).json({
+		success: false,
+		message: 'Please provide email and OTP number'
+	})
+
+	// check if email is exist
+	const otpUser = await registrationOtpModel.findOne({email: email})
+	if (!otpUser) return res.status(400).json({
+		success: false,
+		message: 'Email is not found!'
+	})
+
+	// check if otp is exist
+	if (!otpUser.hash_otp) return res.status(401).json({
+		success: false,
+		message: 'OTP is dose not exist!'
+	})
+
+	// check is attempt ok
+	if(otpUser.attempts === 0) return res.status(401).json({
+		success: false,
+		message: 'Maximum attempts exceeded!'
+	})
+
+	// check if OTP is expired
+	if (otpUser.expiresAt < new Date()) {
+
+		otpUser.hash_otp = undefined;
+		otpUser.expiresAt = undefined;
+
+		await otpUser.save();
+
+		return res.status(400).json({
+			success: false,
+			message: 'OTP is Expired!'
+		})
+	}
+
+	// compare otp with user inputs
+	const compOtp = await bcrypt.compare(otp, otpUser.hash_otp)
+	if (!compOtp) return res.status(400).json({
+		success: false,
+		message: 'Invalid OTP'
+	})
+
+	// create user 
+	const user = await Users.create({
+		email: otpUser.email,
+		password: otpUser.hash_password,
+		role: otpUser.role,
+	});
+
+	// create user profile
+	let userProfile;
+	if(otpUser.role === 'customer'){
+		userProfile = await CustomerProfile.create({...otpUser.profile_data, user_id: user._id});
+	}
+	if(otpUser.role === 'seller'){
+		userProfile = await SellerProfile.create({...otpUser.profile_data, user_id: user._id});
+	}
+
+	// create jwt token and save it in to cookie
+	const { accessToken, refreshToken } = createTokenPair(user)
+	setAuthCookies(res, accessToken, refreshToken)
 
 	// send response
 	return res.status(201).json({
 		success: true,
-		message: 'Seller registered successfully!',
+		message: `${user.role} registered successfully!`,
 		user: {
 			_id: user._id,
 			email: user.email,
 			role: user.role,
 		},
-		sellerProfile,
+		userProfile,
 		accessToken: accessToken,
 		refreshToken: refreshToken
 	});
@@ -278,7 +353,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 			newAccessToken: newAccessToken,
 			newRefreshToken: newRefreshToken,
 		});
-		
+
 	} catch (error) {
 		return res.status(401).json({
 			success: false,
@@ -287,4 +362,4 @@ const refreshToken = asyncHandler(async (req, res) => {
 	}
 });
 
-module.exports = { authLogin, refreshToken, registerCustomers, registerSellers };
+module.exports = { authLogin, refreshToken, registerCustomers, registerSellers, verifyOtp };

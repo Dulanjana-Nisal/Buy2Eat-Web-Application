@@ -12,6 +12,14 @@ const registrationOtpModel = mongoose.Schema({
             "Please enter a valid email address"
         ]
     },
+    hash_otp: {
+        type: String,
+        required: [true, "hash_otp is required!"]
+    },
+    hash_password: {
+        type: String,
+        required: [true, "hash_password is required!"]
+    },
     expiresAt: {
         type: Date,
         required: [true, 'expiresAt is required!']
@@ -24,7 +32,16 @@ const registrationOtpModel = mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-        expires: 300
+        expires: 600
+    },
+    role: {
+        type: String,
+        enum: ['admin','customer','seller'],
+        required: [true, 'Role is required!']
+    },
+    profile_data: {
+        type: Object,
+        required: [true, 'Profile data is required!']
     }
 })
 
