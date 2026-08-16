@@ -2,16 +2,16 @@ const nodemailer = require('nodemailer');
 const { EMAIL_APP_PASSWORD, EMAIL_USER } = require('../config/env');
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_APP_PASSWORD,
-    },
+  service: 'gmail',
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_APP_PASSWORD,
+  },
 })
 
 const sendEmailOTP = async (email, first_name, last_name, otp) => {
 
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -39,14 +39,36 @@ const sendEmailOTP = async (email, first_name, last_name, otp) => {
     </html>
   `;
 
-    await transporter.sendMail({
-        from: `"Buy2Eat" <${EMAIL_USER}>`,
-        to: email,
-        subject: "Your OTP Code for Buy2Eat",
-        text: `Hi there, your OTP code is ${otp}. It expires in 5 minutes.`,
-        html: htmlContent,
-        replyTo: EMAIL_USER,
-    })
+  await transporter.sendMail({
+    from: `"Buy2Eat" <${EMAIL_USER}>`,
+    to: email,
+    subject: "Your OTP Code for Buy2Eat",
+    text: `Hi there, your OTP code is ${otp}. It expires in 5 minutes.`,
+    html: htmlContent,
+    replyTo: EMAIL_USER,
+  })
 }
 
-module.exports = sendEmailOTP;
+const sendEmailResetPassword = async (email, resetLink) => {
+  const htmlContent = `
+    <h2>Password Reset</h2>
+
+      <p>Click the button below to reset your password.</p>
+
+        <a href="${resetLink}">
+          Reset Password
+        </a>
+
+      <p>This link expires in 15 minutes.</p>
+    `
+  await transporter.sendMail({
+    from: `"Buy2Eat" <${EMAIL_USER}>`,
+    to: email,
+    subject: "Reset Your Password for Buy2Eat",
+    text: `Hi there, your Reset password link here. It expires in 5 minutes.`,
+    html: htmlContent,
+    replyTo: EMAIL_USER,
+  })
+}
+
+module.exports = {sendEmailOTP,sendEmailResetPassword};

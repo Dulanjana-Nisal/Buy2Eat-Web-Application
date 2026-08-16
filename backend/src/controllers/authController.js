@@ -1,4 +1,4 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED } = require('../config/env');
+const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, PORT } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
@@ -6,8 +6,9 @@ const SellerProfile = require('../models/sellerProfileModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const sendEmailOTP = require('../utils/sendEmails');
+const {sendEmailOTP, sendEmailResetPassword} = require('../utils/sendEmails');
 const registrationOtpModel = require('../models/registrationOtpModel');
+const resetPasswordModel = require('../models/resetPasswordModel');
 
 // cookie options
 const cookieOptions = {
@@ -346,6 +347,53 @@ const userLogout = asyncHandler(async (req, res) => {
 	})
 });
 
+// forgot password controller
+const forgotPassword = asyncHandler(async (req,res)=>{
+	const {email} = req.body;
+
+	// check if email is entered
+	if(!email) return res.status(400).json({
+		success: false,
+		message: "Please provide email!"
+	})
+
+	// check email is exits
+	const user = await Users.findOne({email: email});
+	if(!user) return res.status(400).json({
+		success: false,
+		message: "Email is not registered!"
+	})
+
+	// generate new reset password token
+	const resetToken = crypto.randomBytes(32).toString('hex');
+	const hashResetToken = await bcrypt.hash(resetToken, 10);
+
+	// save that token in to database
+	const forgotPasswordSchema = await resetPasswordModel.create({
+		user_id: user._id,
+		resetPasswordToken: hashResetToken,
+		expiredAt: new Date(Date.now() + 5 * 60 * 1000)
+	})
+
+	// generate reset link
+	const resetLink = `http://localhost:${PORT}/api/v1/buy2eat/auth/reset-password/${resetToken}` // this link should be change with frontend ( with frontend PORT )
+
+	// send reset password link to user email
+	sendEmailResetPassword(email, resetLink);
+
+	// send response
+	res.status(200).json({
+		success: true,
+		message: 'Password reset link has been sent to your email.'
+	})
+
+});
+
+// reset password controller
+const resetPassword = asyncHandler(async (req,res)=>{
+	res.status(200).send('Hello reset password')
+});
+
 // refresh token auth for generate new tokens
 const refreshToken = asyncHandler(async (req, res) => {
 	const incomingRefreshToken = req.cookies?.refreshToken;
@@ -394,5 +442,7 @@ module.exports = {
 	registerCustomers, 
 	registerSellers, 
 	userLogout,
-	verifyOtp 
+	verifyOtp,
+	forgotPassword,
+	resetPassword, 
 };

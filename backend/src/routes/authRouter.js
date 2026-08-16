@@ -5,7 +5,9 @@ const {
     registerCustomers, 
     registerSellers, 
     verifyOtp, 
-    userLogout 
+    userLogout, 
+    forgotPassword,
+    resetPassword
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -16,5 +18,7 @@ router.post('/register-seller', registerSellers);
 router.post('/logout', userLogout);
 router.post('/verify-otp', verifyOtp);
 router.post('/refresh-token', refreshToken);
+router.post('/forgot-password', forgotPassword);
+router.get('/reset-password/:id', resetPassword);
 
 module.exports = router;
