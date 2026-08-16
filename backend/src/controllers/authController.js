@@ -136,7 +136,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const hashOtp = await bcrypt.hash(generateOtp, 10);
 
 	// delete old OTP from same email
-	await registrationOtpModel.deleteMany({email: normalizedEmail})
+	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
 	await registrationOtpModel.create({
@@ -206,7 +206,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const hashOtp = await bcrypt.hash(generateOtp, 10);
 
 	// delete old OTP from same email
-	await registrationOtpModel.deleteMany({email: normalizedEmail})
+	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
 	const createOtp = await registrationOtpModel.create({
@@ -246,7 +246,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	})
 
 	// check if email is exist
-	const otpUser = await registrationOtpModel.findOne({email: email})
+	const otpUser = await registrationOtpModel.findOne({ email: email })
 	if (!otpUser) return res.status(400).json({
 		success: false,
 		message: 'Email is not found!'
@@ -259,7 +259,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	})
 
 	// check is attempt ok
-	if(otpUser.attempts === 0) return res.status(401).json({
+	if (otpUser.attempts === 0) return res.status(401).json({
 		success: false,
 		message: 'Maximum attempts exceeded!'
 	})
@@ -297,11 +297,11 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 	// create user profile
 	let userProfile;
-	if(otpUser.role === 'customer'){
-		userProfile = await CustomerProfile.create({...otpUser.profile_data, user_id: user._id});
+	if (otpUser.role === 'customer') {
+		userProfile = await CustomerProfile.create({ ...otpUser.profile_data, user_id: user._id });
 	}
-	if(otpUser.role === 'seller'){
-		userProfile = await SellerProfile.create({...otpUser.profile_data, user_id: user._id});
+	if (otpUser.role === 'seller') {
+		userProfile = await SellerProfile.create({ ...otpUser.profile_data, user_id: user._id });
 	}
 
 	// create jwt token and save it in to cookie
@@ -321,6 +321,29 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		accessToken: accessToken,
 		refreshToken: refreshToken
 	});
+});
+
+// User logout 
+const userLogout = asyncHandler(async (req, res) => {
+	res.clearCookie('accessToken', {
+		httpOnly: true,
+		sameSite: 'Lax',
+		path: '/',
+		secure: process.env.NODE_ENV !== 'development',
+	})
+
+	res.clearCookie('refreshToken', {
+		httpOnly: true,
+		sameSite: 'Lax',
+		path: '/',
+		secure: process.env.NODE_ENV !== 'development',
+	})
+
+	// send response
+	res.status(200).json({
+		success: true,
+		message: 'User successfully logout...'
+	})
 });
 
 // refresh token auth for generate new tokens
@@ -365,4 +388,11 @@ const refreshToken = asyncHandler(async (req, res) => {
 	}
 });
 
-module.exports = { authLogin, refreshToken, registerCustomers, registerSellers, verifyOtp };
+module.exports = { 
+	authLogin,
+	refreshToken, 
+	registerCustomers, 
+	registerSellers, 
+	userLogout,
+	verifyOtp 
+};
