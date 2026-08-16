@@ -264,6 +264,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		message: 'Maximum attempts exceeded!'
 	})
 
+	otpUser.attempts = otpUser.attempts - 1;
+	await otpUser.save();
+
 	// check if OTP is expired
 	if (otpUser.expiresAt < new Date()) {
 
