@@ -51,24 +51,37 @@ const sendEmailOTP = async (email, first_name, last_name, otp) => {
 
 const sendEmailResetPassword = async (email, resetLink) => {
   const htmlContent = `
-    <h2>Password Reset</h2>
+    <!DOCTYPE html>
+    <html>
+      <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.5;">
+        <div style="max-width: 480px; margin: 0 auto; padding: 20px;">
+          <h2>Password Reset Request</h2>
+          <p>Hi there,</p>
+          <p>We received a request to reset your password for your Buy2Eat account. Click the button below to choose a new one:</p>
+          <p style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}"
+               style="background-color: #ff6600; color: #ffffff; padding: 12px 24px;
+                      text-decoration: none; border-radius: 6px; display: inline-block;">
+              Reset Password
+            </a>
+          </p>
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; color: #555;">${resetLink}</p>
+          <p>This link will expire in 15 minutes. If you didn't request a password reset, you can safely ignore this email — your password will remain unchanged.</p>
+          <p>Thanks,<br/>The Buy2Eat Team</p>
+        </div>
+      </body>
+    </html>
+  `;
 
-      <p>Click the button below to reset your password.</p>
-
-        <a href="${resetLink}">
-          Reset Password
-        </a>
-
-      <p>This link expires in 15 minutes.</p>
-    `
   await transporter.sendMail({
     from: `"Buy2Eat" <${EMAIL_USER}>`,
     to: email,
-    subject: "Reset Your Password for Buy2Eat",
-    text: `Hi there, your Reset password link here. It expires in 5 minutes.`,
+    subject: "Reset your Buy2Eat password",
+    text: `Hi there,\n\nWe received a request to reset your password. Use the link below to reset it:\n${resetLink}\n\nThis link expires in 15 minutes. If you didn't request this, you can ignore this email.\n\n- The Buy2Eat Team`,
     html: htmlContent,
     replyTo: EMAIL_USER,
-  })
-}
+  });
+};
 
-module.exports = {sendEmailOTP,sendEmailResetPassword};
+module.exports = { sendEmailOTP, sendEmailResetPassword };

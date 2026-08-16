@@ -6,7 +6,7 @@ const SellerProfile = require('../models/sellerProfileModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const {sendEmailOTP, sendEmailResetPassword} = require('../utils/sendEmails');
+const { sendEmailOTP, sendEmailResetPassword } = require('../utils/sendEmails');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 
@@ -348,25 +348,28 @@ const userLogout = asyncHandler(async (req, res) => {
 });
 
 // forgot password controller
-const forgotPassword = asyncHandler(async (req,res)=>{
-	const {email} = req.body;
+const forgotPassword = asyncHandler(async (req, res) => {
+	const { email } = req.body;
 
 	// check if email is entered
-	if(!email) return res.status(400).json({
+	if (!email) return res.status(400).json({
 		success: false,
 		message: "Please provide email!"
-	})
+	});
 
 	// check email is exits
-	const user = await Users.findOne({email: email});
-	if(!user) return res.status(400).json({
+	const user = await Users.findOne({ email: email });
+	if (!user) return res.status(400).json({
 		success: false,
 		message: "Email is not registered!"
 	})
 
 	// generate new reset password token
 	const resetToken = crypto.randomBytes(32).toString('hex');
-	const hashResetToken = await bcrypt.hash(resetToken, 10);
+	const hashResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+	// delete old data in resetPasswordModel
+	await resetPasswordModel.deleteMany({ user_id: user._id })
 
 	// save that token in to database
 	const forgotPasswordSchema = await resetPasswordModel.create({
@@ -390,8 +393,46 @@ const forgotPassword = asyncHandler(async (req,res)=>{
 });
 
 // reset password controller
-const resetPassword = asyncHandler(async (req,res)=>{
-	res.status(200).send('Hello reset password')
+const resetPassword = asyncHandler(async (req, res) => {
+	const { token, newPassword } = req.body
+
+	// check token and newPassword is entered
+	if (!token || !newPassword) return res.status(400).json({
+		success: false,
+		message: "Please provide token and new password!"
+	});
+
+	// check that token is exist on database model
+	const hashToken = crypto.createHash("sha256").update(token).digest("hex");
+	const resetUser = await resetPasswordModel.findOne({ resetPasswordToken: hashToken })
+
+	if (!resetUser) return res.status(400).json({
+		success: false,
+		message: "Your reset password link is expired or Invalid token"
+	});
+
+	// replace new password with old password
+	const user = await Users.findOne({ _id: resetUser.user_id })
+	if (!user) return res.status(400).json({
+		success: false,
+		message: "User dose not exist"
+	});
+
+	// hash new password
+	const salt = await bcrypt.genSalt(10);
+	const hashNewPass = await bcrypt.hash(newPassword, salt);
+
+	user.password = hashNewPass;
+	await user.save();
+
+	// delete old data in resetPasswordModel
+	await resetPasswordModel.deleteMany({ user_id: resetUser.user_id })
+
+	// send response
+	res.status(200).json({
+		success: true,
+		message: 'Password reset successfully...'
+	})
 });
 
 // refresh token auth for generate new tokens
@@ -436,13 +477,13 @@ const refreshToken = asyncHandler(async (req, res) => {
 	}
 });
 
-module.exports = { 
+module.exports = {
 	authLogin,
-	refreshToken, 
-	registerCustomers, 
-	registerSellers, 
+	refreshToken,
+	registerCustomers,
+	registerSellers,
 	userLogout,
 	verifyOtp,
 	forgotPassword,
-	resetPassword, 
+	resetPassword,
 };
