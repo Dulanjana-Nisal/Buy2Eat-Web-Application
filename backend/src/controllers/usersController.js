@@ -38,4 +38,12 @@ const getAllUsers = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, data: user });
 });
 
-module.exports = getAllUsers;
+// get single user details
+const getSingleUser = asyncHandler(async (req, res) => {
+    res.status(200).json({success: true, message: 'Get single user details'})
+});
+
+module.exports = {
+    getAllUsers,
+    getSingleUser,
+};
