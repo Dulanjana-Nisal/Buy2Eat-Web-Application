@@ -2,7 +2,6 @@ const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const connectDatabase = require('./databases/db');
-const customerRouter = require('./routes/customerRouter');
 const { PORT } = require('./config/env');
 const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 const cookieParser = require("cookie-parser");
@@ -10,6 +9,7 @@ const cookieParser = require("cookie-parser");
 // import routers
 const authRouter = require('./routes/authRouter');
 const usersRouter = require('./routes/usersRouter');
+const customerRouter = require('./routes/customerRouter');
 
 const app = express();
 
