@@ -2,11 +2,14 @@ const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const connectDatabase = require('./databases/db');
-const authRouter = require('./routes/authRouter');
 const customerRouter = require('./routes/customerRouter');
 const { PORT } = require('./config/env');
 const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 const cookieParser = require("cookie-parser");
+
+// import routers
+const authRouter = require('./routes/authRouter');
+const usersRouter = require('./routes/usersRouter');
 
 const app = express();
 
@@ -23,6 +26,7 @@ app.get('/', (_request, response) => {
 // routers
 app.use('/api/v1/buy2eat/auth', authRouter);
 app.use('/api/v1/buy2eat/customers', customerRouter);
+app.use('/api/v1/buy2eat/users', usersRouter);
 app.use(errorHandlerMiddleware);
 
 async function startServer() {
