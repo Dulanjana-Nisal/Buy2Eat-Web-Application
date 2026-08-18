@@ -18,10 +18,10 @@ const getAllCustomers = asyncHandler(async (req, res) => {
     }
 
     // search with phone number
-    if(phone){
+    if (phone) {
         queryData.phone_number = {
             $regex: phone,
-            $options: 'i' 
+            $options: 'i'
         }
     }
 
@@ -46,12 +46,12 @@ const getAllCustomers = asyncHandler(async (req, res) => {
 });
 
 // get single customer
-const getSingleCustomer = asyncHandler(async (req,res) => {
+const getSingleCustomer = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     // get customer form database base on id
     const customer = await customerProfileModel.findOne({ user_id: id })
-    if(!customer) return res.status(400).json({
+    if (!customer) return res.status(400).json({
         success: false,
         message: 'Customer dose not exist!'
     })
@@ -63,7 +63,70 @@ const getSingleCustomer = asyncHandler(async (req,res) => {
     })
 });
 
+// update customers details
+const updateCustomer = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { first_name, last_name, profile_image, phone_number } = req.body;
+
+    // check customer is exist
+    const customer = await customerProfileModel.findOne({ user_id: id })
+    if (!customer) return res.status(400).json({
+        success: false,
+        message: 'Customer dose not exist!'
+    })
+
+    const queryData = {}
+
+    // check if have first name
+    if (first_name) {
+        if (first_name === "" || (first_name.trim()).length < 3) {
+            console.log(first_name, "First")
+            return res.status(400).json({
+                success: false,
+                message: 'first_name must have more that 3 letters!'
+            })
+        }
+        queryData.first_name = first_name.trim()
+    }
+
+    // check if have last name
+    if (last_name) {
+        if (last_name === "" || (last_name.trim()).length < 3) {
+            return res.status(400).json({
+                success: false,
+                message: 'last_name must have more that 3 letters!'
+            })
+        }
+        queryData.last_name = last_name.trim()
+    }
+
+    //check if have profile image
+    if (profile_image) {
+        queryData.profile_image = profile_image
+    }
+
+    // check if have phone Number
+    if (phone_number) {
+        queryData.phone_number = phone_number
+    }
+
+    // update database with querydata
+    const customerUpdate = await customerProfileModel.findOneAndUpdate(
+        {user_id: id},
+        queryData,
+        {runValidators: true, returnDocument: 'after'}
+    )
+    if (!customerUpdate) return res.status(400).json({
+        success: false,
+        message: 'Failed to update!'
+    })
+
+    // send response
+    res.status(200).json({ success: true, message: 'Profile updated!', data: customerUpdate })
+});
+
 module.exports = {
     getAllCustomers,
     getSingleCustomer,
+    updateCustomer,
 }

@@ -5,6 +5,9 @@ const addressesModel = mongoose.Schema({
     label: {
         type: String
     },
+    address_name: {
+        type: String,
+    },
     street: {
         type: String,
     },
