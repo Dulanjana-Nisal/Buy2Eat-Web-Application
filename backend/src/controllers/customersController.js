@@ -2,6 +2,8 @@ const asyncHandler = require("../middleware/asyncHandler");
 const customerProfileModel = require("../models/customerProfileModel");
 const pagination = require("../utils/pagination");
 
+// ============== Main Customer Controllers ==============
+
 // get all customers with filters
 const getAllCustomers = asyncHandler(async (req, res) => {
     const { searchByName, phone } = req.query
@@ -125,8 +127,35 @@ const updateCustomer = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: 'Profile updated!', data: customerUpdate })
 });
 
+// ============== ========================= ==============
+
+// ============== Customer Addresses Controllers ==============
+
+// Update addresses
+const updateAddresses = asyncHandler(async (req, res) => {
+
+});
+
+// Add new address
+const addAddresses = asyncHandler(async (req, res) => {
+
+});
+
+// Delete address
+const deleteAddress = asyncHandler(async (req, res) => {
+
+});
+
+// ============== ========================= ==============
+
 module.exports = {
+    // main
     getAllCustomers,
     getSingleCustomer,
     updateCustomer,
+
+    // addresses
+    updateAddresses,
+    addAddresses,
+    deleteAddress,
 }
