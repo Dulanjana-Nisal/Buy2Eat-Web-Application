@@ -40,7 +40,14 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 // get single user details
 const getSingleUser = asyncHandler(async (req, res) => {
-    res.status(200).json({success: true, message: 'Get single user details'})
+    const { id } = req.params;
+
+    // find user form database base on id
+    const user = await Users.findOne({ _id: id }).select("-password");
+    if(!user) return res.status(400).json({success: false, message: 'User is not exist!'})
+
+    //send response
+    res.status(200).json({success: true, data: user})
 });
 
 module.exports = {
