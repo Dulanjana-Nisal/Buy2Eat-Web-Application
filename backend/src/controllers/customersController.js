@@ -134,10 +134,10 @@ const updateCustomer = asyncHandler(async (req, res) => {
 // Update addresses
 const updateAddresses = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { address_id } = req.body;
+    const { _id } = req.body;
     
     // check if customer is exist
-    const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": address_id });
+    const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": _id });
     if(!customer) return res.status(400).json({
         success: false,
         message: 'Address is not exist!'
@@ -145,7 +145,7 @@ const updateAddresses = asyncHandler(async (req, res) => {
 
     // update customer address
     const updatedCustomer = await customerProfileModel.findOneAndUpdate(
-        { user_id: id, "addresses._id": address_id },
+        { user_id: id, "addresses._id": _id },
         {
             $set: {
                 "addresses.$": req.body
@@ -158,12 +158,45 @@ const updateAddresses = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         message: "Address Updated!",
-        data: updateAddresses.addresses
+        data: updatedCustomer
     })
 });
 
 // Add new address
 const addAddresses = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { label, street, city, is_default } = req.body;
+    
+    // check if customer is exist
+    const customer = await customerProfileModel.findOne({ user_id: id });
+    if(!customer) return res.status(400).json({
+        success: false,
+        message: 'Customer is not exist!'
+    })
+
+    // if check all required fields are filled
+    if(!label || !street || !city || !is_default) return res.status(400).json({
+        success: false,
+        message: 'label, street city and is_default fields are required!'
+    })
+
+     // Add customer address
+    const AddedCustomerAddress = await customerProfileModel.findOneAndUpdate(
+        { user_id: id },
+        {
+            $push: {
+                addresses: req.body
+            }
+        },
+        { runValidators: true, returnDocument: 'after' }
+    )
+
+    // get response
+    res.status(200).json({
+        success: true,
+        message: "Address Added!",
+        data: AddedCustomerAddress.addresses
+    })
 
 });
 

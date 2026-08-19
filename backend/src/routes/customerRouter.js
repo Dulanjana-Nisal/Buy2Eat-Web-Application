@@ -15,8 +15,8 @@ router.get('/:id', getSingleCustomer);
 router.patch('/:id', updateCustomer);
 
 // customer addresses routers
-router.patch('/', updateAddresses);
-router.post('/', addAddresses);
-router.delete('/', deleteAddress);
+router.patch('/addresses/:id', updateAddresses);
+router.post('/addresses/:id', addAddresses);
+router.delete('/addresses/:id', deleteAddress);
 
 module.exports = router;
