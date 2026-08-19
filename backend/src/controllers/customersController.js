@@ -136,7 +136,7 @@ const updateAddresses = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { _id } = req.body;
     
-    // check if customer is exist
+    // check if customer and address is exist
     const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": _id });
     if(!customer) return res.status(400).json({
         success: false,
@@ -202,7 +202,33 @@ const addAddresses = asyncHandler(async (req, res) => {
 
 // Delete address
 const deleteAddress = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { _id } = req.body;
+    
+    // check if customer and address is exist
+    const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": _id });
+    if(!customer) return res.status(400).json({
+        success: false,
+        message: 'Address is not exist!'
+    })
 
+    // delete customer address
+    const deleteExistingAddress = await customerProfileModel.findOneAndUpdate(
+        { user_id: id },
+        {
+            $pull: {
+                addresses: {_id: _id}
+            }
+        },
+        { runValidators: true, returnDocument: 'after' }
+    )
+
+    // get response
+    res.status(200).json({
+        success: true,
+        message: "Address Deleted!",
+        data: deleteExistingAddress
+    })
 });
 
 // ============== ========================= ==============
