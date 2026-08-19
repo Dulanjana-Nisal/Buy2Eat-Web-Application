@@ -2,6 +2,8 @@ const asyncHandler = require("../middleware/asyncHandler");
 const customerProfileModel = require("../models/customerProfileModel");
 const pagination = require("../utils/pagination");
 
+// ============== Main Customer Controllers ==============
+
 // get all customers with filters
 const getAllCustomers = asyncHandler(async (req, res) => {
     const { searchByName, phone } = req.query
@@ -125,8 +127,120 @@ const updateCustomer = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: 'Profile updated!', data: customerUpdate })
 });
 
+// ============== ========================= ==============
+
+// ============== Customer Addresses Controllers ==============
+
+// Update addresses
+const updateAddresses = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { _id } = req.body;
+    
+    // check if customer and address is exist
+    const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": _id });
+    if(!customer) return res.status(400).json({
+        success: false,
+        message: 'Address is not exist!'
+    })
+
+    // update customer address
+    const updatedCustomer = await customerProfileModel.findOneAndUpdate(
+        { user_id: id, "addresses._id": _id },
+        {
+            $set: {
+                "addresses.$": req.body
+            }
+        },
+        { runValidators: true, returnDocument: 'after' }
+    )
+
+    // get response
+    res.status(200).json({
+        success: true,
+        message: "Address Updated!",
+        data: updatedCustomer
+    })
+});
+
+// Add new address
+const addAddresses = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { label, street, city, is_default } = req.body;
+    
+    // check if customer is exist
+    const customer = await customerProfileModel.findOne({ user_id: id });
+    if(!customer) return res.status(400).json({
+        success: false,
+        message: 'Customer is not exist!'
+    })
+
+    // if check all required fields are filled
+    if(!label || !street || !city || !is_default) return res.status(400).json({
+        success: false,
+        message: 'label, street city and is_default fields are required!'
+    })
+
+     // Add customer address
+    const AddedCustomerAddress = await customerProfileModel.findOneAndUpdate(
+        { user_id: id },
+        {
+            $push: {
+                addresses: req.body
+            }
+        },
+        { runValidators: true, returnDocument: 'after' }
+    )
+
+    // get response
+    res.status(200).json({
+        success: true,
+        message: "Address Added!",
+        data: AddedCustomerAddress.addresses
+    })
+
+});
+
+// Delete address
+const deleteAddress = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { _id } = req.body;
+    
+    // check if customer and address is exist
+    const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": _id });
+    if(!customer) return res.status(400).json({
+        success: false,
+        message: 'Address is not exist!'
+    })
+
+    // delete customer address
+    const deleteExistingAddress = await customerProfileModel.findOneAndUpdate(
+        { user_id: id },
+        {
+            $pull: {
+                addresses: {_id: _id}
+            }
+        },
+        { runValidators: true, returnDocument: 'after' }
+    )
+
+    // get response
+    res.status(200).json({
+        success: true,
+        message: "Address Deleted!",
+        data: deleteExistingAddress
+    })
+});
+
+// ============== ========================= ==============
+
 module.exports = {
+    // main
     getAllCustomers,
     getSingleCustomer,
     updateCustomer,
+
+    // addresses
+    updateAddresses,
+    addAddresses,
+    deleteAddress,
 }
