@@ -133,7 +133,33 @@ const updateCustomer = asyncHandler(async (req, res) => {
 
 // Update addresses
 const updateAddresses = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { address_id } = req.body;
+    
+    // check if customer is exist
+    const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": address_id });
+    if(!customer) return res.status(400).json({
+        success: false,
+        message: 'Address is not exist!'
+    })
 
+    // update customer address
+    const updatedCustomer = await customerProfileModel.findOneAndUpdate(
+        { user_id: id, "addresses._id": address_id },
+        {
+            $set: {
+                "addresses.$": req.body
+            }
+        },
+        { runValidators: true, returnDocument: 'after' }
+    )
+
+    // get response
+    res.status(200).json({
+        success: true,
+        message: "Address Updated!",
+        data: updateAddresses.addresses
+    })
 });
 
 // Add new address
