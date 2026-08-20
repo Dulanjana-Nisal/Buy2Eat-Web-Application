@@ -5,7 +5,9 @@ const {
     updateCustomer,
     updateAddresses,
     addAddresses,
-    deleteAddress
+    deleteAddress,
+    addFavShops,
+    deleteFavShops
 } = require('../controllers/customersController');
 const router = express.Router();
 
@@ -18,5 +20,9 @@ router.patch('/:id', updateCustomer);
 router.patch('/addresses/:id', updateAddresses);
 router.post('/addresses/:id', addAddresses);
 router.delete('/addresses/:id', deleteAddress);
+
+// customer shops routers
+router.push('/shops/:id', addFavShops);
+router.delete('/shops/:id', deleteFavShops);
 
 module.exports = router;
