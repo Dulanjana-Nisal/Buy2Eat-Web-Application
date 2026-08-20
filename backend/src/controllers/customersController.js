@@ -276,21 +276,21 @@ const addFavShops = asyncHandler(async (req, res) => {
 // Delete address
 const deleteFavShops = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { _id } = req.body;
+    const { shop_id } = req.body;
     
-    // check if customer and address is exist
-    const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": _id });
+    // check if customer and Shop is exist
+    const customer = await customerProfileModel.findOne({ user_id: id, "favorite_shops.shop_id": shop_id });
     if(!customer) return res.status(400).json({
         success: false,
-        message: 'Address is not exist!'
+        message: 'Shop is not exist!'
     })
 
     // delete customer address
-    const deleteExistingAddress = await customerProfileModel.findOneAndUpdate(
+    const deleteExistingShop = await customerProfileModel.findOneAndUpdate(
         { user_id: id },
         {
             $pull: {
-                addresses: {_id: _id}
+                favorite_shops: {shop_id: shop_id}
             }
         },
         { runValidators: true, returnDocument: 'after' }
@@ -299,8 +299,8 @@ const deleteFavShops = asyncHandler(async (req, res) => {
     // get response
     res.status(200).json({
         success: true,
-        message: "Address Deleted!",
-        data: deleteExistingAddress
+        message: "Shop Deleted!",
+        data: deleteExistingShop
     })
 });
 
