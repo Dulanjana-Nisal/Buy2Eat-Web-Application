@@ -1,5 +1,6 @@
 const asyncHandler = require("../middleware/asyncHandler");
 const customerProfileModel = require("../models/customerProfileModel");
+const shopModel = require("../models/shopModel");
 const pagination = require("../utils/pagination");
 
 // ============== Main Customer Controllers ==============
@@ -238,37 +239,36 @@ const deleteAddress = asyncHandler(async (req, res) => {
 // Add new address
 const addFavShops = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { label, street, city, is_default } = req.body;
+    const { shop_id } = req.body;
     
-    // check if customer is exist
+    // check if customer and shop is exist
     const customer = await customerProfileModel.findOne({ user_id: id });
+    const shop = await shopModel.findOne({ _id: shop_id });
+
     if(!customer) return res.status(400).json({
         success: false,
         message: 'Customer is not exist!'
     })
 
-    // if check all required fields are filled
-    if(!label || !street || !city || !is_default) return res.status(400).json({
+    if(!shop) return res.status(400).json({
         success: false,
-        message: 'label, street city and is_default fields are required!'
+        message: 'Shop is not exist!'
     })
 
-     // Add customer address
-    const AddedCustomerAddress = await customerProfileModel.findOneAndUpdate(
+     // Add customer Shop
+    const AddedCustomerShop = await customerProfileModel.findOneAndUpdate(
         { user_id: id },
         {
-            $push: {
-                addresses: req.body
-            }
+            $addToSet: { favorite_shops: { shop_id } }
         },
         { runValidators: true, returnDocument: 'after' }
-    )
+    ).populate("favorite_shops.shop_id");
 
     // get response
     res.status(200).json({
         success: true,
-        message: "Address Added!",
-        data: AddedCustomerAddress.addresses
+        message: "Shop Added!",
+        data: AddedCustomerShop.favorite_shops
     })
 
 });

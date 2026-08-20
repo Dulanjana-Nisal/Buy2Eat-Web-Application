@@ -22,7 +22,7 @@ router.post('/addresses/:id', addAddresses);
 router.delete('/addresses/:id', deleteAddress);
 
 // customer shops routers
-router.push('/shops/:id', addFavShops);
+router.post('/shops/:id', addFavShops);
 router.delete('/shops/:id', deleteFavShops);
 
 module.exports = router;

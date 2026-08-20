@@ -23,6 +23,11 @@ const addressesModel = mongoose.Schema({
 
 // favoriteShopsModel Schema
 const favoriteShopsModel = mongoose.Schema({
+    shop_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Shops',
+        required: [true, 'shop_id is required!']
+    },
     shop_name: {
         type: String,
         required: [true, 'Shop name is required!']
@@ -42,6 +47,11 @@ const favoriteShopsModel = mongoose.Schema({
 
 // favoriteFoodsModel Schema
 const favoriteFoodsModel = mongoose.Schema({
+    food_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Foods',
+        required: [true, 'food_id is required!']
+    },
     name: {
         type: String,
         required: [true, 'Food must have a name!']
