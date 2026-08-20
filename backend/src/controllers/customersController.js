@@ -236,13 +236,13 @@ const deleteAddress = asyncHandler(async (req, res) => {
 
 // ============== Customer Shops Controllers ==============
 
-// Add new address
+// Add new shops
 const addFavShops = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { _id } = req.user;
     const { shop_id } = req.body;
     
     // check if customer and shop is exist
-    const customer = await customerProfileModel.findOne({ user_id: id });
+    const customer = await customerProfileModel.findOne({ user_id: _id });
     const shop = await shopModel.findOne({ _id: shop_id });
 
     if(!customer) return res.status(400).json({
@@ -266,7 +266,7 @@ const addFavShops = asyncHandler(async (req, res) => {
 
      // Add customer Shop
     const addedCustomerShop = await customerProfileModel.findOneAndUpdate(
-        { user_id: id, 'favorite_shops.shop_id': { $ne: shop._id } },
+        { user_id: _id, 'favorite_shops.shop_id': { $ne: shop._id } },
         { $addToSet: { favorite_shops: favoriteShop }},
         { runValidators: true, returnDocument: 'after' }
     );
@@ -286,13 +286,13 @@ const addFavShops = asyncHandler(async (req, res) => {
 
 });
 
-// Delete address
+// Delete shops
 const deleteFavShops = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { _id } = req.user;
     const { shop_id } = req.body;
     
     // check if customer and Shop is exist
-    const customer = await customerProfileModel.findOne({ user_id: id, "favorite_shops.shop_id": shop_id });
+    const customer = await customerProfileModel.findOne({ user_id: _id, "favorite_shops.shop_id": shop_id });
     if(!customer) return res.status(400).json({
         success: false,
         message: 'Shop is not exist!'
@@ -300,7 +300,7 @@ const deleteFavShops = asyncHandler(async (req, res) => {
 
     // delete customer address
     const deleteExistingShop = await customerProfileModel.findOneAndUpdate(
-        { user_id: id },
+        { user_id: _id },
         {
             $pull: {
                 favorite_shops: {shop_id: shop_id}

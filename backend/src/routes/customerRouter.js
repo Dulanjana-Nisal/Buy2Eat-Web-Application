@@ -9,6 +9,7 @@ const {
     addFavShops,
     deleteFavShops
 } = require('../controllers/customersController');
+const authenticationMiddleware = require('../middleware/authenticationMiddleware');
 const router = express.Router();
 
 // main customer routers
@@ -22,7 +23,7 @@ router.post('/addresses/:id', addAddresses);
 router.delete('/addresses/:id', deleteAddress);
 
 // customer shops routers
-router.post('/shops/:id', addFavShops);
-router.delete('/shops/:id', deleteFavShops);
+router.post('/shops/', authenticationMiddleware, addFavShops);
+router.delete('/shops/',authenticationMiddleware, deleteFavShops);
 
 module.exports = router;
