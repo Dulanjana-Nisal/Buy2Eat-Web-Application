@@ -255,12 +255,26 @@ const addFavShops = asyncHandler(async (req, res) => {
         message: 'Shop is not exist!'
     })
 
+    const favoriteShop = {
+        shop_id: shop_id,
+        seller_id: shop.seller_id,
+        shop_name: shop.shop_name,
+        logo_image: shop.logo_image,
+        location: shop.location,
+        description: shop.description
+    }
+
      // Add customer Shop
     const addedCustomerShop = await customerProfileModel.findOneAndUpdate(
-        { user_id: id },
-        { $addToSet: { favorite_shops: [{...shop, shop_id: shop_id}] }},
+        { user_id: id, 'favorite_shops.shop_id': { $ne: shop._id } },
+        { $addToSet: { favorite_shops: favoriteShop }},
         { runValidators: true, returnDocument: 'after' }
     );
+
+    if (!addedCustomerShop) return res.status(400).json({
+        success: false,
+        message: 'Shop is already in favorites!'
+    })
 
     // get response
     res.status(200).json({

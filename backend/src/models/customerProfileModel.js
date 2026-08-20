@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validateCoordinates = require('../utils/coordinateValidator');
 
 // addressesModel Schema 
 const addressesModel = mongoose.Schema({
@@ -26,8 +27,7 @@ const favoriteShopsModel = mongoose.Schema({
     shop_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Shops',
-        required: [true, 'shop_id is required!'],
-        unique: true
+        required: [true, 'shop_id is required!']
     },
     seller_id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -49,7 +49,11 @@ const favoriteShopsModel = mongoose.Schema({
         },
         coordinates: {
             type: [Number], // [longitude, latitude]
-            required: true
+            required: true,
+            validate: {
+                validator: validateCoordinates,
+                message: 'Coordinates must be [longitude, latitude] or [longitude, latitude, altitude] with valid ranges!'
+            }
         }
     },
     description: {
