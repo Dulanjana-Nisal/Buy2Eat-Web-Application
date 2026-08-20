@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // foodsModel Schema
-const foodsModel = mongoose.Schema({
+const foodListModel = mongoose.Schema({
     name: {
         type: String,
         required: [true, 'Food must have a name!']
@@ -49,7 +49,7 @@ const foodMenuModel = mongoose.Schema({
         minlength: [3, 'Description must have more than 3 letters!'],
         required: [true, 'Description is required!']
     },
-    foods: [foodsModel],
+    foods: [foodListModel],
     meal_type: {
         type: String,
         required: [true, 'meal_type is required!'],

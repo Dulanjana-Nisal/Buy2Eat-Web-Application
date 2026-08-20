@@ -5,8 +5,11 @@ const {
     updateCustomer,
     updateAddresses,
     addAddresses,
-    deleteAddress
+    deleteAddress,
+    addFavShops,
+    deleteFavShops
 } = require('../controllers/customersController');
+const authenticationMiddleware = require('../middleware/authenticationMiddleware');
 const router = express.Router();
 
 // main customer routers
@@ -18,5 +21,9 @@ router.patch('/:id', updateCustomer);
 router.patch('/addresses/:id', updateAddresses);
 router.post('/addresses/:id', addAddresses);
 router.delete('/addresses/:id', deleteAddress);
+
+// customer shops routers
+router.post('/shops/', authenticationMiddleware, addFavShops);
+router.delete('/shops/',authenticationMiddleware, deleteFavShops);
 
 module.exports = router;

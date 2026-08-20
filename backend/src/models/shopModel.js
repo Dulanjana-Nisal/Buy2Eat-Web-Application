@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validateCoordinates = require('../utils/coordinateValidator');
 
 // shopsModel Schema
 const shopsModel = mongoose.Schema({
@@ -17,8 +18,19 @@ const shopsModel = mongoose.Schema({
         required: [true, 'Address is required!'],
     },
     location: {
-        type: String,
-        required: [true, 'Location is required!']
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point"
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            required: true,
+            validate: {
+                validator: validateCoordinates,
+                message: 'Coordinates must be [longitude, latitude] or [longitude, latitude, altitude] with valid ranges!'
+            }
+        }
     },
     open_time: {
         type: Date,

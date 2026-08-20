@@ -1,5 +1,6 @@
 const asyncHandler = require("../middleware/asyncHandler");
 const customerProfileModel = require("../models/customerProfileModel");
+const shopModel = require("../models/shopModel");
 const pagination = require("../utils/pagination");
 
 // ============== Main Customer Controllers ==============
@@ -233,6 +234,92 @@ const deleteAddress = asyncHandler(async (req, res) => {
 
 // ============== ========================= ==============
 
+// ============== Customer Shops Controllers ==============
+
+// Add new shops
+const addFavShops = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    const { shop_id } = req.body;
+    
+    // check if customer and shop is exist
+    const customer = await customerProfileModel.findOne({ user_id: _id });
+    const shop = await shopModel.findOne({ _id: shop_id });
+
+    if(!customer) return res.status(400).json({
+        success: false,
+        message: 'Customer is not exist!'
+    })
+
+    if(!shop) return res.status(400).json({
+        success: false,
+        message: 'Shop is not exist!'
+    })
+
+    const favoriteShop = {
+        shop_id: shop_id,
+        seller_id: shop.seller_id,
+        shop_name: shop.shop_name,
+        logo_image: shop.logo_image,
+        location: shop.location,
+        description: shop.description
+    }
+
+     // Add customer Shop
+    const addedCustomerShop = await customerProfileModel.findOneAndUpdate(
+        { user_id: _id, 'favorite_shops.shop_id': { $ne: shop._id } },
+        { $addToSet: { favorite_shops: favoriteShop }},
+        { runValidators: true, returnDocument: 'after' }
+    );
+
+    if (!addedCustomerShop) return res.status(400).json({
+        success: false,
+        message: 'Shop is already in favorites!'
+    })
+
+    // get response
+    res.status(200).json({
+        success: true,
+        message: "Shop Added!",
+        shops_count: (addedCustomerShop.favorite_shops).length,
+        data: addedCustomerShop.favorite_shops
+    })
+
+});
+
+// Delete shops
+const deleteFavShops = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    const { shop_id } = req.body;
+    
+    // check if customer and Shop is exist
+    const customer = await customerProfileModel.findOne({ user_id: _id, "favorite_shops.shop_id": shop_id });
+    if(!customer) return res.status(400).json({
+        success: false,
+        message: 'Shop is not exist!'
+    })
+
+    // delete customer address
+    const deleteExistingShop = await customerProfileModel.findOneAndUpdate(
+        { user_id: _id },
+        {
+            $pull: {
+                favorite_shops: {shop_id: shop_id}
+            }
+        },
+        { runValidators: true, returnDocument: 'after' }
+    )
+
+    // get response
+    res.status(200).json({
+        success: true,
+        message: "Shop Deleted!",
+        shops_count: (deleteExistingShop.favorite_shops).length,
+        data: deleteExistingShop.favorite_shops
+    })
+});
+
+// ============== ========================= ==============
+
 module.exports = {
     // main
     getAllCustomers,
@@ -243,4 +330,8 @@ module.exports = {
     updateAddresses,
     addAddresses,
     deleteAddress,
+
+    // shops
+    addFavShops,
+    deleteFavShops,
 }
