@@ -17,8 +17,15 @@ const shopsModel = mongoose.Schema({
         required: [true, 'Address is required!'],
     },
     location: {
-        type: String,
-        required: [true, 'Location is required!']
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point"
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            required: true
+        }
     },
     open_time: {
         type: Date,

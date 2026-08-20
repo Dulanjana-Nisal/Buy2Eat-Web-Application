@@ -26,22 +26,36 @@ const favoriteShopsModel = mongoose.Schema({
     shop_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Shops',
-        required: [true, 'shop_id is required!']
+        required: [true, 'shop_id is required!'],
+        unique: true
+    },
+    seller_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: [true, 'seller_id is required'],
+        ref: 'SellerProfile'
     },
     shop_name: {
         type: String,
         required: [true, 'Shop name is required!']
     },
-    is_open: {
-        type: Boolean,
-        required: [true, 'is_open value is required!']
-    },
     logo_image: {
         type: String
     },
     location: {
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point"
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            required: true
+        }
+    },
+    description: {
         type: String,
-        required: [true, 'Location is required!']
+        minlength: [3, 'Description must have more than 3 letters!'],
+        required: [true, 'Description is required!']
     }
 })
 
@@ -64,7 +78,7 @@ const favoriteFoodsModel = mongoose.Schema({
 
 // customerProfileModel Schema
 const customerProfileModel = mongoose.Schema({
-    user_id : {
+    user_id: {
         type: mongoose.Schema.Types.ObjectId,
         required: [true, 'user_id is required!'],
         ref: 'Users'

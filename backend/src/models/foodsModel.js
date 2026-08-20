@@ -9,6 +9,7 @@ const foodsModel = mongoose.Schema({
     },
     seller_id: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
         required: [true, 'seller_id is required!']
     },
     description: {
@@ -30,6 +31,11 @@ const foodsModel = mongoose.Schema({
     availability: {
         type: Boolean,
         required: [true, 'availability is required!']
+    },
+    ratings: {
+        type: Number,
+        default: 0,
+        maxlength: [5, 'Ratings must be lower than 5']
     },
     price: {
         type: Number,

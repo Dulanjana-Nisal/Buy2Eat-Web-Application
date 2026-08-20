@@ -256,19 +256,18 @@ const addFavShops = asyncHandler(async (req, res) => {
     })
 
      // Add customer Shop
-    const AddedCustomerShop = await customerProfileModel.findOneAndUpdate(
+    const addedCustomerShop = await customerProfileModel.findOneAndUpdate(
         { user_id: id },
-        {
-            $addToSet: { favorite_shops: { shop_id } }
-        },
+        { $addToSet: { favorite_shops: [{...shop, shop_id: shop_id}] }},
         { runValidators: true, returnDocument: 'after' }
-    ).populate("favorite_shops.shop_id");
+    );
 
     // get response
     res.status(200).json({
         success: true,
         message: "Shop Added!",
-        data: AddedCustomerShop.favorite_shops
+        shops_count: (addedCustomerShop.favorite_shops).length,
+        data: addedCustomerShop.favorite_shops
     })
 
 });
@@ -300,7 +299,8 @@ const deleteFavShops = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         message: "Shop Deleted!",
-        data: deleteExistingShop
+        shops_count: (deleteExistingShop.favorite_shops).length,
+        data: deleteExistingShop.favorite_shops
     })
 });
 
