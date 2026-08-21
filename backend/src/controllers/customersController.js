@@ -364,7 +364,7 @@ const addFavFoods = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         message: "Food Added!",
-        shops_count: (addedCustomerFood.favorite_foods).length,
+        food_count: (addedCustomerFood.favorite_foods).length,
         data: addedCustomerFood.favorite_foods
     })
 
