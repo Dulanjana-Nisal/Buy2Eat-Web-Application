@@ -235,7 +235,7 @@ const deleteAddress = asyncHandler(async (req, res) => {
 
 // ============== ========================= ==============
 
-// ============== Customer Shops Controllers ==============
+// ============== Customer Favorite Shops Controllers ==============
 
 // Add new shops
 const addFavShops = asyncHandler(async (req, res) => {
@@ -299,7 +299,7 @@ const deleteFavShops = asyncHandler(async (req, res) => {
         message: 'Shop is not exist!'
     })
 
-    // delete customer address
+    // delete customer Shop
     const deleteExistingShop = await customerProfileModel.findOneAndUpdate(
         { user_id: _id },
         {
@@ -321,8 +321,9 @@ const deleteFavShops = asyncHandler(async (req, res) => {
 
 // ============== ========================= ==============
 
+// ============== Customer Favorite Foods Controllers ==============
 
-// Add new shops
+// Add new Foods
 const addFavFoods = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     const { food_id } = req.body;
@@ -369,24 +370,24 @@ const addFavFoods = asyncHandler(async (req, res) => {
 
 });
 
-// Delete shops
+// Delete Foods
 const deleteFavFoods = asyncHandler(async (req, res) => {
     const { _id } = req.user;
-    const { shop_id } = req.body;
+    const { food_id } = req.body;
     
-    // check if customer and Shop is exist
-    const customer = await customerProfileModel.findOne({ user_id: _id, "favorite_shops.shop_id": shop_id });
+    // check if customer and Food is exist
+    const customer = await customerProfileModel.findOne({ user_id: _id, "favorite_foods.food_id": food_id });
     if(!customer) return res.status(400).json({
         success: false,
-        message: 'Shop is not exist!'
+        message: 'Food is not exist!'
     })
 
-    // delete customer address
-    const deleteExistingShop = await customerProfileModel.findOneAndUpdate(
+    // delete customer Food
+    const deleteExistingFood = await customerProfileModel.findOneAndUpdate(
         { user_id: _id },
         {
             $pull: {
-                favorite_shops: {shop_id: shop_id}
+                favorite_foods: { food_id: food_id }
             }
         },
         { runValidators: true, returnDocument: 'after' }
@@ -395,9 +396,9 @@ const deleteFavFoods = asyncHandler(async (req, res) => {
     // get response
     res.status(200).json({
         success: true,
-        message: "Shop Deleted!",
-        shops_count: (deleteExistingShop.favorite_shops).length,
-        data: deleteExistingShop.favorite_shops
+        message: "Food Deleted!",
+        shops_count: (deleteExistingFood.favorite_foods).length,
+        data: deleteExistingFood.favorite_foods
     })
 });
 
