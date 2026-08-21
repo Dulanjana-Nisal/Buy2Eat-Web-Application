@@ -30,9 +30,15 @@ const sellerProfileModel = mongoose.Schema({
         default: 0,
         maxlength: [5, 'Ratings must be lower than 5']
     },
-    rank: {
+    selling_rank: {
         type: String,
-        enum: ['new-seller', 'verified-seller', 'rising-seller', 'top-seller', 'elite-seller']
+        enum: ['new-seller', 'verified-seller', 'rising-seller', 'top-seller', 'elite-seller'],
+        default: 'new-seller'
+    },
+    food_quality_rank: {
+        type: String,
+        enum: ['do-not-serve', 'health-watch', 'fresh-start', 'kitchen-certified', "chef's-choice"],
+        default: 'fresh-start' 
     }
 })
 
