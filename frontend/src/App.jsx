@@ -1,5 +1,4 @@
-import './App.css'
-import LoginPage from './Pages/authentication/LoginPage'
+import LoginPage from './features/auth/pages/LoginPage'
 
 function App() {
   return (
