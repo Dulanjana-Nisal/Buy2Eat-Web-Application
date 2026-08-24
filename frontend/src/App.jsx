@@ -1,9 +1,10 @@
 import './App.css'
+import LoginPage from './Pages/authentication/LoginPage'
 
 function App() {
   return (
     <>
-      <h1>React App</h1>
+      <LoginPage />
     </>
   )
 }
