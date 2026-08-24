@@ -1,0 +1,27 @@
+/* =========================================================
+GLOBAL THEME TRANSITION
+========================================================= */
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+   color-scheme: light;
+}
+
+html[data-theme="dark"] {
+   color-scheme: dark;
+}
+
+body {
+   background: var(--color-bg);
+   color: var(--color-text-primary);
+   font-family: var(--font-family);
+
+   transition:
+      background-color var(--transition-normal),
+      color var(--transition-normal);
+}
