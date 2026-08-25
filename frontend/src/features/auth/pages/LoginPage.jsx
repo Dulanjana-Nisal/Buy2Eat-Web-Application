@@ -1,11 +1,13 @@
 import styles from './LoginPage.module.css';
-import login_background from '../../../assets/images/login.svg';
+import login_background from '../../../assets/images/login-background.avif';
+import small_meal_dish from '../../../assets/images/small-meal-dish.webp';
+import small_mint_leaf from '../../../assets/images/mint-leaf.png';
 
 function LoginPage() {
     return (
         <>
             <header>
-                Header
+                {/* Header */}
             </header>
             <div className={styles.section}>
                 <div className={styles.container}>
@@ -14,7 +16,7 @@ function LoginPage() {
                         <div className={styles.formContainer}>
 
                             <h1 className={styles.title}>
-                                Good food is just <br />
+                                Great food is just <br />
                                 <span className={styles.highlight}>one tap away.</span>
                             </h1>
 
@@ -35,7 +37,7 @@ function LoginPage() {
                             </div>
 
                             <div className={styles.divider}>
-                                <span>or sign in with email</span>
+                                <span>Or sign in with email</span>
                             </div>
 
                             <form className={styles.form}>
@@ -62,7 +64,7 @@ function LoginPage() {
 
                                 <div className={styles.checkboxGroup}>
                                     <input type="checkbox" id="remember" />
-                                    <label htmlFor="remember">Remember me for 30 days</label>
+                                    <label htmlFor="remember">Remember me </label>
                                 </div>
 
                                 <button type="submit" className={styles.submitButton}>
@@ -74,6 +76,8 @@ function LoginPage() {
                                 New to Buy2Eat? <a href="#">Create an account</a>
                             </p>
                         </div>
+                        <img src={small_meal_dish} className={styles.subMealImage} alt="su" />
+                        <img src={small_mint_leaf} className={styles.subLeafImage} alt="su" />
                     </div>
 
                     {/* Right Panel - Image & Widgets */}
