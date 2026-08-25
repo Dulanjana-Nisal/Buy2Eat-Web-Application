@@ -37,7 +37,7 @@
 
     --color-surface: #ffffff;
     --color-surface-hover: #fafafa;
-    --color-surface-active: #f8fafc;
+    --color-surface-active: #f8f8f8;
     --color-surface-raised: #ffffff;
 
 
@@ -172,7 +172,7 @@
      TYPOGRAPHY
      ======================================================= */
 
-    --font-family: "Nunito Sans", sans-serif;
+    --font-family: "Nunito", sans-serif;
     --font-family-baby: "Oooh Baby", cursive;
 
     --font-size-xs: 0.75rem;

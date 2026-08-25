@@ -2,18 +2,23 @@
 .section {
     width: 100%;
     height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface-active);
 }
 
 .container {
-    width: 75%;
+    width: 70%;
+    height: 90%;
     display: flex;
-    height: 80%;
     justify-content: center;
     align-items: center;
     margin: auto;
-    min-height: 100vh;
-    color: var(--color-text-primary);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    background-color: var(--color-surface);
+    padding: 2rem;
 }
 
 /* Left Panel */
@@ -22,8 +27,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--color-primary-light);
-    padding: 2rem;
 }
 
 .formContainer {
@@ -39,11 +42,11 @@
 }
 
 .title {
-    font-size: 3rem;
+    font-size: var(--font-size-4xl);
     line-height: 1.1;
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-semibold);
     margin-bottom: 12px;
-    color: #1a1a1a;
+    color: var(--color-text-primary);
 }
 
 .highlight {
@@ -53,8 +56,8 @@
 }
 
 .subtitle {
-    color: #666;
-    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
     line-height: 1.5;
     margin-bottom: 30px;
 }
@@ -67,23 +70,26 @@
 }
 
 .socialButton {
+    font-family: var(--font-family);
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     padding: 10px;
-    background-color: white;
-    border: 1px solid #e5e5e5;
+    background-color: var(--color-surface-hover);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
-    transition: background-color 0.2s;
+    color: var(--color-text-primary);
+    transition: background-color var(--transition-normal);
 }
 
 .socialButton:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-surface-active);
+    color: var(--color-text-primary);
 }
 
 /* Divider */
@@ -92,15 +98,15 @@
     align-items: center;
     text-align: center;
     margin-bottom: 24px;
-    color: #999;
-    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
 }
 
 .divider::before,
 .divider::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--color-text-disabled);
 }
 
 .divider span {
@@ -122,25 +128,25 @@
 
 .inputGroup label {
     font-size: 0.85rem;
-    font-weight: 600;
-    color: #333;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
 }
 
 .inputGroup input[type="email"],
 .passwordInputContainer input {
     width: 100%;
     padding: 12px 16px;
-    background-color: #f5f5f5;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    background-color: var(--color-surface-active);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
     box-sizing: border-box;
     outline: none;
+    font-family: var(--font-family);
 }
 
 .inputGroup input:focus {
-    border-color: #f97316;
-    background-color: white;
+    border-color: var(--color-primary);
 }
 
 .passwordHeader {
@@ -150,8 +156,9 @@
 }
 
 .forgotPassword {
-    font-size: 0.8rem;
-    color: #f97316;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
     text-decoration: none;
 }
 
@@ -166,7 +173,7 @@
     right: 12px;
     background: none;
     border: none;
-    color: #999;
+    color: var(--color-text-muted);
     cursor: pointer;
     display: flex;
 }
@@ -179,44 +186,45 @@
 }
 
 .checkboxGroup label {
-    font-size: 0.85rem;
-    color: #666;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
 }
 
 .checkboxGroup input[type="checkbox"] {
-    accent-color: #f97316;
+    accent-color: var(--color-primary);
 }
 
 .submitButton {
-    background-color: #f97316;
-    color: white;
+    font-family: var(--font-family);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
     border: none;
     padding: 14px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-normal);
 }
 
 .submitButton:hover {
-    background-color: #ea580c;
+    background-color: var(--color-primary-hover);
 }
 
 .footerText {
     text-align: center;
     margin-top: 24px;
-    font-size: 0.9rem;
-    color: #666;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
 }
 
 .footerText a {
-    color: #f97316;
-    font-weight: 600;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-semibold);
     text-decoration: none;
 }
 
@@ -224,12 +232,14 @@
 /* Right Panel */
 .rightPanel {
     flex: 1;
-    /* Replace with your actual food image URL */
-    background: url('https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=2000&auto=format&fit=crop') center/cover no-parallax;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    padding-left: 2rem;
+}
+
+.rightPanel img{
+    width: 100%;
+    object-fit: fill;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .topBadges {
@@ -321,7 +331,7 @@
     justify-content: center;
     font-size: 1rem;
     font-weight: 600;
-    color: #f97316;
+    color: var(--color-primary);
     border: 1px solid #fde6d5;
 }
 

@@ -4,7 +4,10 @@ import login_background from '../../../assets/images/login.svg';
 function LoginPage() {
     return (
         <>
-            <div className='section'>
+            <header>
+                Header
+            </header>
+            <div className={styles.section}>
                 <div className={styles.container}>
                     {/* Left Panel - Login Form */}
                     <div className={styles.leftPanel}>
@@ -63,18 +66,18 @@ function LoginPage() {
                                 </div>
 
                                 <button type="submit" className={styles.submitButton}>
-                                    Sign in <span>&rarr;</span>
+                                    <p>Login</p> <span>&rarr;</span>
                                 </button>
                             </form>
 
                             <p className={styles.footerText}>
-                                New to Savori? <a href="#">Create an account</a>
+                                New to Buy2Eat? <a href="#">Create an account</a>
                             </p>
                         </div>
                     </div>
 
                     {/* Right Panel - Image & Widgets */}
-                    <div className={styles.rightPanel}>
+                    <div className={styles.rightPanel}> 
                         <img src={login_background} alt="login_background" />
                     </div>
                 </div>
