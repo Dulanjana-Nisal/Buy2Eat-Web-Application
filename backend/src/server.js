@@ -2,7 +2,7 @@ const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const connectDatabase = require('./databases/db');
-const { PORT } = require('./config/env');
+const { PORT, CLIENT_URL } = require('./config/env');
 const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 const cookieParser = require("cookie-parser");
 
@@ -15,7 +15,7 @@ const app = express();
 
 // middlewares
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: CLIENT_URL,
   credentials: true
 }));
 app.use(express.json());
