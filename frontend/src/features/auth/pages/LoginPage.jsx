@@ -2,8 +2,13 @@ import styles from './LoginPage.module.css';
 import login_background from '../../../assets/images/login-background.avif';
 import small_meal_dish from '../../../assets/images/small-meal-dish.webp';
 import small_mint_leaf from '../../../assets/images/mint-leaf.png';
+import { useState } from 'react';
 
 function LoginPage() {
+
+    // useStates hooks
+    const [hidePassword, setHidePassword] = useState(true)
+
     return (
         <>
             <header>
@@ -52,13 +57,22 @@ function LoginPage() {
                                         <a href="#" className={styles.forgotPassword}>Forgot password?</a>
                                     </div>
                                     <div className={styles.passwordInputContainer}>
-                                        <input type="password" id="password" placeholder="Enter your password" />
-                                        <button type="button" className={styles.eyeIcon}>
+                                        <input type={hidePassword ? "password" : "text"} id="password" placeholder="Enter your password" />
+                                        <button type="button" className={styles.eyeIcon} onClick={() => setHidePassword(!hidePassword)}>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                                 <circle cx="12" cy="12" r="3"></circle>
                                             </svg>
                                         </button>
+                                        {
+                                            !hidePassword &&
+                                            <button type="button" className={styles.eyeIcon}  onClick={() => setHidePassword(!hidePassword)}>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <path d="M3 3l18 18"></path>
+                                                </svg>
+                                            </button>
+                                        }
                                     </div>
                                 </div>
 
@@ -81,7 +95,7 @@ function LoginPage() {
                     </div>
 
                     {/* Right Panel - Image & Widgets */}
-                    <div className={styles.rightPanel}> 
+                    <div className={styles.rightPanel}>
                         <img src={login_background} alt="login_background" />
                     </div>
                 </div>
