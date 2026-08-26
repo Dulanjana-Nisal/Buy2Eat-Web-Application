@@ -223,8 +223,28 @@
     background-color: var(--color-primary-hover);
 }
 
-.submitButton:focus{
+.submitButton:active{
     background-color: var(--color-primary-active);
+}
+
+.submitButton:disabled {
+    cursor: wait;
+    opacity: 0.85;
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .footerText {

@@ -3,11 +3,48 @@ import login_background from '../../../assets/images/login-background.avif';
 import small_meal_dish from '../../../assets/images/small-meal-dish.webp';
 import small_mint_leaf from '../../../assets/images/mint-leaf.png';
 import { useState } from 'react';
+import axios from 'axios';
 
 function LoginPage() {
 
     // useStates hooks
-    const [hidePassword, setHidePassword] = useState(true)
+    const [hidePassword, setHidePassword] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [loginDetails, setLoginDetails] = useState({"email":"", "password": ""});
+
+    // user login function 
+    const userLogin = async (e) => {
+        e.preventDefault();
+
+        // call backend user login api
+        try {
+            setLoading(true);
+            const login = await axios.post(
+                'http://localhost:5000/api/v1/buy2eat/auth/login', 
+                loginDetails, 
+                { withCredentials: true }
+            );
+
+            // save token in localstorage
+            localStorage.setItem("accessToken", login.data.accessToken);
+            localStorage.setItem("user", JSON.stringify(login.data.user))
+            
+            // Remove login details
+            setLoginDetails({
+                email: '',
+                password: '',
+            })
+
+
+            console.log(login.data)
+        }
+        catch (err) {
+            console.log(err?.response.data);
+        }
+        finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <>
@@ -48,7 +85,12 @@ function LoginPage() {
                             <form className={styles.form}>
                                 <div className={styles.inputGroup}>
                                     <label htmlFor="email">Email address</label>
-                                    <input type="email" id="email" placeholder="you@example.com" />
+                                    <input 
+                                        type="email" id="email"
+                                        placeholder="you@example.com" 
+                                        value={loginDetails.email}
+                                        onChange={(e) => setLoginDetails({...loginDetails, email: e.target.value})}
+                                    />
                                 </div>
 
                                 <div className={styles.inputGroup}>
@@ -57,7 +99,13 @@ function LoginPage() {
                                         <a href="#" className={styles.forgotPassword}>Forgot password?</a>
                                     </div>
                                     <div className={styles.passwordInputContainer}>
-                                        <input type={hidePassword ? "password" : "text"} id="password" placeholder="Enter your password" />
+                                        <input 
+                                            type={hidePassword ? "password" : "text"} 
+                                            id="password" 
+                                            value={loginDetails.password}
+                                            placeholder="Enter your password"
+                                            onChange={(e) => setLoginDetails({...loginDetails, password: e.target.value})}
+                                        />
                                         <button type="button" className={styles.eyeIcon} onClick={() => setHidePassword(!hidePassword)}>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -66,7 +114,7 @@ function LoginPage() {
                                         </button>
                                         {
                                             !hidePassword &&
-                                            <button type="button" className={styles.eyeIcon}  onClick={() => setHidePassword(!hidePassword)}>
+                                            <button type="button" className={styles.eyeIcon} onClick={() => setHidePassword(!hidePassword)}>
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                                     <path d="M3 3l18 18"></path>
@@ -81,8 +129,8 @@ function LoginPage() {
                                     <label htmlFor="remember">Remember me </label>
                                 </div>
 
-                                <button type="submit" className={styles.submitButton}>
-                                    <p>Login</p> <span>&rarr;</span>
+                                <button type="submit" className={styles.submitButton} onClick={userLogin} disabled={loading} aria-busy={loading}>
+                                    {loading ? <span className={styles.spinner} aria-label="Logging in" /> : <><p>Login</p><span>&rarr;</span></>}
                                 </button>
                             </form>
 
