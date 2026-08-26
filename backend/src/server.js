@@ -2,7 +2,7 @@ const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const connectDatabase = require('./databases/db');
-const { PORT } = require('./config/env');
+const { PORT, CLIENT_URL } = require('./config/env');
 const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 const cookieParser = require("cookie-parser");
 
@@ -14,7 +14,10 @@ const customerRouter = require('./routes/customerRouter');
 const app = express();
 
 // middlewares
-app.use(cors());
+app.use(cors({
+  origin: CLIENT_URL,
+  credentials: true
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(cookieParser());

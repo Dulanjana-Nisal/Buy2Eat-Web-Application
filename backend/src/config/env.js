@@ -10,7 +10,8 @@ const {
     ACCESS_EXPIRED, 
     REFRESH_EXPIRED,
     EMAIL_USER,
-    EMAIL_APP_PASSWORD 
+    EMAIL_APP_PASSWORD,
+    CLIENT_URL 
 } = process.env;
 
 module.exports = { 
@@ -21,5 +22,6 @@ module.exports = {
     ACCESS_EXPIRED, 
     REFRESH_EXPIRED,
     EMAIL_USER,
-    EMAIL_APP_PASSWORD 
+    EMAIL_APP_PASSWORD ,
+    CLIENT_URL 
 }; 
