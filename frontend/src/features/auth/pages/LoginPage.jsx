@@ -3,7 +3,7 @@ import login_background from '../../../assets/images/login-background.avif';
 import small_meal_dish from '../../../assets/images/small-meal-dish.webp';
 import small_mint_leaf from '../../../assets/images/mint-leaf.png';
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../../../app/config/api';
 
 function LoginPage() {
 
@@ -19,27 +19,16 @@ function LoginPage() {
         // call backend user login api
         try {
             setLoading(true);
-            const login = await axios.post(
-                'http://localhost:5000/api/v1/buy2eat/auth/login', 
-                loginDetails, 
-                { withCredentials: true }
-            );
-
-            // save token in localstorage
-            localStorage.setItem("accessToken", login.data.accessToken);
-            localStorage.setItem("user", JSON.stringify(login.data.user))
+            await api.post('/auth/login', loginDetails);
             
             // Remove login details
             setLoginDetails({
                 email: '',
                 password: '',
             })
-
-
-            console.log(login.data)
         }
         catch (err) {
-            console.log(err?.response.data);
+            console.log(err?.response?.data);
         }
         finally {
             setLoading(false);
