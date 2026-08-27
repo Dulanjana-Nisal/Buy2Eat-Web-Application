@@ -1,0 +1,171 @@
+/* Entrance Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Base Layout */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f9fafb; /* Soft off-white */
+  padding: 3rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+  opacity: 0;
+  animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Grid System */
+.optionsGrid {
+  display: flex;
+  gap: 2rem;
+  max-width: 900px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Card Styling */
+.optionCard {
+  flex: 1;
+  min-width: 300px;
+  max-width: 420px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  
+  /* Initial state for animation */
+  opacity: 0;
+  animation: fadeInUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.delay1 { animation-delay: 0.1s; }
+.delay2 { animation-delay: 0.25s; }
+
+/* Interactive Hover States */
+.optionCard:hover, 
+.optionCard:focus {
+  border-color: #059669; /* Emerald Green */
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(5, 150, 105, 0.1), 0 8px 10px -6px rgba(5, 150, 105, 0.05);
+  outline: none;
+}
+
+.optionCard:hover .cardImage,
+.optionCard:focus .cardImage {
+  transform: scale(1.08);
+}
+
+.optionCard:hover .cardAction {
+  color: #059669;
+}
+
+.optionCard:hover .cardAction svg {
+  transform: translateX(6px);
+}
+
+/* Card Image Area */
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #374151;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
+/* Card Text Content */
+.cardContent {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+  font-weight: 700;
+}
+
+.cardDescription {
+  font-size: 1rem;
+  color: #4b5563;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+/* Card Call to Action */
+.cardAction {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1f2937;
+  transition: color 0.3s ease;
+}
+
+.cardAction svg {
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
