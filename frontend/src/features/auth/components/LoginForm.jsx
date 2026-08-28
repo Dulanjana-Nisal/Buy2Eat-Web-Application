@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styles from './LoginForm.module.css';
 import small_meal_dish from '../../../assets/images/small-meal-dish.webp';
 import small_mint_leaf from '../../../assets/images/mint-leaf.png';
+import { Link } from 'react-router-dom'
 
 function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
     // useStates hooks
@@ -90,7 +91,7 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                     </form>
 
                     <p className={styles.footerText}>
-                        New to Buy2Eat? <a href="#">Create an account</a>
+                        New to Buy2Eat? <Link to="/register">Create an account</Link>
                     </p>
                 </div>
                 <img src={small_meal_dish} className={styles.subMealImage} alt="su" />
