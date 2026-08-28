@@ -3,6 +3,8 @@ import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
 import mini_tomato from '../../../assets/images/tomato-transparent.webp';
 import customer_card from '../../../assets/images/customer-card.svg';
 import seller_card from '../../../assets/images/seller-card.svg';
+import customer_register from '../../../assets/images/customer-register-background.jpg';
+import seller_register from '../../../assets/images/seller-register-background.jpg';
 
 function RegisterPage() {
     const trustItems = [
@@ -31,7 +33,7 @@ function RegisterPage() {
                     <button className={`${styles.optionCard} ${styles.delay1}`}>
                         <div className={styles.imageWrapper}>
                             <img
-                                src="https://www.soulsrilanka.com/image/trip/05/01.jpg"
+                                src={customer_register}
                                 className={styles.cardImage}
                                 alt="Food platter"
                             />
@@ -64,7 +66,7 @@ function RegisterPage() {
                     <button className={`${styles.optionCard} ${styles.delay2}`}>
                         <div className={styles.imageWrapper}>
                             <img
-                                src="https://media.istockphoto.com/id/666908954/photo/handsome-chef-pouring-olive-oil-on-meal.jpg?s=612x612&w=0&k=20&c=2dU_sMyn3GM2N81m-tMWQ4y5frBp87GQCflUtauJM4k="
+                                src={seller_register}
                                 className={styles.cardImage}
                                 alt="Chef plating food"
                             />
