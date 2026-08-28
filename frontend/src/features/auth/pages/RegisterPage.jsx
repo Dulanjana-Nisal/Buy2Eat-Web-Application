@@ -93,7 +93,7 @@ function RegisterPage() {
                     </button>
                 </div>
 
-                <div className={styles.trustBar}>
+                {/* <div className={styles.trustBar}>
                     {trustItems.map((item) => (
                         <div key={item.label} className={styles.trustItem}>
                             <div className={styles.trustIconWrap}>
@@ -118,7 +118,7 @@ function RegisterPage() {
                     ))}
                 </div>
 
-                <div className={styles.bottomBadge}><span>✓</span> Trusted by thousands of food lovers and local businesses</div>
+                <div className={styles.bottomBadge}><span>✓</span> Trusted by thousands of food lovers and local businesses</div> */}
             </div>
         </>
     )
