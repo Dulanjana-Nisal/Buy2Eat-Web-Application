@@ -9,6 +9,7 @@ function CustomerRegister() {
     return (
         <>
             <div className={styles.container}>
+
                 {/* background mini transparent images */}
                 <img src={mini_leaf} alt="mini_leaf_image" className={styles.mini_leaf_1} />
                 <img src={mini_tomato} alt="mini_tomato_image" className={styles.mini_tomato_1} />
@@ -81,18 +82,7 @@ function CustomerRegister() {
 
                                 <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                                     <span className={styles.inputIcon}>
-                                        <svg
-                                            width="18"
-                                            height="18"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        >
-                                            <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"></path>
-                                            <circle cx="12" cy="10" r="3"></circle>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" ><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle>
                                         </svg>
                                     </span>
                                     <input type="email" placeholder="Delivery Address" />
@@ -158,7 +148,7 @@ function CustomerRegister() {
                                 </div>
                                 <div className={styles.featureText}>
                                     <h4>Discover Local Favorites</h4>
-                                    <p>Explore a wide variety of local<br />restaurants and cuisines.</p>
+                                    <p>Explore a wide variety of local<br />shops and cuisines.</p>
                                 </div>
                             </div>
 
@@ -195,55 +185,6 @@ function CustomerRegister() {
                     </div>
 
                 </div>
-
-                {/* Footer Badges */}
-                {/* <div className={styles.footerBadges}>
-                    <div className={styles.badgeItem}>
-                        <div className={styles.badgeIcon}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
-                        </div>
-                        <div className={styles.badgeText}>
-                            <h5>Secure & Trusted</h5>
-                            <p>Your data is safe with us</p>
-                        </div>
-                    </div>
-
-                    <div className={styles.badgeItem}>
-                        <div className={styles.badgeIcon}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
-                        </div>
-                        <div className={styles.badgeText}>
-                            <h5>Fast & Reliable</h5>
-                            <p>Quick delivery & support</p>
-                        </div>
-                    </div>
-
-                    <div className={styles.badgeItem}>
-                        <div className={styles.badgeIcon}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                        </div>
-                        <div className={styles.badgeText}>
-                            <h5>Quality Assured</h5>
-                            <p>Best food, best experience</p>
-                        </div>
-                    </div>
-
-                    <div className={styles.badgeItem}>
-                        <div className={styles.badgeIcon}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                        </div>
-                        <div className={styles.badgeText}>
-                            <h5>24/7 Support</h5>
-                            <p>We're here to help</p>
-                        </div>
-                    </div>
-                </div> */}
-
-                {/* Bottom Trust Text */}
-                {/* <div className={styles.bottomTrust}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
-                    Trusted by thousands of food lovers and local businesses
-                </div> */}
 
             </div>
         </>

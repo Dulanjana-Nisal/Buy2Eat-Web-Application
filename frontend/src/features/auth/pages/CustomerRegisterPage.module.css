@@ -135,17 +135,17 @@
   flex: 1.1;
   padding: 40px 50px;
   position: relative;
-  background: linear-gradient(150deg,var(--color-surface) 50%, var(--color-primary) 300%);
+  background: linear-gradient(150deg, var(--color-surface) 50%, var(--color-primary) 300%);
   position: relative;
 }
 
-.leftTransparentBanner{
+.leftTransparentBanner {
   position: absolute;
   bottom: -2rem;
-  right: -3rem;
-  z-index: 0;
-  width: 270px;
+  right: -4rem;
+  width: 260px;
   opacity: 0.1;
+  /* z-index: 0; */
 }
 
 .formHeader {
@@ -193,6 +193,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  z-index: 2;
 }
 
 .inputIcon {
@@ -221,7 +222,7 @@
 }
 
 .inputGroup input::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-text-placeholder);
 }
 
 .eyeIcon {
@@ -241,6 +242,7 @@
   margin-bottom: 30px;
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+  z-index: 2;
 }
 
 .termsGroup input[type="checkbox"] {
@@ -296,6 +298,7 @@
   color: var(--color-primary);
   font-weight: var(--font-weight-bold);
   text-decoration: none;
+  cursor: pointer;
 }
 
 /* Right Panel - Info */
@@ -316,7 +319,7 @@
   background-size: cover;
   object-fit: cover;
   z-index: 0;
-  background: linear-gradient(-150deg,var(--color-bg) 50%, var(--color-primary) 300%);
+  background: linear-gradient(-150deg, var(--color-bg) 50%, var(--color-primary) 300%);
 }
 
 .infoTitle {
