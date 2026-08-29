@@ -1,6 +1,8 @@
 import styles from './CustomerRegisterPage.module.css';
 import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
 import mini_tomato from '../../../assets/images/tomato-transparent.webp';
+import right_banner from '../../../assets/images/customer-register-right-banner.png';
+import left_transparent_banner from '../../../assets/images/customer-card.svg';
 
 function CustomerRegister() {
     return (
@@ -28,7 +30,10 @@ function CustomerRegister() {
                     <h1 className={styles.mainTitle}>
                         Create Your <span className={styles.cursiveText}>Customer</span> Account
                     </h1>
-                    <p className={styles.subTitle}>Join thousands of food lovers and order your favorite meals ❤️</p>
+                    <p className={styles.subTitle}>
+                        Join thousands of food lovers and order your favorite meals
+                        <svg fill="currentColor" viewBox="0 0 512 512" id="_x30_1" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M471.079,77.334c-46.964-52.452-127.837-55.735-177.137-5.541C268.648,97.547,256,131.784,256,166.021 c0-34.237-12.647-68.473-37.942-94.227c-49.3-50.195-130.173-46.912-177.138,5.541c-106.53,118.98,7.88,303.709,194.087,393.846 c13.275,6.426,28.709,6.426,41.985,0C463.2,381.043,577.61,196.314,471.079,77.334z"></path></g></svg>
+                    </p>
                 </div>
 
                 {/* Main Form Card */}
@@ -109,6 +114,7 @@ function CustomerRegister() {
                                 Already have an account? <a href="#">Login here</a>
                             </div>
                         </form>
+                        <img src={left_transparent_banner} alt="left-transparent" className={styles.leftTransparentBanner} />
                     </div>
 
                     {/* Right Side: Features / Info */}
@@ -156,6 +162,8 @@ function CustomerRegister() {
                                 <p>We never share your information</p>
                             </div>
                         </div>
+
+                        <img src={right_banner} alt="banner" className={styles.banner} />
                     </div>
 
                 </div>

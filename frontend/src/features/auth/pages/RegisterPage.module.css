@@ -93,13 +93,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
 }
 
-.heart {
+.heart svg{
+    width: 15px;
     color: var(--color-primary);
-    font-size: 1.25rem;
-    transform: translateY(-1px);
+  margin: 0 10px -2px 10px;
 }
 
 .optionsGrid {
