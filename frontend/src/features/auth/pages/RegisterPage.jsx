@@ -66,7 +66,7 @@ function RegisterPage() {
                         </button>
                     </Link>
 
-                    <Link to='/register/seller' className={styles.optionCard}>
+                    <Link to='/register/seller'>
                         <button className={`${styles.optionCard} ${styles.delay2}`}>
                             <div className={styles.imageWrapper}>
                                 <img
