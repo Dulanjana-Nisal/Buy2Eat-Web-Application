@@ -1,4 +1,5 @@
 import styles from './CustomerRegisterPage.module.css';
+import { Link } from 'react-router-dom'
 import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
 import mini_tomato from '../../../assets/images/tomato-transparent.webp';
 import right_banner from '../../../assets/images/customer-register-right-banner.png';
@@ -61,14 +62,40 @@ function CustomerRegister() {
                                     <span className={styles.inputIcon}>
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                     </span>
-                                    <input type="text" placeholder="Full Name" />
+                                    <input type="text" placeholder="First Name" />
                                 </div>
 
                                 <div className={styles.inputGroup}>
                                     <span className={styles.inputIcon}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    </span>
+                                    <input type="text" placeholder="Last Name" />
+                                </div>
+
+                                <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                                    <span className={styles.inputIcon}>
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                                     </span>
                                     <input type="email" placeholder="Email Address" />
+                                </div>
+
+                                <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                                    <span className={styles.inputIcon}>
+                                        <svg
+                                            width="18"
+                                            height="18"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                    </span>
+                                    <input type="email" placeholder="Delivery Address" />
                                 </div>
 
                                 <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -111,9 +138,10 @@ function CustomerRegister() {
                             </button>
 
                             <div className={styles.loginPrompt}>
-                                Already have an account? <a href="#">Login here</a>
+                                Already have an account? <Link to="/login">Login here </Link>
                             </div>
                         </form>
+
                         <img src={left_transparent_banner} alt="left-transparent" className={styles.leftTransparentBanner} />
                     </div>
 
