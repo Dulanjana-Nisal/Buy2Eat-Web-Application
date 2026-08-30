@@ -1,4 +1,5 @@
 import styles from './CustomerRegisterPage.module.css';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom'
 import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
 import mini_tomato from '../../../assets/images/tomato-transparent.webp';
@@ -10,9 +11,12 @@ import api from '../../../app/config/api';
 function CustomerRegister() {
 
     // ui use status hooks
-    const [hidePass, setHidePass] = useState(false);
-    const [hidePassConform, setHidePassConform] = useState(false);
+    const [hidePass, setHidePass] = useState(true);
+    const [hidePassConform, setHidePassConform] = useState(true);
     const [loading, setLoading] = useState(false);
+    
+    // Navigation hooks
+    const navigate = useNavigate();
 
     // data use state hooks
     const [registerDetails, setRegisterDetails] = useState({
@@ -45,7 +49,15 @@ function CustomerRegister() {
 
         try {
             const registration = await api.post('/auth/register-customer', registerDetails);
-            console.log(registration.data);
+
+            // navigate OTP verification page
+            if(registration.data.success){
+                navigate('/verify-otp', {
+                    state: {
+                        verification_id: registration.data.verification_id
+                    }
+                })
+            }
         }
         catch (err) {
             console.log(err?.response?.data)
@@ -154,18 +166,6 @@ function CustomerRegister() {
                                         type="email"
                                         placeholder="Email Address"
                                         onChange={(e) => setRegisterDetails({ ...registerDetails, email: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                                    <span className={styles.inputIcon}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" ><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle>
-                                        </svg>
-                                    </span>
-                                    <input
-                                        type="text"
-                                        placeholder="Delivery Address"
-                                        onChange={(e) => setRegisterDetails({ ...registerDetails, addresses: e.target.value })}
                                     />
                                 </div>
 

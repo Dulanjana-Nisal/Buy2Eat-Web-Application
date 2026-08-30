@@ -1,3 +1,5 @@
+import Styles from './VerifyOTPPage.module.css';
+
 function VerifyOTPPage() {
     return(
         <>
