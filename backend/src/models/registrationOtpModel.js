@@ -2,8 +2,15 @@ const mongoose = require('mongoose');
 
 // registration OTP model schema
 const registrationOtpModel = mongoose.Schema({
+    verification_id: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true
+    },
     email: {
         type: String,
+        unique: [true, 'Email cant duplicate!'],
         required: [true, 'Email is required!'],
         trim: true,
         lowercase: true,
@@ -36,7 +43,7 @@ const registrationOtpModel = mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin','customer','seller'],
+        enum: ['admin', 'customer', 'seller'],
         required: [true, 'Role is required!']
     },
     profile_data: {
