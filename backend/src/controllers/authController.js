@@ -282,13 +282,25 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	}
 
 	// check is attempt ok
-	if (otpUser.attempts <= 0) return res.status(429).json({
-		success: false,
-		message: 'Maximum attempts exceeded!'
-	})
+	const updatedOtpUser = await registrationOtpModel.findOneAndUpdate(
+		{
+			_id: otpUser._id,
+			attempts: { $gt: 0 }
+		},
+		{
+			$inc: { attempts: -1 }
+		},
+		{
+			new: true
+		}
+	);
 
-	otpUser.attempts = otpUser.attempts - 1;
-	await otpUser.save();
+	if (!updatedOtpUser) {
+		return res.status(429).json({
+			success: false,
+			message: "Maximum attempts exceeded!"
+		});
+	}
 
 	// compare otp with user inputs
 	const compOtp = await bcrypt.compare(otp, otpUser.hash_otp)
