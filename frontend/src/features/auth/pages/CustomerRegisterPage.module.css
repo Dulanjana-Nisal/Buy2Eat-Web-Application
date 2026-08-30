@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background-color: var(--color-surface-active);
+  background-color: var(--color-bg);
   font-family: var(--font-family);
   color: var(--color-text-primary);
   padding: 40px 20px;
@@ -122,6 +122,7 @@
   display: flex;
   background: var(--color-surface);
   border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
   max-width: 1100px;
   width: 100%;
@@ -145,7 +146,6 @@
   right: -4rem;
   width: 260px;
   opacity: 0.1;
-  /* z-index: 0; */
 }
 
 .formHeader {
@@ -153,6 +153,60 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 30px;
+}
+
+.socialAuth {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.socialButton {
+    font-family: var(--font-family);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background-color: var(--color-surface-hover);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    color: var(--color-text-primary);
+    transition: background-color var(--transition-normal);
+}
+
+.socialButton:hover {
+    background-color: var(--color-hover);
+    color: var(--color-text-primary);
+}
+
+.socialButton:active {
+    background-color: var(--color-active);
+}
+
+/* Divider */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--color-bg-muted);
+}
+
+.divider span {
+    padding: 0 10px;
 }
 
 .userIconWrap {
@@ -315,7 +369,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   background-size: cover;
   object-fit: cover;
   z-index: 0;
