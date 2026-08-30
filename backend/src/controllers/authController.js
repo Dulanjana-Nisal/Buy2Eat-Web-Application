@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const { sendEmailOTP, sendEmailResetPassword } = require('../utils/sendEmails');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
+const mongoose = require('mongoose');
 
 // cookie options
 const cookieOptions = {
@@ -90,9 +91,7 @@ const authLogin = asyncHandler(async (req, res) => {
 			_id: user._id,
 			email: user.email,
 			role: user.role,
-		},
-		accessToken: accessToken,
-		refreshToken: refreshToken
+		}
 	});
 });
 
@@ -136,11 +135,15 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const generateOtp = crypto.randomInt(100000, 1000000).toString();
 	const hashOtp = await bcrypt.hash(generateOtp, 10);
 
+	// generate verification_id 
+	const verification_id_value = crypto.randomUUID();
+
 	// delete old OTP from same email
 	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
 	await registrationOtpModel.create({
+		verification_id: verification_id_value,
 		email: email,
 		hash_otp: hashOtp,
 		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
@@ -163,7 +166,8 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	// send response
 	res.status(200).json({
 		success: true,
-		message: 'OTP send successfully...'
+		message: 'OTP send successfully...',
+		verification_id: verification_id_value,
 	})
 });
 
@@ -206,11 +210,15 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const generateOtp = crypto.randomInt(100000, 1000000).toString();
 	const hashOtp = await bcrypt.hash(generateOtp, 10);
 
+	// generate verification_id 
+	const verification_id_value = crypto.randomUUID();
+
 	// delete old OTP from same email
 	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
-	const createOtp = await registrationOtpModel.create({
+	await registrationOtpModel.create({
+		verification_id: verification_id_value,
 		email: email,
 		hash_otp: hashOtp,
 		hash_password: hashedPassword,
@@ -233,24 +241,25 @@ const registerSellers = asyncHandler(async (req, res) => {
 	res.status(200).json({
 		success: true,
 		message: 'OTP send successfully...',
+		verification_id: verification_id_value,
 	})
 });
 
 // verify otp controller
 const verifyOtp = asyncHandler(async (req, res) => {
-	const { email, otp } = req.body;
+	const { otp, verification_id } = req.body;
 
-	// check that email and otp is entered
-	if (!email || !otp) return res.status(400).json({
+	// check verification_id and otp are entered
+	if (!verification_id || !otp) return res.status(400).json({
 		success: false,
-		message: 'Please provide email and OTP number'
+		message: 'Verification_id and otp is required!'
 	})
 
-	// check if email is exist
-	const otpUser = await registrationOtpModel.findOne({ email: email })
+	// find otp by verification ID
+	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id })
 	if (!otpUser) return res.status(400).json({
 		success: false,
-		message: 'Email is not found!'
+		message: 'OTP is not exist!'
 	})
 
 	// check if otp is exist
@@ -259,28 +268,27 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		message: 'OTP is dose not exist!'
 	})
 
-	// check is attempt ok
-	if (otpUser.attempts === 0) return res.status(401).json({
-		success: false,
-		message: 'Maximum attempts exceeded!'
-	})
-
-	otpUser.attempts = otpUser.attempts - 1;
-	await otpUser.save();
-
 	// check if OTP is expired
-	if (otpUser.expiresAt < new Date()) {
+	if (otpUser.expiresAt <= new Date()) {
 
-		otpUser.hash_otp = undefined;
-		otpUser.expiresAt = undefined;
-
-		await otpUser.save();
+		await registrationOtpModel.deleteOne({
+			_id: otpUser._id
+		});
 
 		return res.status(400).json({
 			success: false,
 			message: 'OTP is Expired!'
 		})
 	}
+
+	// check is attempt ok
+	if (otpUser.attempts <= 0) return res.status(429).json({
+		success: false,
+		message: 'Maximum attempts exceeded!'
+	})
+
+	otpUser.attempts = otpUser.attempts - 1;
+	await otpUser.save();
 
 	// compare otp with user inputs
 	const compOtp = await bcrypt.compare(otp, otpUser.hash_otp)
@@ -289,39 +297,62 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		message: 'Invalid OTP'
 	})
 
-	// create user 
-	const user = await Users.create({
-		email: otpUser.email,
-		password: otpUser.hash_password,
-		role: otpUser.role,
-	});
+	// == Start Transaction ==
+	const session = await mongoose.startSession();
 
-	// create user profile
-	let userProfile;
-	if (otpUser.role === 'customer') {
-		userProfile = await CustomerProfile.create({ ...otpUser.profile_data, user_id: user._id });
+	try {
+		session.startTransaction();
+
+		// create user 
+		const [user] = await Users.create([{
+			email: otpUser.email,
+			password: otpUser.hash_password,
+			role: otpUser.role,
+		}], { session });
+
+		// create user profile
+		let userProfile;
+		if (otpUser.role === 'customer') {
+			[userProfile] = await CustomerProfile.create([{ ...otpUser.profile_data, user_id: user._id }], { session });
+		}
+		if (otpUser.role === 'seller') {
+			[userProfile] = await SellerProfile.create([{ ...otpUser.profile_data, user_id: user._id }], { session });
+		}
+
+		// Delete temporary OTP data
+		await registrationOtpModel.deleteOne(
+			{ _id: otpUser._id },
+			{ session }
+		);
+
+		await session.commitTransaction();
+
+		// create jwt token and save it in to cookie
+		const { accessToken, refreshToken } = createTokenPair(user)
+		setAuthCookies(res, accessToken, refreshToken)
+
+		// send response
+		return res.status(201).json({
+			success: true,
+			message: `${user.role} registered successfully!`,
+			user: {
+				_id: user._id,
+				email: user.email,
+				role: user.role,
+			},
+			userProfile,
+		});
+
 	}
-	if (otpUser.role === 'seller') {
-		userProfile = await SellerProfile.create({ ...otpUser.profile_data, user_id: user._id });
+	catch (error) {
+		await session.abortTransaction();
+		throw error;
 	}
+	finally {
+		await session.endSession();
+	}
+	// == End Transaction ==
 
-	// create jwt token and save it in to cookie
-	const { accessToken, refreshToken } = createTokenPair(user)
-	setAuthCookies(res, accessToken, refreshToken)
-
-	// send response
-	return res.status(201).json({
-		success: true,
-		message: `${user.role} registered successfully!`,
-		user: {
-			_id: user._id,
-			email: user.email,
-			role: user.role,
-		},
-		userProfile,
-		accessToken: accessToken,
-		refreshToken: refreshToken
-	});
 });
 
 // User logout 
