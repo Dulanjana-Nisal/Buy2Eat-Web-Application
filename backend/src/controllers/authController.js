@@ -394,19 +394,38 @@ const resendOtp = asyncHandler(async (req, res) => {
 		message: 'Invalid verification_id!'
 	});
 
+	// pre ID cooldown check
+	const cooldownPeriod = 60 * 1000; // 1 minute in milliseconds
+	if (otpUser.lastResendAt && (Date.now() - otpUser.lastResendAt.getTime()) < cooldownPeriod) {
+		return res.status(429).json({
+			success: false,
+			message: 'You can only resend OTP once per minute. Please wait before trying again.',
+		});
+	}
+
+	// check resend count
+	if (otpUser.resendCount >= 4) {
+		return res.status(429).json({
+			success: false,
+			message: 'You have reached the maximum number of OTP resend attempts. Please try again later.',
+		});
+	}
+
 	// generate new OTP
 	const newOtp = crypto.randomInt(100000, 1000000).toString();
 	const hashNewOtp = await bcrypt.hash(newOtp, 10);
 
+	// send the new OTP to the user
+	await resendEmailOTP(otpUser.email, newOtp);
+
 	// update the OTP user
 	otpUser.hash_otp = hashNewOtp;
 	otpUser.attempts = 5;
+	otpUser.resendCount += 1;
+	otpUser.lastResendAt = new Date();
 	otpUser.expiresAt = new Date(Date.now() + 5 * 60 * 1000); // expires in 5 min
 
 	await otpUser.save();
-	
-	// send the new OTP to the user
-	resendEmailOTP(otpUser.email, newOtp);
 
 	// send response
 	return res.status(200).json({

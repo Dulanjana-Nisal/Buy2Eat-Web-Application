@@ -34,7 +34,16 @@ const registrationOtpModel = mongoose.Schema({
     attempts: {
         type: Number,
         default: 5,
-        maxlength: [5, 'Attempts number should be less than 5']
+        maxlength: [5, 'Attempts number should be less than 5'],
+        min: [0, 'Attempts number cannot be negative']
+    },
+    lastResendAt: {
+        type: Date,
+        default: null
+    },
+    resendCount: {
+        type: Number,
+        default: 0
     },
     createdAt: {
         type: Date,
