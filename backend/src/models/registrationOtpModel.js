@@ -29,12 +29,13 @@ const registrationOtpModel = mongoose.Schema({
     },
     expiresAt: {
         type: Date,
-        required: [true, 'expiresAt is required!']
+        required: [true, 'expiresAt is required!'],
+        expireAfterSeconds: 0
     },
     attempts: {
         type: Number,
         default: 5,
-        maxlength: [5, 'Attempts number should be less than 5'],
+        max: [5, 'Attempts number should be less than 5'],
         min: [0, 'Attempts number cannot be negative']
     },
     lastResendAt: {
@@ -48,7 +49,6 @@ const registrationOtpModel = mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-        expires: 600
     },
     role: {
         type: String,

@@ -378,6 +378,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 });
 
+// resend otp controller
 const resendOtp = asyncHandler(async (req, res) => {
 	const { verification_id } = req.body;
 
