@@ -6,7 +6,7 @@ const SellerProfile = require('../models/sellerProfileModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendEmailOTP, sendEmailResetPassword } = require('../utils/sendEmails');
+const { sendEmailOTP, sendEmailResetPassword, resendEmailOTP } = require('../utils/sendEmails');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
@@ -173,6 +173,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		message: 'OTP send successfully...',
 		verification_id: verification_id_value,
 		masked_email: maskedEmail,
+		expiredAt: new Date(Date.now() + 5 * 60 * 1000) // expires in 5 min
 	})
 });
 
@@ -251,6 +252,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 		message: 'OTP send successfully...',
 		verification_id: verification_id_value,
 		masked_email: maskedEmail,
+		expiredAt: new Date(Date.now() + 5 * 60 * 1000) // expires in 5 min
 	})
 });
 
@@ -377,7 +379,37 @@ const verifyOtp = asyncHandler(async (req, res) => {
 });
 
 const resendOtp = asyncHandler(async (req, res) => {
-	res.status(200).json({
+	const { verification_id } = req.body;
+
+	// check verification_id is entered
+	if (!verification_id) return res.status(400).json({
+		success: false,
+		message: 'Verification_id is required!'
+	})
+
+	// find the OTP user
+	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
+	if (!otpUser) return res.status(400).json({
+		success: false,
+		message: 'Invalid verification_id!'
+	});
+
+	// generate new OTP
+	const newOtp = crypto.randomInt(100000, 1000000).toString();
+	const hashNewOtp = await bcrypt.hash(newOtp, 10);
+
+	// update the OTP user
+	otpUser.hash_otp = hashNewOtp;
+	otpUser.attempts = 5;
+	otpUser.expiresAt = new Date(Date.now() + 5 * 60 * 1000); // expires in 5 min
+
+	await otpUser.save();
+	
+	// send the new OTP to the user
+	resendEmailOTP(otpUser.email, newOtp);
+
+	// send response
+	return res.status(200).json({
 		success: true,
 		message: 'OTP resend successfully...',
 	})
