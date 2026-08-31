@@ -10,6 +10,7 @@ const { sendEmailOTP, sendEmailResetPassword } = require('../utils/sendEmails');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
+const maskEmail = require('../utils/maskEmail');
 
 // cookie options
 const cookieOptions = {
@@ -160,6 +161,9 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		}
 	})
 
+	// mask email for sending otp
+	const maskedEmail = maskEmail(email);
+
 	// send otp via email
 	sendEmailOTP(email, first_name, last_name, generateOtp)
 
@@ -168,6 +172,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		success: true,
 		message: 'OTP send successfully...',
 		verification_id: verification_id_value,
+		masked_email: maskedEmail,
 	})
 });
 
@@ -234,6 +239,9 @@ const registerSellers = asyncHandler(async (req, res) => {
 		}
 	})
 
+	// mask email for sending otp
+	const maskedEmail = maskEmail(email);
+
 	// send otp via email
 	sendEmailOTP(email, first_name, last_name, generateOtp)
 
@@ -242,6 +250,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 		success: true,
 		message: 'OTP send successfully...',
 		verification_id: verification_id_value,
+		masked_email: maskedEmail,
 	})
 });
 
