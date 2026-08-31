@@ -376,6 +376,13 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 });
 
+const resendOtp = asyncHandler(async (req, res) => {
+	res.status(200).json({
+		success: true,
+		message: 'OTP resend successfully...',
+	})
+})
+
 // User logout 
 const userLogout = asyncHandler(async (req, res) => {
 	res.clearCookie('accessToken', {
@@ -536,6 +543,7 @@ module.exports = {
 	registerSellers,
 	userLogout,
 	verifyOtp,
+	resendOtp,
 	forgotPassword,
 	resetPassword,
 };
