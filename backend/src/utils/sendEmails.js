@@ -29,7 +29,7 @@ const sendEmailOTP = async (email, first_name, last_name, otp) => {
         <p>Hi ${first_name} ${last_name},</p>
         <p>Use the following One-Time Password (OTP) to complete your verification:</p>
         <div class="otp-box">${otp}</div>
-        <p>This code will expire in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+        <p>This code will expire in <strong>5 minutes</strong>. Do not share it with anyone.</p>
         <p>If you didn't request this, you can safely ignore this email.</p>
         <div class="footer">
           &copy; ${new Date().getFullYear()} Buy2Eat. All rights reserved.
@@ -68,7 +68,7 @@ const resendEmailOTP = async (email, otp) => {
         <h2>Verify Your Identity</h2>
         <p>Use the following One-Time Password (OTP) to complete your verification:</p>
         <div class="otp-box">${otp}</div>
-        <p>This code will expire in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+        <p>This code will expire in <strong>5 minutes</strong>. Do not share it with anyone.</p>
         <p>If you didn't request this, you can safely ignore this email.</p>
         <div class="footer">
           &copy; ${new Date().getFullYear()} Buy2Eat. All rights reserved.
