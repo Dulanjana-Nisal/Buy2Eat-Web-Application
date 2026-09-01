@@ -55,6 +55,10 @@ const registrationOtpModel = mongoose.Schema({
         enum: ['admin', 'customer', 'seller'],
         required: [true, 'Role is required!']
     },
+    reservation_id:{
+        type: String,
+        default: null,
+    },
     profile_data: {
         type: Object,
         required: [true, 'Profile data is required!']
