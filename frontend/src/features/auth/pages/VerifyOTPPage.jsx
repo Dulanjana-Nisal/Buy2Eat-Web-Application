@@ -18,6 +18,7 @@ function VerifyOTPPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // use effect for calculate count down
     useEffect(() => {
         const timer = setInterval(() => {
 
@@ -46,8 +47,6 @@ function VerifyOTPPage() {
         return () => clearInterval(timer)
     }, [])
 
-    console.log(secondsLeft)
-
     useEffect(() => {
         // get state data from navigate
         const verificationId = location.state?.verification_id
@@ -57,6 +56,7 @@ function VerifyOTPPage() {
         }
     }, [])
 
+    // handel otp input values
     const handleOtpChange = (value, index) => {
         if (!/^\d*$/.test(value)) return
 
@@ -70,6 +70,7 @@ function VerifyOTPPage() {
         }
     }
 
+    // handel otp keys
     const handleOtpKeyDown = (event, index) => {
         if (event.key === 'Backspace' && !otp[index] && index > 0) {
             const prevInput = document.getElementById(`otp-input-${index - 1}`)
