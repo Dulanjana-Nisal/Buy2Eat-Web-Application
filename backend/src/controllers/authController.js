@@ -6,10 +6,11 @@ const SellerProfile = require('../models/sellerProfileModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendEmailOTP, sendEmailResetPassword } = require('../utils/sendEmails');
+const { sendEmailOTP, sendEmailResetPassword, resendEmailOTP } = require('../utils/sendEmails');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
+const maskEmail = require('../utils/maskEmail');
 
 // cookie options
 const cookieOptions = {
@@ -160,6 +161,9 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		}
 	})
 
+	// mask email for sending otp
+	const maskedEmail = maskEmail(email);
+
 	// send otp via email
 	sendEmailOTP(email, first_name, last_name, generateOtp)
 
@@ -168,6 +172,8 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		success: true,
 		message: 'OTP send successfully...',
 		verification_id: verification_id_value,
+		masked_email: maskedEmail,
+		expiredAt: new Date(Date.now() + 5 * 60 * 1000) // expires in 5 min
 	})
 });
 
@@ -234,6 +240,9 @@ const registerSellers = asyncHandler(async (req, res) => {
 		}
 	})
 
+	// mask email for sending otp
+	const maskedEmail = maskEmail(email);
+
 	// send otp via email
 	sendEmailOTP(email, first_name, last_name, generateOtp)
 
@@ -242,6 +251,8 @@ const registerSellers = asyncHandler(async (req, res) => {
 		success: true,
 		message: 'OTP send successfully...',
 		verification_id: verification_id_value,
+		masked_email: maskedEmail,
+		expiredAt: new Date(Date.now() + 5 * 60 * 1000) // expires in 5 min
 	})
 });
 
@@ -366,6 +377,167 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	// == End Transaction ==
 
 });
+
+// resend otp controller
+const resendOtp = asyncHandler(async (req, res) => {
+	const { verification_id } = req.body;
+
+	if (!verification_id) return res.status(400).json({
+		success: false,
+		message: 'Verification_id is required!'
+	})
+
+	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
+	if (!otpUser) return res.status(400).json({
+		success: false,
+		message: 'Invalid verification_id!'
+	});
+
+	// set cooldown time 
+	const cooldownPeriod = 60 * 1000;
+
+	// get now time
+	const now = Date.now();
+
+	// store previous state of otpUser to rollback in case of error
+	const previousState = {
+		hash_otp: otpUser.hash_otp,
+		attempts: otpUser.attempts,
+		expiresAt: otpUser.expiresAt,
+		lastResendAt: otpUser.lastResendAt,
+		resendCount: otpUser.resendCount,
+	};
+
+	// set reservation time for lastResendAt
+	const reservationTime = new Date();
+
+	// generate reservation id
+	const reservationId = crypto.randomUUID();
+
+	// get reserved otp user with conditions
+	const reservedOtpUser = await registrationOtpModel.findOneAndUpdate(
+		{
+			verification_id,
+			resendCount: { $lt: 4 },
+			expiresAt: { $gt: new Date() },
+			reservation_id: null,
+			$or: [
+				{ lastResendAt: null },
+				{ lastResendAt: { $lte: new Date(now - cooldownPeriod) } },
+			],
+		},
+		{
+			$set: { 
+				lastResendAt: reservationTime,
+				reservation_id:  reservationId,
+			},
+			$inc: { resendCount: 1 },
+		},
+		{ new: true }
+	);
+
+	// if reservation user is not with conditions
+	if (!reservedOtpUser) {
+		const latestOtpUser = await registrationOtpModel.findOne({ verification_id });
+
+		// check cooldown time is competed 
+		if (latestOtpUser?.lastResendAt && (now - latestOtpUser.lastResendAt.getTime()) < cooldownPeriod) {
+			return res.status(429).json({
+				success: false,
+				message: 'You can only resend OTP once per minute. Please wait before trying again.',
+			});
+		}
+
+		// check resend count is exceeded
+		if (latestOtpUser?.resendCount >= 4) {
+			return res.status(429).json({
+				success: false,
+				message: 'You have reached the maximum number of OTP resend attempts. Please try again later.',
+			});
+		}
+
+		// send response
+		return res.status(429).json({
+			success: false,
+			message: 'OTP resend is temporarily unavailable. Please try again in a moment.',
+		});
+	}
+
+	try {
+		// generate new otp for resent
+		const newOtp = crypto.randomInt(100000, 1000000).toString();
+		const hashNewOtp = await bcrypt.hash(newOtp, 10);
+
+		
+		// update otp in database with new hash and reset attempts
+		const updateNewResentUser = await registrationOtpModel.findOneAndUpdate(
+			{
+				verification_id,
+				lastResendAt: reservationTime,
+				reservation_id: reservationId,
+				resendCount: reservedOtpUser.resendCount,
+			},
+			{
+				$set: {
+					hash_otp: hashNewOtp,
+					attempts: 5,
+					expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+				},
+			},
+			{ new: true }
+		);
+
+		// check if failed to get updateNewResentUser
+		if(!updateNewResentUser){
+			throw new Error("Failed to update database while sending email!")
+		};
+
+		// resend otp via email
+		await resendEmailOTP(otpUser.email, newOtp);
+
+		// if email is successfully send remove that reservation id value
+		await registrationOtpModel.findOneAndUpdate(
+			{
+				verification_id,
+				reservation_id: reservationId
+			},
+			{
+				$set:  {
+					reservation_id: null,
+				},
+			},
+			{ new: true }
+		)
+
+		// send response
+		return res.status(200).json({
+			success: true,
+			message: 'OTP resend successfully...',
+		});
+
+	} catch (error) {
+		// rollback the lastResendAt and resendCount to previous state
+		await registrationOtpModel.findOneAndUpdate(
+			{
+				verification_id,
+				lastResendAt: reservationTime,
+				reservation_id: reservationId,
+			},
+			{
+				$set: {
+					hash_otp: previousState.hash_otp,
+					attempts: previousState.attempts,
+					expiresAt: previousState.expiresAt,
+					lastResendAt: previousState.lastResendAt,
+					resendCount: previousState.resendCount,
+					reservation_id: null,
+				},
+			},
+			{ new: true }
+		);
+		throw error;
+	}
+})
 
 // User logout 
 const userLogout = asyncHandler(async (req, res) => {
@@ -527,6 +699,7 @@ module.exports = {
 	registerSellers,
 	userLogout,
 	verifyOtp,
+	resendOtp,
 	forgotPassword,
 	resetPassword,
 };

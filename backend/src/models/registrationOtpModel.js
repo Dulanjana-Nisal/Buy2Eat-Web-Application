@@ -29,22 +29,35 @@ const registrationOtpModel = mongoose.Schema({
     },
     expiresAt: {
         type: Date,
-        required: [true, 'expiresAt is required!']
+        required: [true, 'expiresAt is required!'],
+        expireAfterSeconds: 0
     },
     attempts: {
         type: Number,
         default: 5,
-        maxlength: [5, 'Attempts number should be less than 5']
+        max: [5, 'Attempts number should be less than 5'],
+        min: [0, 'Attempts number cannot be negative']
+    },
+    lastResendAt: {
+        type: Date,
+        default: null
+    },
+    resendCount: {
+        type: Number,
+        default: 0
     },
     createdAt: {
         type: Date,
         default: Date.now,
-        expires: 600
     },
     role: {
         type: String,
         enum: ['admin', 'customer', 'seller'],
         required: [true, 'Role is required!']
+    },
+    reservation_id:{
+        type: String,
+        default: null,
     },
     profile_data: {
         type: Object,
