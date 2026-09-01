@@ -143,7 +143,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
-	await registrationOtpModel.create({
+	const otpCreation = await registrationOtpModel.create({
 		verification_id: verification_id_value,
 		email: email,
 		hash_otp: hashOtp,
@@ -161,6 +161,11 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		}
 	})
 
+	// if something wrong wile create database schema
+	if(!otpCreation){
+		throw new Error('Error while create database schema!')
+	}
+
 	// mask email for sending otp
 	const maskedEmail = maskEmail(email);
 
@@ -173,7 +178,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		message: 'OTP send successfully...',
 		verification_id: verification_id_value,
 		masked_email: maskedEmail,
-		expiredAt: new Date(Date.now() + 5 * 60 * 1000) // expires in 5 min
+		expiresAt: otpCreation.expiresAt
 	})
 });
 
@@ -223,7 +228,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
-	await registrationOtpModel.create({
+	const otpCreation = await registrationOtpModel.create({
 		verification_id: verification_id_value,
 		email: email,
 		hash_otp: hashOtp,
@@ -240,6 +245,11 @@ const registerSellers = asyncHandler(async (req, res) => {
 		}
 	})
 
+	// if something wrong while create schema
+	if(!otpCreation){
+		throw new Error('Error while create database schema!')
+	}
+
 	// mask email for sending otp
 	const maskedEmail = maskEmail(email);
 
@@ -252,7 +262,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 		message: 'OTP send successfully...',
 		verification_id: verification_id_value,
 		masked_email: maskedEmail,
-		expiredAt: new Date(Date.now() + 5 * 60 * 1000) // expires in 5 min
+		expiresAt: otpCreation.expiresAt
 	})
 });
 
