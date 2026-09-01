@@ -55,7 +55,8 @@ function CustomerRegister() {
                 navigate('/verify-otp', {
                     state: {
                         verification_id: registration.data.verification_id,
-                        maskEmail: registration.data.maskEmail
+                        maskEmail: registration.data.masked_email,
+                        expiresAt: registration.data.expiresAt
                     }
                 })
             }

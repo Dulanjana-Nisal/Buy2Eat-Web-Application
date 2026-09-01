@@ -260,6 +260,11 @@
     padding: 0;
 }
 
+.disableResend{
+    color: var(--color-text-tertiary);
+    font-weight: var(--font-weight-medium);
+}
+
 .securityBadgeRow {
     display: flex;
     align-items: center;

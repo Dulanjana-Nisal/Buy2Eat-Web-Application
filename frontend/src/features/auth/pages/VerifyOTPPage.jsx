@@ -10,9 +10,9 @@ import left_transparent_banner from '../../../assets/images/otp-background.svg';
 function VerifyOTPPage() {
 
     // use states hooks
-    const [loading, setLoading] = useState(false)
-    const [otp, setOtp] = useState(['', '', '', '', '', ''])
-    const [secondsLeft, setSecondsLeft] = useState(45)
+    const [loading, setLoading] = useState(false);
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [secondsLeft, setSecondsLeft] = useState(60);
 
     // navigation state hooks
     const navigate = useNavigate();
@@ -20,41 +20,42 @@ function VerifyOTPPage() {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setSecondsLeft((current) => (current > 0 ? current - 1 : 0))
+
+            const expiresAt = location.state?.expiresAt;
+            const nowTime = new Date();
+
+            // convert expireAt in to js Date object
+            const expireDate = new Date(expiresAt);
+
+            // calculate created time
+            const createdAt = expireDate.setMinutes(expireDate.getMinutes() - 5);
+            const createdDate = new Date(createdAt)
+
+            // calculate time difference
+            const timeDifference = Math.abs(nowTime.getTime() - createdDate.getTime())
+
+            if(timeDifference < 60000){
+                setSecondsLeft((current) => (current > 0 ? Math.trunc((60 - (timeDifference / 1000))) : 0))
+            }
+            if(timeDifference >= 60000){
+                setSecondsLeft(0)
+            }
+
         }, 1000)
 
         return () => clearInterval(timer)
     }, [])
 
+    console.log(secondsLeft)
+
     useEffect(() => {
         // get state data from navigate
-        // const verificationId = location.state?.verification_id
-        // console.log(verificationId)
-        // if (!verificationId) {
-        //     navigate("/register", { replace: true })
-        // }
+        const verificationId = location.state?.verification_id
+        console.log(verificationId)
+        if (!verificationId) {
+            navigate("/register", { replace: true })
+        }
     }, [])
-
-    // mask email
-    function maskEmail(email) {
-        const [localPart, domain] = email.split('@');
-        const domainParts = domain.split('.');
-        const domainName = domainParts[0];
-        const domainExt = domainParts.slice(1).join('.');
-
-        const maskedLocal = maskString(localPart);
-        const maskedDomain = maskString(domainName);
-
-        return `${maskedLocal}@${maskedDomain}.${domainExt}`;
-    }
-
-    function maskString(str) {
-        if (str.length <= 2) return str[0] + '*'.repeat(str.length - 1);
-        const visibleStart = str.slice(0, 3);
-        const visibleEnd = str.slice(-2);
-        const stars = '*'.repeat(Math.max(str.length - 3, 3)); // min 3 stars for consistency
-        return visibleStart + stars + visibleEnd;
-    }
 
     const handleOtpChange = (value, index) => {
         if (!/^\d*$/.test(value)) return
@@ -110,7 +111,7 @@ function VerifyOTPPage() {
                                 <h2>Enter OTP code</h2>
                                 <p>
                                     We've sent a 6-digits code to <br />
-                                    <span> {maskEmail('dulanjananisal67@gmail.com')}</span>
+                                    <span> {location.state?.maskEmail || "youremail@domain.com"}</span>
                                 </p>
                             </div>
                         </div>
@@ -135,9 +136,16 @@ function VerifyOTPPage() {
 
                                 <div className={styles.countdownRow}>
                                     <span>Didn't receive the code?</span>
-                                    <button type="button" className={styles.resendButton}>
-                                        Resend in 00:{String(secondsLeft).padStart(2, '0')}
-                                    </button>
+                                    {
+                                        secondsLeft === 0 ?
+                                            <button type="button" className={styles.resendButton}>
+                                                <span>Resend </span>
+                                            </button>
+                                            :
+                                            <div type="button" className={styles.resendButton}>
+                                                <span className={styles.disableResend}>Resend in</span> 00:{String(secondsLeft).padStart(2, '0')}
+                                            </div>
+                                    }
                                 </div>
 
                                 <div className={styles.securityBadgeRow}>
