@@ -54,7 +54,8 @@ function CustomerRegister() {
             if(registration.data.success){
                 navigate('/verify-otp', {
                     state: {
-                        verification_id: registration.data.verification_id
+                        verification_id: registration.data.verification_id,
+                        maskEmail: registration.data.maskEmail
                     }
                 })
             }

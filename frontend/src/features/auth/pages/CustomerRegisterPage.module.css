@@ -162,51 +162,51 @@
 }
 
 .socialButton {
-    font-family: var(--font-family);
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
-    background-color: var(--color-surface-hover);
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    color: var(--color-text-primary);
-    transition: background-color var(--transition-normal);
+  font-family: var(--font-family);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background-color: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  transition: background-color var(--transition-normal);
 }
 
 .socialButton:hover {
-    background-color: var(--color-hover);
-    color: var(--color-text-primary);
+  background-color: var(--color-hover);
+  color: var(--color-text-primary);
 }
 
 .socialButton:active {
-    background-color: var(--color-active);
+  background-color: var(--color-active);
 }
 
 /* Divider */
 .divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    margin-bottom: 24px;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 24px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
 .divider::before,
 .divider::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid var(--color-bg-muted);
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--color-bg-muted);
 }
 
 .divider span {
-    padding: 0 10px;
+  padding: 0 10px;
 }
 
 .userIconWrap {
@@ -343,18 +343,18 @@
 }
 
 .spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loginPrompt {
@@ -550,5 +550,11 @@
 
   .footerBadges {
     border-radius: 24px;
+  }
+}
+
+@media (max-width: 450px) {
+  .formPanel {
+    padding: 30px 20px;
   }
 }
