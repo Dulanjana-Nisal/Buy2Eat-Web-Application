@@ -405,7 +405,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		message: 'Invalid verification_id'
 	});
 
-	if (!otpUser.session_expiresAt >= new Date()) return res.status(400).json({
+	if (otpUser.session_expiresAt <= new Date()) return res.status(400).json({
 		success: false,
 		message: 'OTP record was delete, pleas re register to get new OTP!'
 	});
@@ -436,7 +436,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		{
 			verification_id,
 			resendCount: { $lt: 4 },
-			expiresAt: { $gt: new Date() },
+			session_expiresAt: { $gt: new Date() },
 			reservation_id: null,
 			$or: [
 				{ lastResendAt: null },
@@ -521,7 +521,6 @@ const resendOtp = asyncHandler(async (req, res) => {
 			{
 				$set:  {
 					reservation_id: null,
-					expiresAt: new Date(Date.now() + 5 * 60 * 1000),
 				},
 			},
 			{ new: true }
