@@ -384,6 +384,23 @@
     transform: translateX(4px);
 }
 
+.submitBtn:disabled {
+    cursor: default;
+}
+
+.submitBtn:disabled:hover svg {
+    transform: none;
+}
+
+.submitBtnSuccess {
+    background-color: var(--color-success);
+    color: var(--color-on-success);
+}
+
+.submitBtnSuccess:hover {
+    background-color: var(--color-success-hover);
+}
+
 .backRegisterBtn {
     width: 100%;
     background-color: transparent;
