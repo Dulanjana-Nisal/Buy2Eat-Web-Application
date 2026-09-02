@@ -2,9 +2,9 @@ import styles from './CustomerRegisterPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import right_banner from '../../../assets/images/customer-register-right-banner.png';
 import { useState } from 'react';
-import api from '../../../app/config/api';
 import UIbackground from '../components/UIbackground';
 import CustomerRegisterForm from '../components/CustomerRegisterForm';
+import { customerRegistrationApi } from '../api/authApi';
 
 function CustomerRegister() {
 
@@ -44,16 +44,16 @@ function CustomerRegister() {
         }
 
         try {
-            const registration = await api.post('/auth/register-customer', registerDetails);
+            const registration = await customerRegistrationApi(registerDetails);
 
             // navigate OTP verification page
-            if (registration.data.success) {
-                localStorage.setItem('expiredAt', registration.data.expiresAt)
+            if (registration.success) {
+                localStorage.setItem('expiredAt', registration.expiresAt)
                 navigate('/verify-otp', {
                     state: {
-                        verification_id: registration.data.verification_id,
-                        maskEmail: registration.data.masked_email,
-                        expiresAt: registration.data.expiresAt
+                        verification_id: registration.verification_id,
+                        maskEmail: registration.masked_email,
+                        expiresAt: registration.expiresAt
                     }
                 })
             }
