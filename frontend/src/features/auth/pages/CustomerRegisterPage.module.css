@@ -1,5 +1,4 @@
-/* Register.module.css */
-
+/* Main container */
 .container {
   min-height: 100vh;
   background-color: var(--color-bg);
@@ -11,39 +10,6 @@
   align-items: center;
   position: relative;
   overflow: hidden;
-}
-
-.mini_leaf_1 {
-  position: absolute;
-  width: 6rem;
-  top: 15%;
-  left: 10%;
-  filter: blur(5px);
-}
-
-.mini_tomato_1 {
-  position: absolute;
-  width: 10rem;
-  top: 80%;
-  left: 5%;
-  filter: blur(5px);
-}
-
-.mini_leaf_2 {
-  position: absolute;
-  width: 4rem;
-  top: 60%;
-  left: 80%;
-  filter: blur(5px);
-  transform: rotate(90deg);
-}
-
-.mini_tomato_2 {
-  position: absolute;
-  width: 6rem;
-  top: 40%;
-  left: 90%;
-  filter: blur(5px);
 }
 
 /* Background decorative elements (optional placeholders for the floating leaves/tomatoes) */
@@ -534,8 +500,7 @@
 }
 
 .bottomTrust svg {
-  color: #10B981;
-  /* Green color for the check shield */
+  color: var(--color-active);
 }
 
 /* Responsive adjustments */

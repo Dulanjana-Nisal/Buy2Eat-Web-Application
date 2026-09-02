@@ -1,16 +1,15 @@
 import styles from './CustomerRegisterPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom'
-import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
-import mini_tomato from '../../../assets/images/tomato-transparent.webp';
 import right_banner from '../../../assets/images/customer-register-right-banner.png';
 import left_transparent_banner from '../../../assets/images/customer-card.svg';
 import { useState } from 'react';
 import api from '../../../app/config/api';
+import UIbackground from '../components/UIbackground';
 
 function CustomerRegister() {
 
-    // ui use status hooks
+    // useStats hook for UI
     const [hidePass, setHidePass] = useState(true);
     const [hidePassConform, setHidePassConform] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -18,7 +17,7 @@ function CustomerRegister() {
     // Navigation hooks
     const navigate = useNavigate();
 
-    // data use state hooks
+    // useState hooks for handle data
     const [registerDetails, setRegisterDetails] = useState({
         email: "",
         password: "",
@@ -29,7 +28,7 @@ function CustomerRegister() {
         agreement: false,
     })
 
-    // call backend apis
+    // Customer registration function
     const customerRegister = async (e) => {
         e.preventDefault();
 
@@ -75,19 +74,16 @@ function CustomerRegister() {
             <div className={styles.container}>
 
                 {/* background mini transparent images */}
-                <img src={mini_leaf} alt="mini_leaf_image" className={styles.mini_leaf_1} />
-                <img src={mini_tomato} alt="mini_tomato_image" className={styles.mini_tomato_1} />
-                <img src={mini_leaf} alt="mini_leaf_image" className={styles.mini_leaf_2} />
-                <img src={mini_tomato} alt="mini_tomato_image" className={styles.mini_tomato_2} />
+                <UIbackground />
 
                 {/* Top Navigation */}
                 <nav className={styles.topNav}>
-                    <button className={styles.backButton}>
+                    <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        Back to Home
+                        Back
                     </button>
                 </nav>
 
