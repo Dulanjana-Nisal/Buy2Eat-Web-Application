@@ -6,6 +6,7 @@ import customer_card from '../../../assets/images/customer-card.svg';
 import seller_card from '../../../assets/images/seller-card.svg';
 import customer_register from '../../../assets/images/customer-register-background.jpg';
 import seller_register from '../../../assets/images/seller-register-background.jpg';
+import UIbackground from '../components/UIbackground';
 
 function RegisterPage() {
     return (
@@ -13,10 +14,7 @@ function RegisterPage() {
             <div className={styles.container}>
 
                 {/* background mini transparent images */}
-                <img src={mini_leaf} alt="mini_leaf_image" className={styles.mini_leaf_1} />
-                <img src={mini_tomato} alt="mini_tomato_image" className={styles.mini_tomato_1} />
-                <img src={mini_leaf} alt="mini_leaf_image" className={styles.mini_leaf_2} />
-                <img src={mini_tomato} alt="mini_tomato_image" className={styles.mini_tomato_2} />
+                <UIbackground />
                 
                 {/* Registration Header */}
                 <div className={styles.header}>
