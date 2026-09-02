@@ -12,14 +12,6 @@
   overflow: hidden;
 }
 
-/* Background decorative elements (optional placeholders for the floating leaves/tomatoes) */
-.bgDecoration {
-  position: absolute;
-  z-index: 0;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
 /* Header Section */
 .topNav {
   width: 100%;
@@ -51,6 +43,7 @@
   transform: translateX(-4px);
 }
 
+/* Header texts */
 .headerTexts {
   text-align: center;
   margin-bottom: 40px;
@@ -385,9 +378,6 @@
   gap: 16px;
   width: fit-content;
   padding: 10px;
-  /* background-color: var(--color-primary-light);
-  border: 1px solid var(--color-primary-border);
-  border-radius: var(--radius-md); */
 }
 
 .featureIcon {
@@ -444,63 +434,6 @@
   margin: 0;
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-}
-
-/* Footer Badges */
-.footerBadges {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
-  background: #ffffff;
-  padding: 24px 40px;
-  border-radius: 100px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-  margin-bottom: 30px;
-  z-index: 1;
-}
-
-.badgeItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.badgeIcon {
-  width: 40px;
-  height: 40px;
-  background-color: #FFF2ED;
-  color: #FF5500;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.badgeText h5 {
-  margin: 0 0 2px 0;
-  font-size: 14px;
-  color: #0F172A;
-}
-
-.badgeText p {
-  margin: 0;
-  font-size: 12px;
-  color: #64748B;
-}
-
-.bottomTrust {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #64748B;
-  font-size: 14px;
-  font-weight: 500;
-  z-index: 1;
-}
-
-.bottomTrust svg {
-  color: var(--color-active);
 }
 
 /* Responsive adjustments */
