@@ -8,13 +8,6 @@ import customer_register from '../../../assets/images/customer-register-backgrou
 import seller_register from '../../../assets/images/seller-register-background.jpg';
 
 function RegisterPage() {
-    const trustItems = [
-        { icon: 'shield', label: 'Secure & Trusted', desc: 'Your data is safe with us' },
-        { icon: 'bolt', label: 'Fast & Reliable', desc: 'Quick delivery & support' },
-        { icon: 'star', label: 'Quality Assured', desc: 'Best food, best experience' },
-        { icon: 'support', label: '24/7 Support', desc: "We're here to help" },
-    ];
-
     return (
         <>
             <div className={styles.container}>
@@ -25,6 +18,7 @@ function RegisterPage() {
                 <img src={mini_leaf} alt="mini_leaf_image" className={styles.mini_leaf_2} />
                 <img src={mini_tomato} alt="mini_tomato_image" className={styles.mini_tomato_2} />
                 
+                {/* Registration Header */}
                 <div className={styles.header}>
                     <h1 className={styles.title}>Join <span>Buy2Eat</span> Marketplace</h1>
                     <p className={styles.subtitle}>Tell us how you want to use our platform
@@ -34,7 +28,10 @@ function RegisterPage() {
                     </p>
                 </div>
 
+                {/* Registration cards grid */}
                 <div className={styles.optionsGrid}>
+
+                    {/* Customers registration card */}
                     <Link to="/register/customer">
                         <button className={`${styles.optionCard} ${styles.delay1}`}>
                             <div className={styles.imageWrapper}>
@@ -70,6 +67,7 @@ function RegisterPage() {
                         </button>
                     </Link>
 
+                    {/* Seller registration card */}
                     <Link to='/register/seller'>
                         <button className={`${styles.optionCard} ${styles.delay2}`}>
                             <div className={styles.imageWrapper}>
@@ -103,33 +101,6 @@ function RegisterPage() {
                         </button>
                     </Link>
                 </div>
-
-                {/* <div className={styles.trustBar}>
-                    {trustItems.map((item) => (
-                        <div key={item.label} className={styles.trustItem}>
-                            <div className={styles.trustIconWrap}>
-                                {item.icon === 'shield' && (
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.8-3 8.8-7 10-4-1.2-7-5.2-7-10V6l7-3zm0 5l-2.3 5.2L4 13.2l4.4 3.2L7 21l5-2.7L17 21l-.4-4.6 4.4-3.2-5.7-.2L12 8z" /></svg>
-                                )}
-                                {item.icon === 'bolt' && (
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 13h5l-1 9 9-11h-5l1-9z" /></svg>
-                                )}
-                                {item.icon === 'star' && (
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 0 6.5 18.7l1.1-6.2L3.1 9.1l6.2-.9L12 2.5z" /></svg>
-                                )}
-                                {item.icon === 'support' && (
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 1 9 9v4.5A2.5 2.5 0 0 1 18.5 19H17v-5h2.5v-3a7.5 7.5 0 0 0-15 0v3H7v5h-1.5A2.5 2.5 0 0 1 3 16.5V12a9 9 0 0 1 9-9zm-7 11v3h2v-3H5zm12 0v3h2v-3h-2z" /></svg>
-                                )}
-                            </div>
-                            <div className={styles.trustText}>
-                                <strong>{item.label}</strong>
-                                <span>{item.desc}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                <div className={styles.bottomBadge}><span>✓</span> Trusted by thousands of food lovers and local businesses</div> */}
             </div>
         </>
     )
