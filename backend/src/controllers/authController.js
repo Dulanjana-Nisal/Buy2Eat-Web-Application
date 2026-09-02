@@ -68,6 +68,14 @@ const authLogin = asyncHandler(async (req, res) => {
 		});
 	}
 
+	// check password have more that 6 characters
+	if (password.length < 6) {
+		return res.status(400).json({
+			success: false,
+			message: 'Password must have more that 6 characters!',
+		});
+	}
+
 	// check password
 	const checkPass = await bcrypt.compare(password, user.password);
 	if (!checkPass) {
@@ -128,6 +136,14 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		});
 	}
 
+	// check password have more that 6 characters
+	if (password.length < 6) {
+		return res.status(400).json({
+			success: false,
+			message: 'Password must have more that 6 characters!',
+		});
+	}
+
 	// hash password using bcrypt
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
@@ -164,7 +180,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	})
 
 	// if something wrong wile create database schema
-	if(!otpCreation){
+	if (!otpCreation) {
 		throw new Error('Error while create database schema!')
 	}
 
@@ -215,6 +231,14 @@ const registerSellers = asyncHandler(async (req, res) => {
 		});
 	}
 
+	// check password have more that 6 characters
+	if (password.length < 6) {
+		return res.status(400).json({
+			success: false,
+			message: 'Password must have more that 6 characters!',
+		});
+	}
+
 	// hash password
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
@@ -250,7 +274,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	})
 
 	// if something wrong while create schema
-	if(!otpCreation){
+	if (!otpCreation) {
 		throw new Error('Error while create database schema!')
 	}
 
@@ -446,9 +470,9 @@ const resendOtp = asyncHandler(async (req, res) => {
 			],
 		},
 		{
-			$set: { 
+			$set: {
 				lastResendAt: reservationTime,
-				reservation_id:  reservationId,
+				reservation_id: reservationId,
 			},
 			$inc: { resendCount: 1 },
 		},
@@ -487,7 +511,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		const newOtp = crypto.randomInt(100000, 1000000).toString();
 		const hashNewOtp = await bcrypt.hash(newOtp, 10);
 
-		
+
 		// update otp in database with new hash and reset attempts
 		const updateNewResentUser = await registrationOtpModel.findOneAndUpdate(
 			{
@@ -507,7 +531,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		);
 
 		// check if failed to get updateNewResentUser
-		if(!updateNewResentUser){
+		if (!updateNewResentUser) {
 			throw new Error("Failed to update database while sending email!")
 		};
 
@@ -521,7 +545,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 				reservation_id: reservationId
 			},
 			{
-				$set:  {
+				$set: {
 					reservation_id: null,
 				},
 			},
