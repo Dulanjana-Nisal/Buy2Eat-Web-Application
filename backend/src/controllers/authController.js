@@ -143,11 +143,13 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
+	const nowDate = new Date();
 	const otpCreation = await registrationOtpModel.create({
 		verification_id: verification_id_value,
 		email: email,
 		hash_otp: hashOtp,
 		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
+		session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
 		role: 'customer',
 		hash_password: hashedPassword,
 		profile_data: {
@@ -228,12 +230,14 @@ const registerSellers = asyncHandler(async (req, res) => {
 	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
+	const nowDate = new Date();
 	const otpCreation = await registrationOtpModel.create({
 		verification_id: verification_id_value,
 		email: email,
 		hash_otp: hashOtp,
 		hash_password: hashedPassword,
 		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
+		session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
 		role: 'seller',
 		profile_data: {
 			first_name,
@@ -400,7 +404,12 @@ const resendOtp = asyncHandler(async (req, res) => {
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
 	if (!otpUser) return res.status(400).json({
 		success: false,
-		message: 'Invalid verification_id!'
+		message: 'Invalid verification_id'
+	});
+
+	if (otpUser.session_expiresAt <= new Date()) return res.status(400).json({
+		success: false,
+		message: 'OTP record was delete, pleas re register to get new OTP!'
 	});
 
 	// set cooldown time 
@@ -429,7 +438,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		{
 			verification_id,
 			resendCount: { $lt: 4 },
-			expiresAt: { $gt: new Date() },
+			session_expiresAt: { $gt: new Date() },
 			reservation_id: null,
 			$or: [
 				{ lastResendAt: null },
@@ -523,6 +532,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		return res.status(200).json({
 			success: true,
 			message: 'OTP resend successfully...',
+			expiresAt: updateNewResentUser.expiresAt,
 		});
 
 	} catch (error) {
