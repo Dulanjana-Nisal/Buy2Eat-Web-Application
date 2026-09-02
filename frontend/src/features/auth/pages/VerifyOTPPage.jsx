@@ -6,23 +6,26 @@ import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
 import mini_tomato from '../../../assets/images/tomato-transparent.webp';
 import right_banner from '../../../assets/images/customer-register-right-banner.png';
 import left_transparent_banner from '../../../assets/images/otp-background.svg';
+import api from '../../../app/config/api';
 
 function VerifyOTPPage() {
-
-    // use states hooks
-    const [loading, setLoading] = useState(false);
-    const [otp, setOtp] = useState(['', '', '', '', '', '']);
-    const [secondsLeft, setSecondsLeft] = useState(60);
 
     // navigation state hooks
     const navigate = useNavigate();
     const location = useLocation();
 
+    // use states hooks
+    const [loading, setLoading] = useState(false);
+    const [loadResend,setLoadResend] = useState(false);
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [secondsLeft, setSecondsLeft] = useState(60);
+    const [expire, setExpire] = useState(localStorage.getItem('expiredAt') || location.state?.expiresAt);
+
     // use effect for calculate count down
     useEffect(() => {
         const timer = setInterval(() => {
 
-            const expiresAt = location.state?.expiresAt;
+            const expiresAt = expire;
             const nowTime = new Date();
 
             // convert expireAt in to js Date object
@@ -45,16 +48,59 @@ function VerifyOTPPage() {
         }, 1000)
 
         return () => clearInterval(timer)
-    }, [])
+    }, [expire])
 
+    // use effect get state data from navigate
     useEffect(() => {
-        // get state data from navigate
         const verificationId = location.state?.verification_id
         console.log(verificationId)
         if (!verificationId) {
             navigate("/register", { replace: true })
         }
     }, [])
+
+    // submit OTP
+    const submitOtp = async (e) => {
+        e.preventDefault();
+
+        // convert array to string value
+        const otpValue = otp.join("");
+
+        setLoading(true)
+
+        try{
+            const otpVerification = await api.post('/auth/verify-otp', {
+                verification_id: location.state?.verification_id,
+                otp: otpValue,
+            })
+
+            console.log(otpVerification.data)
+        }
+        catch(err){
+            console.log(err.response?.data)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
+    // Resend OTP
+    const resendOtp = async () => {
+        setLoadResend(true)
+        try{
+            const resentOtpData = await api.post('/auth/resend-otp', {verification_id: location.state?.verification_id});
+            console.log(resentOtpData.data)
+            setSecondsLeft(60)
+            setExpire(resentOtpData.data.expiresAt);
+            localStorage.setItem('expiredAt', resentOtpData.data.expiresAt);
+        }
+        catch(err){
+            console.log(err.response?.data);
+        }
+        finally{
+            setLoadResend(false);
+        }
+    }
 
     // handel otp input values
     const handleOtpChange = (value, index) => {
@@ -139,12 +185,24 @@ function VerifyOTPPage() {
                                     <span>Didn't receive the code?</span>
                                     {
                                         secondsLeft === 0 ?
-                                            <button type="button" className={styles.resendButton}>
-                                                <span>Resend </span>
+                                            <button
+                                                type="button"
+                                                className={`${styles.resendButton} ${loadResend ? styles.resendButtonLoading : ''}`}
+                                                onClick={() => resendOtp()}
+                                                disabled={loadResend}
+                                            >
+                                                {loadResend ? (
+                                                    <>
+                                                        <span className={styles.resendSpinner} aria-label="Resending OTP" />
+                                                        <span>Sending...</span>
+                                                    </>
+                                                ) : (
+                                                    <span>Resend</span>
+                                                )}
                                             </button>
                                             :
                                             <div type="button" className={styles.resendButton}>
-                                                <span className={styles.disableResend}>Resend in</span> 00:{String(secondsLeft).padStart(2, '0')}
+                                                <span className={styles.disableResend}>Resend in</span>{secondsLeft == 60 ? "01.00" : `00: ${String(secondsLeft).padStart(2, "0")}`}
                                             </div>
                                     }
                                 </div>
@@ -158,7 +216,7 @@ function VerifyOTPPage() {
                                 </div>
                             </div>
 
-                            <button type="submit" className={styles.submitBtn}>
+                            <button type="submit" className={styles.submitBtn} onClick={(e) => submitOtp(e)}>
                                 {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
                                     <>
                                         Verify Code
@@ -171,7 +229,7 @@ function VerifyOTPPage() {
                                 <span>Or need change email</span>
                             </div>
 
-                            <button type="submit" className={styles.backRegisterBtn}>
+                            <button type="button" className={styles.backRegisterBtn} onClick={() => navigate(-1)}>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" ><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                                 </svg>
                                 Edit email

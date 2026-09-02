@@ -52,6 +52,7 @@ function CustomerRegister() {
 
             // navigate OTP verification page
             if(registration.data.success){
+                localStorage.setItem('expiredAt', registration.data.expiresAt)
                 navigate('/verify-otp', {
                     state: {
                         verification_id: registration.data.verification_id,

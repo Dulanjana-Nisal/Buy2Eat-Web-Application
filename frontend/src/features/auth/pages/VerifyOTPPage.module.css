@@ -258,6 +258,31 @@
     font-weight: var(--font-weight-bold);
     cursor: pointer;
     padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 55px;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.resendButton:disabled {
+    cursor: wait;
+    opacity: 0.75;
+}
+
+.resendButtonLoading {
+    color: var(--color-text-secondary);
+}
+
+.resendSpinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
 }
 
 .disableResend{
