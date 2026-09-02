@@ -38,7 +38,7 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                         <span>Or sign in with email</span>
                     </div>
 
-                    <form className={styles.form}>
+                    <form className={styles.form} onSubmit={userLogin}>
                         <div className={styles.inputGroup}>
                             <label htmlFor="email">Email address</label>
                             <input
@@ -85,7 +85,7 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                             <label htmlFor="remember">Remember me </label>
                         </div>
 
-                        <button type="submit" className={styles.submitButton} onClick={userLogin} disabled={loading} aria-busy={loading}>
+                        <button type="submit" className={styles.submitButton} disabled={loading} aria-busy={loading}>
                             {loading ? <span className={styles.spinner} aria-label="Logging in" /> : <><p>Login</p><span>&rarr;</span></>}
                         </button>
                     </form>

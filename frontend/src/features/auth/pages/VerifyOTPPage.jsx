@@ -73,14 +73,15 @@ function VerifyOTPPage() {
                 otp: otpValue,
             })
 
-            // delete all navigation data
-            navigate(location.pathname, {
-                replace: true,
-                state: null,
-            })
-
+            
             if (otpVerification.success) {
                 setVerificationStatus('success');
+                
+                // delete all navigation data
+                navigate(location.pathname, {
+                    replace: true,
+                    state: null,
+                })
             } else {
                 setVerificationStatus('failure');
             }

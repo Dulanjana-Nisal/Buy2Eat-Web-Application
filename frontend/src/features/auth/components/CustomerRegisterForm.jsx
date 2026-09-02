@@ -143,7 +143,7 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                         <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
                     </label>
 
-                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)}>
+                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading}>
                         {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
                             <>
                                 Create Account

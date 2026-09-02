@@ -11,6 +11,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/register/customer" element={<CustomerRegister />} />
+        <Route path="/register/seller" element={<CustomerRegister />} />
         <Route path="/verify-otp" element={<VerifyOTPPage />} />
       </Routes>
     </BrowserRouter>

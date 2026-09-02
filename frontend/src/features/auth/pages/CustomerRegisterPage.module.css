@@ -204,17 +204,8 @@
     flex-direction: column;
   }
 
-  .formGrid {
-    grid-template-columns: 1fr;
-  }
-
   .footerBadges {
     border-radius: 24px;
   }
 }
 
-@media (max-width: 450px) {
-  .formPanel {
-    padding: 30px 20px;
-  }
-}
