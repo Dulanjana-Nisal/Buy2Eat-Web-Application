@@ -13,6 +13,8 @@
     right: -4rem;
     width: 260px;
     opacity: 0.1;
+    z-index: 0;
+    pointer-events: none;
 }
 
 .formHeader {
@@ -195,6 +197,8 @@
     cursor: pointer;
     transition: background-color 0.2s;
     margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
 }
 
 .submitBtn svg {
