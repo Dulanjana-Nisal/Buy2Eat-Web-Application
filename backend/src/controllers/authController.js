@@ -523,6 +523,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		return res.status(200).json({
 			success: true,
 			message: 'OTP resend successfully...',
+			expiresAt: updateNewResentUser.expiresAt,
 		});
 
 	} catch (error) {
