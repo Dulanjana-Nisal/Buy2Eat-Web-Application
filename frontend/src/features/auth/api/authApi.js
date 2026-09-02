@@ -1,4 +1,4 @@
-import api from "../../../app/config/api"
+import api from "../../../app/config/api";
 
 // Customer Registration API
 export const customerRegistrationApi = async ( registerDetails ) => {

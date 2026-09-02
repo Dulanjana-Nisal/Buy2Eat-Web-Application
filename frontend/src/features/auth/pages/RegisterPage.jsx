@@ -1,7 +1,5 @@
 import styles from './RegisterPage.module.css';
 import { Link } from 'react-router-dom';
-import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
-import mini_tomato from '../../../assets/images/tomato-transparent.webp';
 import customer_card from '../../../assets/images/customer-card.svg';
 import seller_card from '../../../assets/images/seller-card.svg';
 import customer_register from '../../../assets/images/customer-register-background.jpg';
