@@ -13,7 +13,7 @@ function RegisterPage() {
 
                 {/* background mini transparent images */}
                 <UIbackground />
-                
+
                 {/* Registration Header */}
                 <div className={styles.header}>
                     <h1 className={styles.title}>Join <span>Buy2Eat</span> Marketplace</h1>

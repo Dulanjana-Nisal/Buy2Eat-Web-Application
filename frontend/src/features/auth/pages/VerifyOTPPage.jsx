@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import styles from './VerifyOTPPage.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import right_banner from '../../../assets/images/customer-register-right-banner.png';
-import api from '../../../app/config/api';
 import UIbackground from '../components/UIbackground';
 import OTPForm from '../components/OTPForm';
+import { resendOTPApi, submitOTPApi } from '../api/authApi';
 
 function VerifyOTPPage() {
 
@@ -14,7 +14,7 @@ function VerifyOTPPage() {
 
     // use states hooks
     const [loading, setLoading] = useState(false);
-    const [loadResend,setLoadResend] = useState(false);
+    const [loadResend, setLoadResend] = useState(false);
     const [verificationStatus, setVerificationStatus] = useState(null);
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [secondsLeft, setSecondsLeft] = useState(60);
@@ -37,10 +37,10 @@ function VerifyOTPPage() {
             // calculate time difference
             const timeDifference = Math.abs(nowTime.getTime() - createdDate.getTime())
 
-            if(timeDifference < 60000){
+            if (timeDifference < 60000) {
                 setSecondsLeft((current) => (current > 0 ? Math.trunc((60 - (timeDifference / 1000))) : 0))
             }
-            if(timeDifference >= 60000){
+            if (timeDifference >= 60000) {
                 setSecondsLeft(0)
             }
 
@@ -67,8 +67,8 @@ function VerifyOTPPage() {
 
         setLoading(true)
 
-        try{
-            const otpVerification = await api.post('/auth/verify-otp', {
+        try {
+            const otpVerification = await submitOTPApi({
                 verification_id: location.state?.verification_id,
                 otp: otpValue,
             })
@@ -79,17 +79,17 @@ function VerifyOTPPage() {
                 state: null,
             })
 
-            if (otpVerification.data.success) {
+            if (otpVerification.success) {
                 setVerificationStatus('success');
             } else {
                 setVerificationStatus('failure');
             }
         }
-        catch(err){
+        catch (err) {
             setVerificationStatus('failure');
             console.log(err.response?.data)
         }
-        finally{
+        finally {
             setLoading(false)
         }
     }
@@ -97,17 +97,16 @@ function VerifyOTPPage() {
     // Resend OTP
     const resendOtp = async () => {
         setLoadResend(true)
-        try{
-            const resentOtpData = await api.post('/auth/resend-otp', {verification_id: location.state?.verification_id});
-            console.log(resentOtpData.data)
+        try {
+            const resentOtpData = await resendOTPApi({ verification_id: location.state?.verification_id });
             setSecondsLeft(60)
-            setExpire(resentOtpData.data.expiresAt);
-            localStorage.setItem('expiredAt', resentOtpData.data.expiresAt);
+            setExpire(resentOtpData.expiresAt);
+            localStorage.setItem('expiredAt', resentOtpData.expiresAt);
         }
-        catch(err){
+        catch (err) {
             console.log(err.response?.data);
         }
-        finally{
+        finally {
             setLoadResend(false);
         }
     }
