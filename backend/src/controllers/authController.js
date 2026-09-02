@@ -143,12 +143,13 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
+	const nowDate = new Date();
 	const otpCreation = await registrationOtpModel.create({
 		verification_id: verification_id_value,
 		email: email,
 		hash_otp: hashOtp,
 		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
-		session_expiresAt: new Date(now.getTime() + 30 * 60 * 1000), // session expires in 30 min
+		session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
 		role: 'customer',
 		hash_password: hashedPassword,
 		profile_data: {
@@ -229,13 +230,14 @@ const registerSellers = asyncHandler(async (req, res) => {
 	await registrationOtpModel.deleteMany({ email: normalizedEmail })
 
 	// save otp in database
+	const nowDate = new Date();
 	const otpCreation = await registrationOtpModel.create({
 		verification_id: verification_id_value,
 		email: email,
 		hash_otp: hashOtp,
 		hash_password: hashedPassword,
 		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
-		session_expiresAt: new Date(now.getTime() + 30 * 60 * 1000), // session expires in 30 min
+		session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
 		role: 'seller',
 		profile_data: {
 			first_name,
