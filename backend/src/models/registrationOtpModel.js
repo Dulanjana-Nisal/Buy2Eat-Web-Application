@@ -8,6 +8,10 @@ const registrationOtpModel = mongoose.Schema({
         unique: true,
         index: true
     },
+    reservation_id:{
+        type: String,
+        default: null,
+    },
     email: {
         type: String,
         unique: [true, 'Email cant duplicate!'],
@@ -30,6 +34,10 @@ const registrationOtpModel = mongoose.Schema({
     expiresAt: {
         type: Date,
         required: [true, 'expiresAt is required!'],
+    },
+    session_expiresAt: {
+        type: Date,
+        required: [true, 'session_expiresAt is required!'],
         expires: 0
     },
     attempts: {
@@ -54,10 +62,6 @@ const registrationOtpModel = mongoose.Schema({
         type: String,
         enum: ['admin', 'customer', 'seller'],
         required: [true, 'Role is required!']
-    },
-    reservation_id:{
-        type: String,
-        default: null,
     },
     profile_data: {
         type: Object,

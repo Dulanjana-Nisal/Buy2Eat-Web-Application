@@ -148,6 +148,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		email: email,
 		hash_otp: hashOtp,
 		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
+		session_expiresAt: new Date(now.getTime() + 30 * 60 * 1000), // session expires in 30 min
 		role: 'customer',
 		hash_password: hashedPassword,
 		profile_data: {
@@ -234,6 +235,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 		hash_otp: hashOtp,
 		hash_password: hashedPassword,
 		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
+		session_expiresAt: new Date(now.getTime() + 30 * 60 * 1000), // session expires in 30 min
 		role: 'seller',
 		profile_data: {
 			first_name,
@@ -400,7 +402,12 @@ const resendOtp = asyncHandler(async (req, res) => {
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
 	if (!otpUser) return res.status(400).json({
 		success: false,
-		message: 'Invalid verification_id!'
+		message: 'Invalid verification_id'
+	});
+
+	if (!otpUser.session_expiresAt >= new Date()) return res.status(400).json({
+		success: false,
+		message: 'OTP record was delete, pleas re register to get new OTP!'
 	});
 
 	// set cooldown time 
