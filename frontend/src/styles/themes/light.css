@@ -20,6 +20,8 @@
      ======================================================= */
 
     --color-on-primary: #ffffff;
+    --color-on-dark: #0f172a;
+    --color-on-disabled: #1e293bd2;
 
 
     /* =======================================================
@@ -175,6 +177,7 @@
     --font-family: "Nunito", sans-serif;
     --font-family-baby: "Oooh Baby", cursive;
 
+    --font-size-2xs: 0.58rem;
     --font-size-xs: 0.75rem;
     --font-size-sm: 0.875rem;
     --font-size-md: 1rem;
@@ -247,4 +250,6 @@
     --transition-fast: 150ms ease;
     --transition-normal: 200ms ease;
     --transition-slow: 300ms ease;
+    --transition-2slow: 500ms ease;
+    --transition-3slow: 700ms ease;
 }

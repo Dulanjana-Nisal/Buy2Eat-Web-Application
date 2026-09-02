@@ -1,114 +1,68 @@
-import { useEffect, useState } from 'react';
-import styles from './VerifyOTPPage.module.css';
-import { useNavigate, useLocation } from 'react-router-dom';
+import styles from './CustomerRegisterPage.module.css';
+import { useNavigate } from 'react-router-dom';
 import right_banner from '../../../assets/images/customer-register-right-banner.png';
+import { useState } from 'react';
 import UIbackground from '../components/UIbackground';
-import OTPForm from '../components/OTPForm';
-import { resendOTPApi, submitOTPApi } from '../api/authApi';
+import CustomerRegisterForm from '../components/CustomerRegisterForm';
+import { customerRegistrationApi } from '../api/authApi';
 
-function VerifyOTPPage() {
+function CustomerRegister() {
 
-    // navigation state hooks
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    // use states hooks
+    // useStats hook for UI
     const [loading, setLoading] = useState(false);
-    const [loadResend, setLoadResend] = useState(false);
-    const [verificationStatus, setVerificationStatus] = useState(null);
-    const [otp, setOtp] = useState(['', '', '', '', '', '']);
-    const [secondsLeft, setSecondsLeft] = useState(60);
-    const [expire, setExpire] = useState(localStorage.getItem('expiredAt') || location.state?.expiresAt);
 
-    // use effect for calculate count down
-    useEffect(() => {
-        const timer = setInterval(() => {
+    // Navigation hooks
+    const navigate = useNavigate();
 
-            const expiresAt = expire;
-            const nowTime = new Date();
+    // useState hooks for handle data
+    const [registerDetails, setRegisterDetails] = useState({
+        email: "",
+        password: "",
+        confPass: "",
+        first_name: "",
+        last_name: "",
+        phone_number: "",
+        agreement: false,
+    })
 
-            // convert expireAt in to js Date object
-            const expireDate = new Date(expiresAt);
-
-            // calculate created time
-            const createdAt = expireDate.setMinutes(expireDate.getMinutes() - 5);
-            const createdDate = new Date(createdAt)
-
-            // calculate time difference
-            const timeDifference = Math.abs(nowTime.getTime() - createdDate.getTime())
-
-            if (timeDifference < 60000) {
-                setSecondsLeft((current) => (current > 0 ? Math.trunc((60 - (timeDifference / 1000))) : 0))
-            }
-            if (timeDifference >= 60000) {
-                setSecondsLeft(0)
-            }
-
-        }, 1000)
-
-        return () => clearInterval(timer)
-    }, [expire])
-
-    // use effect get state data from navigate
-    useEffect(() => {
-        const verificationId = location.state?.verification_id
-        console.log(verificationId)
-        if (!verificationId) {
-            navigate("/register", { replace: true })
-        }
-    }, [location.state?.verification_id, navigate])
-
-    // submit OTP
-    const submitOtp = async (e) => {
+    // Customer registration function
+    const customerRegister = async (e) => {
         e.preventDefault();
-
-        // convert array to string value
-        const otpValue = otp.join("");
 
         setLoading(true)
 
-        try {
-            const otpVerification = await submitOTPApi({
-                verification_id: location.state?.verification_id,
-                otp: otpValue,
-            })
+        // check password and conform password is same
+        if (registerDetails.password !== registerDetails.confPass) {
+            setLoading(false)
+            return console.error('Passwords are not matched!')
+        }
 
-            
-            if (otpVerification.success) {
-                setVerificationStatus('success');
-                
-                // delete all navigation data
-                navigate(location.pathname, {
-                    replace: true,
-                    state: null,
+        // check if agreement is sign
+        if (!registerDetails.agreement) {
+            setLoading(false)
+            return console.error("Please agree with Terms of services and Privacy Policy")
+        }
+
+        try {
+            const registration = await customerRegistrationApi(registerDetails);
+
+            // navigate OTP verification page
+            if (registration.success) {
+                localStorage.setItem('expiredAt', registration.expiresAt)
+                navigate('/verify-otp', {
+                    state: {
+                        verification_id: registration.verification_id,
+                        maskEmail: registration.masked_email,
+                        expiresAt: registration.expiresAt
+                    }
                 })
-            } else {
-                setVerificationStatus('failure');
             }
         }
         catch (err) {
-            setVerificationStatus('failure');
-            console.log(err.response?.data)
+            console.log(err?.response?.data)
         }
         finally {
             setLoading(false)
-        }
-    }
-
-    // Resend OTP
-    const resendOtp = async () => {
-        setLoadResend(true)
-        try {
-            const resentOtpData = await resendOTPApi({ verification_id: location.state?.verification_id });
-            setSecondsLeft(60)
-            setExpire(resentOtpData.expiresAt);
-            localStorage.setItem('expiredAt', resentOtpData.expiresAt);
-        }
-        catch (err) {
-            console.log(err.response?.data);
-        }
-        finally {
-            setLoadResend(false);
         }
     }
 
@@ -118,6 +72,17 @@ function VerifyOTPPage() {
 
                 {/* background mini transparent images */}
                 <UIbackground />
+
+                {/* Top Navigation */}
+                <nav className={styles.topNav}>
+                    <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Back
+                    </button>
+                </nav>
 
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>
@@ -134,14 +99,10 @@ function VerifyOTPPage() {
                 <div className={styles.mainCard}>
 
                     {/* Left Side: Form */}
-                    <OTPForm
-                        otp={otp}
-                        setOtp={setOtp}
-                        secondsLeft={secondsLeft}
-                        loadResend={loadResend}
-                        resendOtp={resendOtp}
-                        verificationStatus={verificationStatus}
-                        submitOtp={submitOtp}
+                    <CustomerRegisterForm
+                        setRegisterDetails={setRegisterDetails}
+                        registerDetails={registerDetails}
+                        customerRegister={customerRegister}
                         loading={loading}
                     />
 
@@ -201,4 +162,4 @@ function VerifyOTPPage() {
     )
 }
 
-export default VerifyOTPPage;
+export default CustomerRegister;
