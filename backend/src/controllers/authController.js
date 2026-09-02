@@ -72,7 +72,7 @@ const authLogin = asyncHandler(async (req, res) => {
 	if (password.length < 6) {
 		return res.status(400).json({
 			success: false,
-			message: 'Password must have more that 6 characters!',
+			message: 'Password must have at least 6 characters!',
 		});
 	}
 
@@ -140,7 +140,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	if (password.length < 6) {
 		return res.status(400).json({
 			success: false,
-			message: 'Password must have more that 6 characters!',
+			message: 'Password must have at least 6 characters!',
 		});
 	}
 
@@ -235,7 +235,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	if (password.length < 6) {
 		return res.status(400).json({
 			success: false,
-			message: 'Password must have more that 6 characters!',
+			message: 'Password must have at least 6 characters!',
 		});
 	}
 
