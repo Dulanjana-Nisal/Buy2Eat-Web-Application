@@ -514,6 +514,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 			{
 				$set:  {
 					reservation_id: null,
+					expiresAt: new Date(Date.now() + 5 * 60 * 1000),
 				},
 			},
 			{ new: true }

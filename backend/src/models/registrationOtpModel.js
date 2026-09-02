@@ -30,7 +30,7 @@ const registrationOtpModel = mongoose.Schema({
     expiresAt: {
         type: Date,
         required: [true, 'expiresAt is required!'],
-        expireAfterSeconds: 0
+        expires: 0
     },
     attempts: {
         type: Number,
