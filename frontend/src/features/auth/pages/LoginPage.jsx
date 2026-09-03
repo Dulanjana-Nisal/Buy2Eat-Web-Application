@@ -3,6 +3,7 @@ import login_background from '../../../assets/images/login-background.avif';
 import { useState } from 'react';
 import api from '../../../app/config/api';
 import LoginForm from '../components/LoginForm';
+import UIbackground from '../components/UIbackground';
 
 function LoginPage() {
 
@@ -36,6 +37,9 @@ function LoginPage() {
     return (
         <>
             <div className={styles.section}>
+                {/* Transparent mini images */}
+                <UIbackground />
+                
                 <div className={styles.container}>
                     {/* Left Panel - Login Form */}
                     <LoginForm

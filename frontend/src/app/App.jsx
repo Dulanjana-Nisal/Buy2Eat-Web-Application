@@ -3,6 +3,7 @@ import LoginPage from '../features/auth/pages/LoginPage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import RegisterPage from '../features/auth/pages/RegisterPage';
 import VerifyOTPPage from '../features/auth/pages/VerifyOTPPage';
+import ForgotPassword from '../features/auth/pages/ForgotPasswordPage';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/register/customer" element={<CustomerRegister />} />
         <Route path="/register/seller" element={<CustomerRegister />} />
         <Route path="/verify-otp" element={<VerifyOTPPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </BrowserRouter>
   )
