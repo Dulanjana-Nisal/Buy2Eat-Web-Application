@@ -1,5 +1,5 @@
 import styles from './LoginPage.module.css';
-import login_background from '../../../assets/images/login-background.jpg';
+import login_background from '../../../assets/images/customer-register-right-banner.png';
 import { useState } from 'react';
 import api from '../../../app/config/api';
 import LoginForm from '../components/LoginForm';
