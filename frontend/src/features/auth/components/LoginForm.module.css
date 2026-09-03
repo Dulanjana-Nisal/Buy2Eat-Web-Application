@@ -1,14 +1,48 @@
 /* Left Panel */
 .leftPanel {
-    flex: 1;
+    flex: 1.1;
+    padding: 3rem 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    background: linear-gradient(150deg, var(--color-surface) 50%, var(--color-primary) 300%);
+    z-index: 2;
+}
+
+.formHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.userIconWrap {
+    width: 48px;
+    height: 48px;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-primary-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.formHeader h2 {
+    font-size: var(--font-size-xl);
+    margin: 0 0 2px 0;
+}
+
+.formHeader p {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    margin: 0;
 }
 
 .formContainer {
     width: 100%;
-    max-width: 440px;
+    padding: 0 1rem;
 }
 
 .header {
@@ -182,8 +216,8 @@
     background-color: var(--color-primary);
     color: var(--color-on-primary);
     border: none;
-    height: var(--button-height-md);
-    border-radius: var(--radius-md);
+    height: var(--button-height-lg);
+    border-radius: var(--radius-lg);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
     cursor: pointer;
@@ -231,13 +265,13 @@
 
 .footerText a {
     color: var(--color-primary);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-bold);
     text-decoration: none;
 }
 
 .subMealImage {
     position: absolute;
-    bottom: 0;
+    bottom: -0;
     left: 0;
     transform: translate(-35%, 40%);
     width: 150px;
@@ -251,8 +285,8 @@
 
 .subLeafImage {
     position: absolute;
-    top: 0%;
-    right: 100%;
+    top: -2%;
+    left: -20%;
     transform: translate(45%, -45%);
     height: 150px;
     object-fit: contain;
@@ -260,4 +294,13 @@
     background-repeat: no-repeat;
     background-size: cover;
     opacity: 0.85;
+}
+
+.login_transparent {
+    position: absolute;
+    height: 350px;
+    bottom: -10%;
+    right: -20%;
+    opacity: 0.3;
+    z-index: -1;
 }

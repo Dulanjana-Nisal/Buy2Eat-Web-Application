@@ -109,7 +109,7 @@ function CustomerRegister() {
                     {/* Right Side: Features / Info */}
                     <div className={styles.infoPanel}>
                         <h3 className={styles.infoTitle}>
-                            Good food is just <br /> <span className={styles.cursiveText}>one tap</span> away.
+                            Great food is just <br /> <span className={styles.cursiveText}>one tap</span> away.
                         </h3>
 
                         <div className={styles.featureList}>
