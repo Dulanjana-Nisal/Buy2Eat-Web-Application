@@ -54,7 +54,7 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                         <div className={styles.inputGroup}>
                             <div className={styles.passwordHeader}>
                                 <label htmlFor="password">Password</label>
-                                <a href="#" className={styles.forgotPassword}>Forgot password?</a>
+                                <Link to="/forgot-password" className={styles.forgotPassword}>Forgot password?</Link>
                             </div>
                             <div className={styles.passwordInputContainer}>
                                 <input
