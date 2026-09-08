@@ -631,7 +631,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 	// date and time variables
 	const nowDate = new Date();
 	const coolDownTime = new Date(Date.now() - 60 * 1000);
-	const expiredAtTime =  new Date(Date.now() + 15 * 60 * 1000)
+	const expiredAtTime = new Date(Date.now() + 15 * 60 * 1000)
 
 	// generate reset link
 	const resetLink = `${CLIENT_URL}/reset-password/${resetToken}` // this link should be change with frontend ( with frontend PORT )
@@ -646,7 +646,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 			$set: {
 				resetPasswordToken: hashResetToken,
 				createdAt: nowDate,
-				expiredAt:expiredAtTime // set to 15 minutes
+				expiredAt: expiredAtTime // set to 15 minutes
 			}
 		},
 		{ new: true }
@@ -667,7 +667,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 						user_id: user._id,
 						resetPasswordToken: hashResetToken,
 						createdAt: nowDate,
-						expiredAt:expiredAtTime, // set to 15 minutes
+						expiredAt: expiredAtTime, // set to 15 minutes
 					}
 				);
 
@@ -712,10 +712,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
 		const oneMinuteInMs = 60 * 1000;
 
 		if (currentTime - lastCreatedTime < oneMinuteInMs) {
-			const secondsLeft = Math.ceil((oneMinuteInMs - (currentTime - lastCreatedTime)) / 1000);
-			return res.status(429).json({
-				message: `Please wait ${secondsLeft} seconds before requesting a new link.`
-			});
+			return res.status(200).json({
+				success: true,
+				message: "If an account exists with this email, a password reset link will be sent."
+			})
 		}
 	}
 
