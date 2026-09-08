@@ -1,7 +1,7 @@
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import UIbackground from '../../components/UIBackground/UIbackground';
 import styles from './ForgotPasswordSuccessPage.module.css';
-import UIbackground from '../components/UIbackground';
-import transparentBackground from '../../../assets/images/forgot-password-success.svg';
+import transparentBackground from '../../../../assets/images/forgot-password-success.svg';
 
 function ForgotPasswordSuccessPage() {
 

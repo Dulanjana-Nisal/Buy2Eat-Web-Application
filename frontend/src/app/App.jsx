@@ -1,10 +1,10 @@
-import CustomerRegister from '../features/auth/pages/CustomerRegisterPage';
-import LoginPage from '../features/auth/pages/LoginPage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import RegisterPage from '../features/auth/pages/RegisterPage';
-import VerifyOTPPage from '../features/auth/pages/VerifyOTPPage';
-import ForgotPassword from '../features/auth/pages/ForgotPasswordPage';
-import ForgotPasswordSuccessPage from '../features/auth/pages/ForgotPasswordSuccessPage';
+import CustomerRegister from '../features/auth/pages/CustomerRegister/CustomerRegisterPage';
+import LoginPage from '../features/auth/pages/Login/LoginPage';
+import RegisterPage from '../features/auth/pages/Register/RegisterPage';
+import VerifyOTPPage from '../features/auth/pages/VerifyOTP/VerifyOTPPage';
+import ForgotPassword from '../features/auth/pages/ForgotPassword/ForgotPasswordPage';
+import ForgotPasswordSuccessPage from '../features/auth/pages/ForgotPassword/ForgotPasswordSuccessPage';
 
 function App() {
   return (

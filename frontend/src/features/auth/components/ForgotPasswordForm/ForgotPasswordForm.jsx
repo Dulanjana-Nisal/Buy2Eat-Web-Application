@@ -1,5 +1,5 @@
 import styles from './ForgotPasswordForm.module.css';
-import forgot_password_banner from '../../../assets/images/forgot-password.svg';
+import forgot_password_banner from '../../../../assets/images/forgot-password.svg';
 import { Link } from 'react-router-dom';
 
 function ForgotPasswordForm({ userForgotPassword, setUserData, userData, isCooldownActive, cooldownSeconds, loading, navigate }) {

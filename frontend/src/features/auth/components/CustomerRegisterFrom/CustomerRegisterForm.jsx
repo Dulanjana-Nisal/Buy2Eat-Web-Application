@@ -1,5 +1,5 @@
 import styles from './CustomerRegisterForm.module.css';
-import left_transparent_banner from '../../../assets/images/customer-card.svg';
+import left_transparent_banner from '../../../../assets/images/customer-card.svg';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 

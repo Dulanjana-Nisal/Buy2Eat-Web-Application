@@ -1,10 +1,10 @@
 import styles from './RegisterPage.module.css';
 import { Link } from 'react-router-dom';
-import customer_card from '../../../assets/images/customer-card.svg';
-import seller_card from '../../../assets/images/seller-card.svg';
-import customer_register from '../../../assets/images/customer-register-background.jpg';
-import seller_register from '../../../assets/images/seller-register-background.jpg';
-import UIbackground from '../components/UIbackground';
+import customer_card from '../../../../assets/images/customer-card.svg';
+import seller_card from '../../../../assets/images/seller-card.svg';
+import customer_register from '../../../../assets/images/customer-register-background.jpg';
+import seller_register from '../../../../assets/images/seller-register-background.jpg';
+import UIbackground from '../../components/UIBackground/UIbackground';
 
 function RegisterPage() {
     return (

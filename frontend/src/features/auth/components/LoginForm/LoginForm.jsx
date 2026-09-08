@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import styles from './LoginForm.module.css';
-import small_meal_dish from '../../../assets/images/small-meal-dish.webp';
-import small_mint_leaf from '../../../assets/images/mint-leaf.png';
-import login_transparent from '../../../assets/images/login_transparent.svg';
+import small_meal_dish from '../../../../assets/images/small-meal-dish.webp';
+import small_mint_leaf from '../../../../assets/images/mint-leaf.png';
+import login_transparent from '../../../../assets/images/login_transparent.svg';
 import { Link } from 'react-router-dom'
 
 function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {

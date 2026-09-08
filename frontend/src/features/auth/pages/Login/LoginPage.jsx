@@ -1,9 +1,9 @@
 import styles from './LoginPage.module.css';
-import login_background from '../../../assets/images/customer-register-right-banner.png';
+import login_background from '../../../../assets/images/customer-register-right-banner.png';
 import { useState } from 'react';
-import api from '../../../app/config/api';
-import LoginForm from '../components/LoginForm';
-import UIbackground from '../components/UIbackground';
+import api from '../../../../app/config/api';
+import LoginForm from '../../components/LoginForm/LoginForm';
+import UIbackground from '../../components/UIBackground/UIbackground';
 import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {

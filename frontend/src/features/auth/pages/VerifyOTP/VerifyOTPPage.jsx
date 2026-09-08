@@ -1,68 +1,114 @@
-import styles from './CustomerRegisterPage.module.css';
-import { useNavigate } from 'react-router-dom';
-import right_banner from '../../../assets/images/customer-register-right-banner.png';
-import { useState } from 'react';
-import UIbackground from '../components/UIbackground';
-import CustomerRegisterForm from '../components/CustomerRegisterForm';
-import { customerRegistrationApi } from '../api/authApi';
+import { useEffect, useState } from 'react';
+import styles from './VerifyOTPPage.module.css';
+import { useNavigate, useLocation } from 'react-router-dom';
+import right_banner from '../../../../assets/images/customer-register-right-banner.png';
+import UIbackground from '../../components/UIBackground/UIbackground';
+import OTPForm from '../../components/OTPForm/OTPForm';
+import { resendOTPApi, submitOTPApi } from '../../api/authApi';
 
-function CustomerRegister() {
+function VerifyOTPPage() {
 
-    // useStats hook for UI
-    const [loading, setLoading] = useState(false);
-
-    // Navigation hooks
+    // navigation state hooks
     const navigate = useNavigate();
+    const location = useLocation();
 
-    // useState hooks for handle data
-    const [registerDetails, setRegisterDetails] = useState({
-        email: "",
-        password: "",
-        confPass: "",
-        first_name: "",
-        last_name: "",
-        phone_number: "",
-        agreement: false,
-    })
+    // use states hooks
+    const [loading, setLoading] = useState(false);
+    const [loadResend, setLoadResend] = useState(false);
+    const [verificationStatus, setVerificationStatus] = useState(null);
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [secondsLeft, setSecondsLeft] = useState(60);
+    const [expire, setExpire] = useState(localStorage.getItem('expiredAt') || location.state?.expiresAt);
 
-    // Customer registration function
-    const customerRegister = async (e) => {
+    // use effect for calculate count down
+    useEffect(() => {
+        const timer = setInterval(() => {
+
+            const expiresAt = expire;
+            const nowTime = new Date();
+
+            // convert expireAt in to js Date object
+            const expireDate = new Date(expiresAt);
+
+            // calculate created time
+            const createdAt = expireDate.setMinutes(expireDate.getMinutes() - 5);
+            const createdDate = new Date(createdAt)
+
+            // calculate time difference
+            const timeDifference = Math.abs(nowTime.getTime() - createdDate.getTime())
+
+            if (timeDifference < 60000) {
+                setSecondsLeft((current) => (current > 0 ? Math.trunc((60 - (timeDifference / 1000))) : 0))
+            }
+            if (timeDifference >= 60000) {
+                setSecondsLeft(0)
+            }
+
+        }, 1000)
+
+        return () => clearInterval(timer)
+    }, [expire])
+
+    // use effect get state data from navigate
+    useEffect(() => {
+        const verificationId = location.state?.verification_id
+        console.log(verificationId)
+        if (!verificationId) {
+            navigate("/register", { replace: true })
+        }
+    }, [location.state?.verification_id, navigate])
+
+    // submit OTP
+    const submitOtp = async (e) => {
         e.preventDefault();
+
+        // convert array to string value
+        const otpValue = otp.join("");
 
         setLoading(true)
 
-        // check password and conform password is same
-        if (registerDetails.password !== registerDetails.confPass) {
-            setLoading(false)
-            return console.error('Passwords are not matched!')
-        }
-
-        // check if agreement is sign
-        if (!registerDetails.agreement) {
-            setLoading(false)
-            return console.error("Please agree with Terms of services and Privacy Policy")
-        }
-
         try {
-            const registration = await customerRegistrationApi(registerDetails);
+            const otpVerification = await submitOTPApi({
+                verification_id: location.state?.verification_id,
+                otp: otpValue,
+            })
 
-            // navigate OTP verification page
-            if (registration.success) {
-                localStorage.setItem('expiredAt', registration.expiresAt)
-                navigate('/verify-otp', {
-                    state: {
-                        verification_id: registration.verification_id,
-                        maskEmail: registration.masked_email,
-                        expiresAt: registration.expiresAt
-                    }
+            
+            if (otpVerification.success) {
+                setVerificationStatus('success');
+                
+                // delete all navigation data
+                navigate(location.pathname, {
+                    replace: true,
+                    state: null,
                 })
+            } else {
+                setVerificationStatus('failure');
             }
         }
         catch (err) {
-            console.log(err?.response?.data)
+            setVerificationStatus('failure');
+            console.log(err.response?.data)
         }
         finally {
             setLoading(false)
+        }
+    }
+
+    // Resend OTP
+    const resendOtp = async () => {
+        setLoadResend(true)
+        try {
+            const resentOtpData = await resendOTPApi({ verification_id: location.state?.verification_id });
+            setSecondsLeft(60)
+            setExpire(resentOtpData.expiresAt);
+            localStorage.setItem('expiredAt', resentOtpData.expiresAt);
+        }
+        catch (err) {
+            console.log(err.response?.data);
+        }
+        finally {
+            setLoadResend(false);
         }
     }
 
@@ -72,17 +118,6 @@ function CustomerRegister() {
 
                 {/* background mini transparent images */}
                 <UIbackground />
-
-                {/* Top Navigation */}
-                <nav className={styles.topNav}>
-                    <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        Back
-                    </button>
-                </nav>
 
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>
@@ -99,17 +134,21 @@ function CustomerRegister() {
                 <div className={styles.mainCard}>
 
                     {/* Left Side: Form */}
-                    <CustomerRegisterForm
-                        setRegisterDetails={setRegisterDetails}
-                        registerDetails={registerDetails}
-                        customerRegister={customerRegister}
+                    <OTPForm
+                        otp={otp}
+                        setOtp={setOtp}
+                        secondsLeft={secondsLeft}
+                        loadResend={loadResend}
+                        resendOtp={resendOtp}
+                        verificationStatus={verificationStatus}
+                        submitOtp={submitOtp}
                         loading={loading}
                     />
 
                     {/* Right Side: Features / Info */}
                     <div className={styles.infoPanel}>
                         <h3 className={styles.infoTitle}>
-                            Great food is just <br /> <span className={styles.cursiveText}>one tap</span> away.
+                            Good food is just <br /> <span className={styles.cursiveText}>one tap</span> away.
                         </h3>
 
                         <div className={styles.featureList}>
@@ -162,4 +201,4 @@ function CustomerRegister() {
     )
 }
 
-export default CustomerRegister;
+export default VerifyOTPPage;

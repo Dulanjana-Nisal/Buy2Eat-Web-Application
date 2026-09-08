@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import UIbackground from '../components/UIbackground';
+import UIbackground from '../../components/UIBackground/UIbackground';
 import styles from './ForgotPasswordPage.module.css';
 import { useEffect, useState } from 'react';
-import { forgotPasswordApi } from '../api/authApi';
-import ForgotPasswordForm from '../components/ForgotPasswordForm';
+import { forgotPasswordApi } from '../../api/authApi';
+import ForgotPasswordForm from '../../components/ForgotPasswordForm/ForgotPasswordForm';
 
+
+// Main variables for cooldown calculation
 const FORGOT_PASSWORD_COOLDOWN_KEY = 'forgot-password-cooldown-until';
 const FORGOT_PASSWORD_COOLDOWN_MS = 60 * 1000;
 
@@ -24,6 +26,7 @@ function ForgotPassword() {
     // useState hooks for handle data
     const [userData, setUserData] = useState({email: ""})
 
+    // create variables for calculate cooldown time
     const cooldownSeconds = Math.max(0, Math.ceil((cooldownUntil - currentTime) / 1000));
     const isCooldownActive = cooldownSeconds > 0;
 
@@ -32,6 +35,7 @@ function ForgotPassword() {
         return () => window.clearTimeout(timer);
     }, []);
 
+    // handel cooldown time with localstorage
     useEffect(() => {
         if (!isCooldownActive) {
             localStorage.removeItem(FORGOT_PASSWORD_COOLDOWN_KEY);
