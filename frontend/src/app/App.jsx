@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import RegisterPage from '../features/auth/pages/RegisterPage';
 import VerifyOTPPage from '../features/auth/pages/VerifyOTPPage';
 import ForgotPassword from '../features/auth/pages/ForgotPasswordPage';
+import ForgotPasswordSuccessPage from '../features/auth/pages/ForgotPasswordSuccessPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/verify-otp" element={<VerifyOTPPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ForgotPassword />} />
+        <Route path="/forgot-password/success" element={<ForgotPasswordSuccessPage />} />
       </Routes>
     </BrowserRouter>
   )

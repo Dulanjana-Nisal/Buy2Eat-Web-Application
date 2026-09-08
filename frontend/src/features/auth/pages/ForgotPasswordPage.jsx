@@ -1,14 +1,22 @@
 import { Link, useNavigate } from 'react-router-dom';
 import UIbackground from '../components/UIbackground';
 import styles from './ForgotPasswordPage.module.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { forgotPasswordApi } from '../api/authApi';
 import forgot_password_banner from '../../../assets/images/forgot-password.svg';
+
+const FORGOT_PASSWORD_COOLDOWN_KEY = 'forgotPasswordCooldownUntil';
+const FORGOT_PASSWORD_COOLDOWN_MS = 60 * 1000;
 
 function ForgotPassword() {
 
     // useStats hook for UI
     const [loading, setLoading] = useState(false);
+    const [cooldownUntil, setCooldownUntil] = useState(() => {
+        const storedDeadline = Number(localStorage.getItem(FORGOT_PASSWORD_COOLDOWN_KEY));
+        return Number.isFinite(storedDeadline) && storedDeadline > Date.now() ? storedDeadline : 0;
+    });
+    const [currentTime, setCurrentTime] = useState(0);
 
     // Navigation hooks
     const navigate = useNavigate();
@@ -16,15 +24,48 @@ function ForgotPassword() {
     // useState hooks for handle data
     const [userData, setUserData] = useState({email: ""})
 
+    const cooldownSeconds = Math.max(0, Math.ceil((cooldownUntil - currentTime) / 1000));
+    const isCooldownActive = cooldownSeconds > 0;
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => setCurrentTime(Date.now()), 0);
+        return () => window.clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        if (!isCooldownActive) {
+            localStorage.removeItem(FORGOT_PASSWORD_COOLDOWN_KEY);
+            return undefined;
+        }
+
+        const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
+        return () => window.clearInterval(timer);
+    }, [isCooldownActive]);
+
+    useEffect(() => {
+        if (cooldownUntil > 0) {
+            localStorage.setItem(FORGOT_PASSWORD_COOLDOWN_KEY, String(cooldownUntil));
+        }
+    }, [cooldownUntil]);
+
     // Customer registration function
     const userForgotPassword = async (e) => {
         e.preventDefault();
+
+        if (loading || isCooldownActive) return;
+
+        const nextCooldownUntil = Date.now() + FORGOT_PASSWORD_COOLDOWN_MS;
+        localStorage.setItem(FORGOT_PASSWORD_COOLDOWN_KEY, String(nextCooldownUntil));
+        setCooldownUntil(nextCooldownUntil);
 
         setLoading(true)
 
         try {
             const forgotPassword = await forgotPasswordApi(userData);
             console.log(forgotPassword)
+            navigate("/forgot-password/success", {
+                state: { fromForgotPassword: true }
+            });
         }
         catch (err) {
             console.log(err?.response?.data)
@@ -56,7 +97,7 @@ function ForgotPassword() {
                             </div>
                         </div>
 
-                        <form>
+                        <form onSubmit={userForgotPassword}>
                             <div className={styles.formGrid}>
 
                                 <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -72,10 +113,29 @@ function ForgotPassword() {
 
                             </div>
 
-                            <button type="submit" className={styles.submitBtn} onClick={(e) => userForgotPassword(e)} disabled={loading}>
-                                {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
+                            {isCooldownActive && (
+                                <div className={styles.cooldownNotice} role="status" aria-live="polite">
+                                    <div className={styles.cooldownIcon} aria-hidden="true">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="9" />
+                                            <polyline points="12 7 12 12 15 14" />
+                                        </svg>
+                                    </div>
+                                    <div className={styles.cooldownText}>
+                                        <strong>Reset link requested</strong>
+                                        <span>Check your inbox. You can request another link in</span>
+                                    </div>
+                                    <time className={styles.cooldownTimer} dateTime={`PT${cooldownSeconds}S`}>
+                                        {Math.floor(cooldownSeconds / 60).toString().padStart(2, '0')}:{(cooldownSeconds % 60).toString().padStart(2, '0')}
+                                    </time>
+                                </div>
+                            )}
+
+                            <button type="submit" className={styles.submitBtn} disabled={loading || isCooldownActive}>
+                                {loading ? <span className={styles.spinner} aria-label="Sending reset link" /> : isCooldownActive ?
+                                    <span>Please wait</span> :
                                     <>
-                                        Reset Password
+                                        Send Reset Link
                                     </>
                                 }
                             </button>
