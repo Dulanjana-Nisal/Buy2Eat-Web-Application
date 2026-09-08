@@ -1,4 +1,4 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, PORT } = require('../config/env');
+const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, PORT, CLIENT_URL } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
@@ -617,37 +617,145 @@ const forgotPassword = asyncHandler(async (req, res) => {
 	});
 
 	// check email is exits
-	const user = await Users.findOne({ email: email });
-	if (!user) return res.status(400).json({
-		success: false,
-		message: "Email is not registered!"
+	const normalizedEmail = email.trim().toLowerCase();
+	const user = await Users.findOne({ email: normalizedEmail });
+	if (!user) return res.status(200).json({
+		success: true,
+		message: "If an account exists with this email, a password reset link will be sent."
 	})
 
 	// generate new reset password token
 	const resetToken = crypto.randomBytes(32).toString('hex');
 	const hashResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 
-	// delete old data in resetPasswordModel
-	await resetPasswordModel.deleteMany({ user_id: user._id })
-
-	// save that token in to database
-	const forgotPasswordSchema = await resetPasswordModel.create({
-		user_id: user._id,
-		resetPasswordToken: hashResetToken,
-		expiredAt: new Date(Date.now() + 5 * 60 * 1000)
-	})
+	// date and time variables
+	const nowDate = new Date();
+	const coolDownTime = new Date(Date.now() - 60 * 1000);
+	const expiredAtTime =  new Date(Date.now() + 15 * 60 * 1000)
 
 	// generate reset link
-	const resetLink = `http://localhost:${PORT}/api/v1/buy2eat/auth/reset-password/${resetToken}` // this link should be change with frontend ( with frontend PORT )
+	const resetLink = `${CLIENT_URL}/reset-password/${resetToken}` // this link should be change with frontend ( with frontend PORT )
 
-	// send reset password link to user email
-	sendEmailResetPassword(email, resetLink);
+	// check if have any old data with same user ID  
+	const oldForgotPassword = await resetPasswordModel.findOneAndUpdate(
+		{
+			user_id: user._id,
+			createdAt: { $lte: coolDownTime }, // check cooldown time is over (1 minute)
+		},
+		{
+			$set: {
+				resetPasswordToken: hashResetToken,
+				createdAt: nowDate,
+				expiredAt:expiredAtTime // set to 15 minutes
+			}
+		},
+		{ new: true }
+	);
 
-	// send response
-	res.status(200).json({
-		success: true,
-		message: 'Password reset link has been sent to your email.'
-	})
+	// if oldForgotPassword is false
+	if (!oldForgotPassword) {
+
+		// fetch forgot password data
+		const passwordUser = await resetPasswordModel.findOne({ user_id: user._id })
+
+		// check if user dose not exist
+		if (!passwordUser) {
+			try {
+				// store brand new forgot password data in to database
+				await resetPasswordModel.create(
+					{
+						user_id: user._id,
+						resetPasswordToken: hashResetToken,
+						createdAt: nowDate,
+						expiredAt:expiredAtTime, // set to 15 minutes
+					}
+				);
+
+			}
+			catch (err) {
+				// send response 
+				return res.status(500).json({
+					success: false,
+					message: 'Something wrong while sending Email!'
+				})
+			}
+
+			try {
+				// send reset password link to user email
+				await sendEmailResetPassword(normalizedEmail, resetLink);
+
+				// send response 
+				return res.status(200).json({
+					success: true,
+					message: 'Reset link is sent to your email'
+				})
+			}
+			catch (err) {
+
+				// delete database
+				await resetPasswordModel.deleteOne({
+					user_id: user._id,
+					resetPasswordToken: hashResetToken
+				});
+
+				// send response 
+				return res.status(500).json({
+					success: false,
+					message: 'Something wrong while sending Email!'
+				})
+			}
+		}
+
+		// check that have complete cool down
+		const lastCreatedTime = passwordUser.createdAt.getTime();
+		const currentTime = nowDate.getTime();
+		const oneMinuteInMs = 60 * 1000;
+
+		if (currentTime - lastCreatedTime < oneMinuteInMs) {
+			const secondsLeft = Math.ceil((oneMinuteInMs - (currentTime - lastCreatedTime)) / 1000);
+			return res.status(429).json({
+				message: `Please wait ${secondsLeft} seconds before requesting a new link.`
+			});
+		}
+	}
+
+	// if oldForgotPassword is true
+	try {
+
+		// send reset password link to user email
+		await sendEmailResetPassword(normalizedEmail, resetLink);
+
+		// send response 
+		return res.status(200).json({
+			success: true,
+			message: 'Reset link is sent to your email'
+		})
+
+	}
+	catch (err) {
+		const setDefaultData = await resetPasswordModel.findOneAndUpdate(
+			{
+				user_id: user._id,
+				resetPasswordToken: hashResetToken
+			},
+			{
+				$set: {
+					expiredAt: new Date(),
+				}
+			},
+			{ new: true }
+		);
+
+		if (!setDefaultData) {
+			throw new Error('Error While updating database!');
+		}
+
+		// send response 
+		return res.status(500).json({
+			success: false,
+			message: 'Something wrong while sending Email!'
+		})
+	}
 
 });
 
