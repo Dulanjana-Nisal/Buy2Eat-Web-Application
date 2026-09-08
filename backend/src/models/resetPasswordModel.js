@@ -10,10 +10,14 @@ const resetPasswordModel = mongoose.Schema({
         type: String,
         required: [true, 'Reset token is required!']
     },
+    createdAt: {
+        type: Date,
+        required: [true, 'createdAt is required!'],
+    },
     expiredAt: {
         type: Date,
         required: [true, 'expiredAt is required!'],
-        expires: 600
+        expires: 0
     }
 })
 

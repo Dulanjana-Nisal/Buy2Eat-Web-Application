@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const registrationOtpModel = mongoose.Schema({
     verification_id: {
         type: String,
-        required: true,
+        required: [true, 'verification_id is required!'],
         unique: true,
         index: true
     },
