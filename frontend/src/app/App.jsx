@@ -15,6 +15,7 @@ function App() {
         <Route path="/register/seller" element={<CustomerRegister />} />
         <Route path="/verify-otp" element={<VerifyOTPPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ForgotPassword />} />
       </Routes>
     </BrowserRouter>
   )

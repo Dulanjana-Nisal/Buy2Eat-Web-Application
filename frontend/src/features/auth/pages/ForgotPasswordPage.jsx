@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import UIbackground from '../components/UIbackground';
 import styles from './ForgotPasswordPage.module.css';
 import { useState } from 'react';
-import { customerRegistrationApi } from '../api/authApi';
+import { forgotPasswordApi } from '../api/authApi';
 import forgot_password_banner from '../../../assets/images/forgot-password.svg';
 
 function ForgotPassword() {
@@ -14,48 +14,17 @@ function ForgotPassword() {
     const navigate = useNavigate();
 
     // useState hooks for handle data
-    const [registerDetails, setRegisterDetails] = useState({
-        email: "",
-        password: "",
-        confPass: "",
-        first_name: "",
-        last_name: "",
-        phone_number: "",
-        agreement: false,
-    })
+    const [userData, setUserData] = useState({email: ""})
 
     // Customer registration function
-    const customerRegister = async (e) => {
+    const userForgotPassword = async (e) => {
         e.preventDefault();
 
         setLoading(true)
 
-        // check password and conform password is same
-        if (registerDetails.password !== registerDetails.confPass) {
-            setLoading(false)
-            return console.error('Passwords are not matched!')
-        }
-
-        // check if agreement is sign
-        if (!registerDetails.agreement) {
-            setLoading(false)
-            return console.error("Please agree with Terms of services and Privacy Policy")
-        }
-
         try {
-            const registration = await customerRegistrationApi(registerDetails);
-
-            // navigate OTP verification page
-            if (registration.success) {
-                localStorage.setItem('expiredAt', registration.expiresAt)
-                navigate('/verify-otp', {
-                    state: {
-                        verification_id: registration.verification_id,
-                        maskEmail: registration.masked_email,
-                        expiresAt: registration.expiresAt
-                    }
-                })
-            }
+            const forgotPassword = await forgotPasswordApi(userData);
+            console.log(forgotPassword)
         }
         catch (err) {
             console.log(err?.response?.data)
@@ -79,9 +48,7 @@ function ForgotPassword() {
                     <div className={styles.formPanel}>
                         <div className={styles.formHeader}>
                             <div className={styles.userIconWrap}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" ><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" /><path d="M17 3v4" />
-                                    <path d="M15 5h4" />
-                                </svg>
+                                <svg fill="currentColor" viewBox="-10 0 55 38" version="1.1" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>lock-line</title> <path class="clr-i-outline clr-i-outline-path-1" d="M18.09,20.59A2.41,2.41,0,0,0,17,25.14V28h2V25.23a2.41,2.41,0,0,0-.91-4.64Z"></path><path class="clr-i-outline clr-i-outline-path-2" d="M26,15V10.72a8.2,8.2,0,0,0-8-8.36,8.2,8.2,0,0,0-8,8.36V15H7V32a2,2,0,0,0,2,2H27a2,2,0,0,0,2-2V15ZM12,10.72a6.2,6.2,0,0,1,6-6.36,6.2,6.2,0,0,1,6,6.36V15H12ZM9,32V17H27V32Z"></path> <rect x="0" y="0" width="36" height="36" fill-opacity="0"></rect> </g></svg>
                             </div>
                             <div>
                                 <h2>Forgot password</h2>
@@ -98,14 +65,14 @@ function ForgotPassword() {
                                     </span>
                                     <input
                                         type="email"
-                                        placeholder="Email Address"
-                                        onChange={(e) => setRegisterDetails({ ...registerDetails, email: e.target.value })}
+                                        placeholder="Your Email Address"
+                                        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
                                     />
                                 </div>
 
                             </div>
 
-                            <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading}>
+                            <button type="submit" className={styles.submitBtn} onClick={(e) => userForgotPassword(e)} disabled={loading}>
                                 {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
                                     <>
                                         Reset Password
