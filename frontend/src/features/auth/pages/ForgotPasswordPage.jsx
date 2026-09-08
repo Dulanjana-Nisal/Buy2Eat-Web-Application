@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { forgotPasswordApi } from '../api/authApi';
 import forgot_password_banner from '../../../assets/images/forgot-password.svg';
 
-const FORGOT_PASSWORD_COOLDOWN_KEY = 'forgotPasswordCooldownUntil';
+const FORGOT_PASSWORD_COOLDOWN_KEY = 'forgot-password-cooldown-until';
 const FORGOT_PASSWORD_COOLDOWN_MS = 60 * 1000;
 
 function ForgotPassword() {
@@ -53,22 +53,22 @@ function ForgotPassword() {
         e.preventDefault();
 
         if (loading || isCooldownActive) return;
-
-        const nextCooldownUntil = Date.now() + FORGOT_PASSWORD_COOLDOWN_MS;
-        localStorage.setItem(FORGOT_PASSWORD_COOLDOWN_KEY, String(nextCooldownUntil));
-        setCooldownUntil(nextCooldownUntil);
-
+        
         setLoading(true)
-
+        
         try {
-            const forgotPassword = await forgotPasswordApi(userData);
-            console.log(forgotPassword)
+            await forgotPasswordApi(userData);
+
+            const nextCooldownUntil = Date.now() + FORGOT_PASSWORD_COOLDOWN_MS;
+            localStorage.setItem(FORGOT_PASSWORD_COOLDOWN_KEY, String(nextCooldownUntil));
+            setCooldownUntil(nextCooldownUntil);
+            
             navigate("/forgot-password/success", {
                 state: { fromForgotPassword: true }
             });
         }
         catch (err) {
-            console.log(err?.response?.data)
+            console.error(err?.response?.data)
         }
         finally {
             setLoading(false)
