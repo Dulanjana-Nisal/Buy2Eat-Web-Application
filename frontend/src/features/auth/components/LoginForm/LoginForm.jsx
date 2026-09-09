@@ -96,9 +96,9 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                 </div>
 
                 {/* Images Section */}
-                <img src={small_meal_dish} className={styles.subMealImage} alt="su" />
-                <img src={small_mint_leaf} className={styles.subLeafImage} alt="su" />
-                <img src={login_transparent} className={styles.login_transparent} alt="su" />
+                <img src={small_meal_dish} className={styles.subMealImage} alt="" />
+                <img src={small_mint_leaf} className={styles.subLeafImage} alt="" />
+                <img src={login_transparent} className={styles.login_transparent} alt="" />
             </div>
         </>
     )

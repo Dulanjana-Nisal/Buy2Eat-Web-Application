@@ -28,6 +28,7 @@ function ForgotPasswordForm({ userForgotPassword, setUserData, userData, isCoold
                                 type="email"
                                 placeholder="Your Email Address"
                                 onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                                required
                             />
                         </div>
 
