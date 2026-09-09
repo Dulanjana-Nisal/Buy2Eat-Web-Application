@@ -228,8 +228,16 @@
     transition: background-color var(--transition-normal);
 }
 
+.submitButton svg{
+    transition: transform 0.2s ease;
+}
+
 .submitButton:hover {
     background-color: var(--color-primary-hover);
+}
+
+.submitButton:hover svg{
+    transform: translateX(4px);
 }
 
 .submitButton:active {

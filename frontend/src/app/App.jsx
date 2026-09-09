@@ -5,7 +5,7 @@ import RegisterPage from '../features/auth/pages/Register/RegisterPage';
 import VerifyOTPPage from '../features/auth/pages/VerifyOTP/VerifyOTPPage';
 import ForgotPassword from '../features/auth/pages/ForgotPassword/ForgotPasswordPage';
 import ForgotPasswordSuccessPage from '../features/auth/pages/ForgotPassword/ForgotPasswordSuccessPage';
-import ResetPassword from '../features/auth/pages/ResetPasswordPage';
+import ResetPassword from '../features/auth/pages/ResetPassword/ResetPasswordPage';
 
 function App() {
   return (

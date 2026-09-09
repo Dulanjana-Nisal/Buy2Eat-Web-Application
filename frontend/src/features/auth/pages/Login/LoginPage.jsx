@@ -58,7 +58,7 @@ function LoginPage() {
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>
                     <h1 className={styles.mainTitle}>
-                        Access Your <span className={styles.cursiveText}>Buy2Eat</span> Account
+                        Access Your <span className={styles.cursiveText}>Bu2Eat</span> Account
                     </h1>
                     <p className={styles.subTitle}>
                         Join thousands of food lovers and order your favorite meals
