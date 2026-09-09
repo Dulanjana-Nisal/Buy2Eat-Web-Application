@@ -1,6 +1,6 @@
 import styles from './UIbackground.module.css';
-import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
-import mini_tomato from '../../../assets/images/tomato-transparent.webp';
+import mini_leaf from '../../../../assets/images/mini_leaf_transparent.webp';
+import mini_tomato from '../../../../assets/images/tomato-transparent.webp';
 
 function UIbackground() {
     return (

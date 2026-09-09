@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styles from './LoginForm.module.css';
-import small_meal_dish from '../../../assets/images/small-meal-dish.webp';
-import small_mint_leaf from '../../../assets/images/mint-leaf.png';
+import small_meal_dish from '../../../../assets/images/small-meal-dish.webp';
+import small_mint_leaf from '../../../../assets/images/mint-leaf.png';
+import login_transparent from '../../../../assets/images/login_transparent.svg';
 import { Link } from 'react-router-dom'
 
 function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
@@ -11,17 +12,21 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
     return (
         <>
             <div className={styles.leftPanel}>
+
+                {/* Form container */}
                 <div className={styles.formContainer}>
-
-                    <h1 className={styles.title}>
-                        Great food is just <br />
-                        <span className={styles.highlight}>one tap away.</span>
-                    </h1>
-
-                    <p className={styles.subtitle}>
-                        Sign in to discover restaurants, track your orders, and enjoy exclusive deals.
-                    </p>
-
+                    <div className={styles.formHeader}>
+                        <div className={styles.userIconWrap}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2>Login to Your Account</h2>
+                            <p>Fill in your details to get started</p>
+                        </div>
+                    </div>
                     <div className={styles.socialAuth}>
                         <button className={styles.socialButton}>
                             <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -33,11 +38,9 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                             Google
                         </button>
                     </div>
-
                     <div className={styles.divider}>
                         <span>Or sign in with email</span>
                     </div>
-
                     <form className={styles.form} onSubmit={userLogin}>
                         <div className={styles.inputGroup}>
                             <label htmlFor="email">Email address</label>
@@ -48,11 +51,10 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                                 onChange={(e) => setLoginDetails({ ...loginDetails, email: e.target.value })}
                             />
                         </div>
-
                         <div className={styles.inputGroup}>
                             <div className={styles.passwordHeader}>
                                 <label htmlFor="password">Password</label>
-                                <a href="#" className={styles.forgotPassword}>Forgot password?</a>
+                                <Link to="/forgot-password" className={styles.forgotPassword}>Forgot password?</Link>
                             </div>
                             <div className={styles.passwordInputContainer}>
                                 <input
@@ -79,7 +81,6 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                                 }
                             </div>
                         </div>
-
                         <div className={styles.checkboxGroup}>
                             <input type="checkbox" id="remember" />
                             <label htmlFor="remember">Remember me </label>
@@ -89,13 +90,15 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                             {loading ? <span className={styles.spinner} aria-label="Logging in" /> : <><p>Login</p><span>&rarr;</span></>}
                         </button>
                     </form>
-
                     <p className={styles.footerText}>
                         New to Buy2Eat? <Link to="/register">Create an account</Link>
                     </p>
                 </div>
-                <img src={small_meal_dish} className={styles.subMealImage} alt="su" />
-                <img src={small_mint_leaf} className={styles.subLeafImage} alt="su" />
+
+                {/* Images Section */}
+                <img src={small_meal_dish} className={styles.subMealImage} alt="" />
+                <img src={small_mint_leaf} className={styles.subLeafImage} alt="" />
+                <img src={login_transparent} className={styles.login_transparent} alt="" />
             </div>
         </>
     )

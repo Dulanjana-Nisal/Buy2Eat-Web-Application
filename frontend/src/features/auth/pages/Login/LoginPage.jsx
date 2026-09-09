@@ -1,76 +1,47 @@
-import styles from './CustomerRegisterPage.module.css';
-import { useNavigate } from 'react-router-dom';
-import right_banner from '../../../assets/images/customer-register-right-banner.png';
+import styles from './LoginPage.module.css';
+import login_background from '../../../../assets/images/customer-register-right-banner.png';
 import { useState } from 'react';
-import UIbackground from '../components/UIbackground';
-import CustomerRegisterForm from '../components/CustomerRegisterForm';
-import { customerRegistrationApi } from '../api/authApi';
+import api from '../../../../app/config/api';
+import LoginForm from '../../components/LoginForm/LoginForm';
+import UIbackground from '../../components/UIBackground/UIbackground';
+import { useNavigate } from 'react-router-dom';
 
-function CustomerRegister() {
+function LoginPage() {
 
-    // useStats hook for UI
+    // useStates hooks
     const [loading, setLoading] = useState(false);
+    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
 
-    // Navigation hooks
+    // Navigation hook
     const navigate = useNavigate();
 
-    // useState hooks for handle data
-    const [registerDetails, setRegisterDetails] = useState({
-        email: "",
-        password: "",
-        confPass: "",
-        first_name: "",
-        last_name: "",
-        phone_number: "",
-        agreement: false,
-    })
-
-    // Customer registration function
-    const customerRegister = async (e) => {
+    // user login function 
+    const userLogin = async (e) => {
         e.preventDefault();
 
-        setLoading(true)
-
-        // check password and conform password is same
-        if (registerDetails.password !== registerDetails.confPass) {
-            setLoading(false)
-            return console.error('Passwords are not matched!')
-        }
-
-        // check if agreement is sign
-        if (!registerDetails.agreement) {
-            setLoading(false)
-            return console.error("Please agree with Terms of services and Privacy Policy")
-        }
-
+        // call backend user login api
         try {
-            const registration = await customerRegistrationApi(registerDetails);
+            setLoading(true);
+            await api.post('/auth/login', loginDetails);
 
-            // navigate OTP verification page
-            if (registration.success) {
-                localStorage.setItem('expiredAt', registration.expiresAt)
-                navigate('/verify-otp', {
-                    state: {
-                        verification_id: registration.verification_id,
-                        maskEmail: registration.masked_email,
-                        expiresAt: registration.expiresAt
-                    }
-                })
-            }
+            // Remove login details
+            setLoginDetails({
+                email: '',
+                password: '',
+            })
         }
         catch (err) {
-            console.log(err?.response?.data)
+            console.log(err?.response?.data);
         }
         finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 
     return (
         <>
-            <div className={styles.container}>
-
-                {/* background mini transparent images */}
+            <div className={styles.section}>
+                {/* Transparent mini images */}
                 <UIbackground />
 
                 {/* Top Navigation */}
@@ -87,7 +58,7 @@ function CustomerRegister() {
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>
                     <h1 className={styles.mainTitle}>
-                        Create Your <span className={styles.cursiveText}>Customer</span> Account
+                        Access Your <span className={styles.cursiveText}>Buy2Eat</span> Account
                     </h1>
                     <p className={styles.subTitle}>
                         Join thousands of food lovers and order your favorite meals
@@ -95,21 +66,21 @@ function CustomerRegister() {
                     </p>
                 </div>
 
-                {/* Main Form Card */}
-                <div className={styles.mainCard}>
+                {/* Main Container */}
+                <div className={styles.container}>
 
-                    {/* Left Side: Form */}
-                    <CustomerRegisterForm
-                        setRegisterDetails={setRegisterDetails}
-                        registerDetails={registerDetails}
-                        customerRegister={customerRegister}
+                    {/* Left Panel - Login Form */}
+                    <LoginForm
                         loading={loading}
+                        loginDetails={loginDetails}
+                        userLogin={userLogin}
+                        setLoginDetails={setLoginDetails}
                     />
 
-                    {/* Right Side: Features / Info */}
+                    {/* Right Panel - Image & Widgets */}
                     <div className={styles.infoPanel}>
                         <h3 className={styles.infoTitle}>
-                            Good food is just <br /> <span className={styles.cursiveText}>one tap</span> away.
+                            Great food is just <br /> <span className={styles.cursiveText}>one tap</span> away.
                         </h3>
 
                         <div className={styles.featureList}>
@@ -152,14 +123,12 @@ function CustomerRegister() {
                             </div>
                         </div>
 
-                        <img src={right_banner} alt="banner" className={styles.banner} />
+                        <img src={login_background} alt="banner" className={styles.banner} />
                     </div>
-
                 </div>
-
             </div>
         </>
     )
 }
 
-export default CustomerRegister;
+export default LoginPage;

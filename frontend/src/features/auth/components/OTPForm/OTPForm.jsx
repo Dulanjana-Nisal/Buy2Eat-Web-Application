@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import styles from './OTPForm.module.css';
-import left_transparent_banner from '../../../assets/images/otp-background.svg';
+import left_transparent_banner from '../../../../assets/images/otp-background.svg';
 
 function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verificationStatus, submitOtp, loading, }) {
 
