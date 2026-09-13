@@ -769,37 +769,93 @@ const resetPassword = asyncHandler(async (req, res) => {
 		message: "Please provide token and new password!"
 	});
 
-	// check that token is exist on database model
-	const hashToken = crypto.createHash("sha256").update(token).digest("hex");
-	const resetUser = await resetPasswordModel.findOne({ resetPasswordToken: hashToken })
+	// check password have enough characters
+	if( newPassword.length <= 6){
+		return res.status(400).json({
+			success: false,
+			message: 'Password should be more than 6 characters!'
+		})
+	}
 
-	if (!resetUser) return res.status(400).json({
-		success: false,
-		message: "Your reset password link is expired or Invalid token"
-	});
+	// === Start Transaction ===
+	const session = await mongoose.startSession();
 
-	// replace new password with old password
-	const user = await Users.findOne({ _id: resetUser.user_id })
-	if (!user) return res.status(400).json({
-		success: false,
-		message: "User dose not exist"
-	});
+	try {
+		session.startTransaction();
 
-	// hash new password
-	const salt = await bcrypt.genSalt(10);
-	const hashNewPass = await bcrypt.hash(newPassword, salt);
+		// check that token is exist on database model
+		const hashToken = crypto.createHash("sha256").update(token).digest("hex");
+		const resetUser = await resetPasswordModel.findOne(
+			{
+				resetPasswordToken: hashToken,
+				expiredAt: { $gt: new Date() }
+			},
+			null,
+			{ session }
+		);
 
-	user.password = hashNewPass;
-	await user.save();
+		if (!resetUser){
+			// Abort transaction
+			await session.abortTransaction();
 
-	// delete old data in resetPasswordModel
-	await resetPasswordModel.deleteMany({ user_id: resetUser.user_id })
+			return res.status(400).json({
+				success: false,
+				message: "Your reset password link is expired or Invalid token"
+			});
+		} 
 
-	// send response
-	res.status(200).json({
-		success: true,
-		message: 'Password reset successfully...'
-	})
+		// hash password using bcrypt
+		const salt = await bcrypt.genSalt(10)
+		const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+		// update user
+		const updateUser = await Users.findOneAndUpdate(
+			{
+				_id: resetUser.user_id,
+			},
+			{
+				$set: {
+					password: hashedPassword,
+				}
+			},
+			{ new: true, session }
+		);
+
+		if (!updateUser){
+			// Abort transaction
+			await session.abortTransaction();
+
+			return res.status(400).json({
+				success: false,
+				message: "User dose not exist"
+			});	
+		} 
+
+		// delete forgot password data from database
+		await resetPasswordModel.deleteOne(
+			{ _id: resetUser._id },
+			{ session }
+		);
+
+		// commit transaction
+		await session.commitTransaction();
+		
+		// send success response
+		return res.status(200).json({
+			success: true,
+			message: 'Password Reset successfully'
+		})
+	}
+	catch (err) {
+		await session.abortTransaction();
+		throw err
+	}
+	finally {
+		await session.endSession();
+	}
+
+	// === End Transaction ===
+
 });
 
 // refresh token auth for generate new tokens
