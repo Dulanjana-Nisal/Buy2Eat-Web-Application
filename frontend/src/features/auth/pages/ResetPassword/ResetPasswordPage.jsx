@@ -5,6 +5,7 @@ import UIbackground from '../../components/UIBackground/UIbackground';
 import { useNavigate } from 'react-router-dom';
 import reset_password from '../../../../assets/images/reset-password.svg'
 
+// calculate strength of password
 const getPasswordStrength = (password) => {
     if (!password) return { score: 0, label: 'Not rated' };
 
@@ -34,7 +35,7 @@ function ResetPasswordPage() {
     // Navigation hook
     const navigate = useNavigate();
 
-    // user login function 
+    // user reset password function 
     const resetPassword = async (e) => {
         e.preventDefault();
         setLoading(true);
