@@ -761,8 +761,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 // reset password controller
 const resetPassword = asyncHandler(async (req, res) => {
-	const { newPassword } = req.body
-	const { token } = req.params;
+	const { token, newPassword } = req.body
 
 	// check token and newPassword is entered
 	if (!token || !newPassword) return res.status(400).json({
