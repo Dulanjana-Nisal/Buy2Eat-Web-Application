@@ -89,9 +89,6 @@ const authLogin = asyncHandler(async (req, res) => {
 	const { accessToken, refreshToken } = createTokenPair(user);
 	setAuthCookies(res, accessToken, refreshToken);
 
-	// send otp via email
-	sendEmailOTP(email, '123456')
-
 	// send response
 	return res.status(200).json({
 		success: true,
@@ -188,7 +185,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const maskedEmail = maskEmail(email);
 
 	// send otp via email
-	sendEmailOTP(email, first_name, last_name, generateOtp)
+	await sendEmailOTP(email, first_name, last_name, generateOtp)
 
 	// send response
 	res.status(200).json({
@@ -282,7 +279,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const maskedEmail = maskEmail(email);
 
 	// send otp via email
-	sendEmailOTP(email, first_name, last_name, generateOtp)
+	await sendEmailOTP(email, first_name, last_name, generateOtp)
 
 	// send response
 	res.status(200).json({
