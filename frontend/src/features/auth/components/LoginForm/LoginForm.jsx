@@ -5,6 +5,7 @@ import small_mint_leaf from '../../../../assets/images/mint-leaf.png';
 import login_transparent from '../../../../assets/images/login_transparent.svg';
 import { Link } from 'react-router-dom'
 
+/** Renders the login form and its password visibility control. */
 function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
 
     // useStates hooks

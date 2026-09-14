@@ -10,6 +10,7 @@ import ForgotPasswordForm from '../../components/ForgotPasswordForm/ForgotPasswo
 const FORGOT_PASSWORD_COOLDOWN_KEY = 'forgot-password-cooldown-until';
 const FORGOT_PASSWORD_COOLDOWN_MS = 60 * 1000;
 
+/** Manages password-reset requests and the resend cooldown. */
 function ForgotPassword() {
 
     // useStats hook for UI

@@ -3,6 +3,7 @@ import transparentBackground from '../../../../assets/images/forgot-password-suc
 import UIbackground from '../../components/UIBackground/UIbackground';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
+/** Renders the reset confirmation for users arriving from a successful reset. */
 function ResetPasswordSuccessPage() {
 
     // navigation hooks

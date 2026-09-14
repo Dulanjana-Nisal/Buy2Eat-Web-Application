@@ -6,6 +6,7 @@ import UIbackground from '../../components/UIBackground/UIbackground';
 import { useNavigate } from 'react-router-dom';
 import { userLoginApi } from '../../api/authApi';
 
+/** Manages login form state and submits user credentials. */
 function LoginPage() {
 
     // useStates hooks

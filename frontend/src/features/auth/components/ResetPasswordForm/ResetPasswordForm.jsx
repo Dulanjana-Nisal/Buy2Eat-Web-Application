@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styles from './ResetPasswordForm.module.css';
 import reset_password from '../../../../assets/images/reset-password.svg';
 
+/** Renders the password-reset fields, strength meter, and submit action. */
 function ResetPasswordForm({ resetPassword, resetData, setResetData, passwordStrength, loading }) {
 
     // useStates hooks

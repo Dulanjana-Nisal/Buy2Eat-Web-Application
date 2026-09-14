@@ -8,6 +8,7 @@ import ForgotPasswordSuccessPage from '../features/auth/pages/ForgotPassword/For
 import ResetPassword from '../features/auth/pages/ResetPassword/ResetPasswordPage';
 import ResetPasswordSuccessPage from '../features/auth/pages/ResetPassword/ResetPasswordSuccessPage';
 
+/** Renders the application router and its authentication routes. */
 function App() {
   return (
     <BrowserRouter>

@@ -24,6 +24,7 @@ const getPasswordStrength = (password) => {
     return { score: Math.max(1, score), label: labels[Math.max(1, score)] };
 };
 
+/** Verifies the reset link and manages the password-reset workflow. */
 function ResetPasswordPage() {
 
     // get data from URL
