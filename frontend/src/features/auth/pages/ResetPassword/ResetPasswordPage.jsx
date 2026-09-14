@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import UIbackground from '../../components/UIBackground/UIbackground';
 import { useNavigate, useParams } from 'react-router-dom';
 import reset_password from '../../../../assets/images/reset-password.svg'
-import { resetPasswordApi } from '../../api/authApi';
+import { resetPasswordApi, verifyResetPasswordApi } from '../../api/authApi';
 
 // calculate strength of password
 const getPasswordStrength = (password) => {
@@ -34,39 +34,97 @@ function ResetPasswordPage() {
     const [hidePassword, setHidePassword] = useState(true);
     const [hideConfPassword, setHideConfPassword] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [verifying, setVerifying] = useState(false);
     const passwordStrength = getPasswordStrength(resetData.password);
 
     // Navigation hook
     const navigate = useNavigate();
 
-    // check reset link is send by forgot password page
+    /* 
+    * check reset link is send by forgot password page
+    * check reset link with calling verify reset password api
+    * set verification status
+    * return back to forgot password page if failed to verify
+    */
     useEffect(() => {
-        // to do
-    }, [navigate])
+        const verifyResetPassword = async () => {
+            setVerifying(true)
+            try {
+                await verifyResetPasswordApi(token);
+            }
+            catch (err) {
+                const response = err.response?.data.success;
+                setVerifying(false);
+
+                if (!response) {
+                    navigate('/forgot-password', { replace: true });
+                }
+            }
+            finally {
+                setVerifying(false);
+            }
+        }
+
+        verifyResetPassword();
+    }, [navigate, token]);
 
     // user reset password function 
     const resetPassword = async (e) => {
         e.preventDefault();
 
         // check password and conf password is matched
-        if(resetData.password !== resetData.confPassword){
+        if (resetData.password !== resetData.confPassword) {
             return console.error('Passwords are not matched!')
         }
 
         setLoading(true);
-        try{
-            const resetPasswordResponse = await resetPasswordApi({ token: resetData.token, newPassword: resetData.password});
-            console.log(resetPasswordResponse);
+        try {
+            const resetPasswordResponse = await resetPasswordApi({ token: resetData.token, newPassword: resetData.password });
 
-            // clear session storage
-            sessionStorage.removeItem("fromForgotPassword");
+            if (resetPasswordResponse.success) {
+                // store conformation data in session storage
+                sessionStorage.setItem("fromForgotPassword", "true");
+
+                navigate("/reset-password/success", {
+                    state: { fromResetPassword: true }
+                });
+            }
         }
-        catch(err){
+        catch (err) {
             console.error(err.response?.data || err)
         }
-        finally{
+        finally {
             setLoading(false);
         }
+    }
+
+    // container for display verifying status
+    if (verifying) {
+        return (
+            <main className={styles.verificationScreen} aria-live="polite" aria-busy="true">
+                <UIbackground />
+                <div className={styles.verificationGlow} aria-hidden="true" />
+                <section className={styles.verificationPanel}>
+                    <div className={styles.verificationIcon} aria-hidden="true">
+                        <span className={styles.verificationOrbit} />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M13.5 8.5 15 7a3.54 3.54 0 0 1 5 5l-3 3a3.54 3.54 0 0 1-5 0" />
+                            <path d="m10.5 15.5-1.5 1.5a3.54 3.54 0 0 1-5-5l3-3a3.54 3.54 0 0 1 5 0" />
+                            <path d="m8 16 8-8" />
+                        </svg>
+                    </div>
+                    <p className={styles.verificationEyebrow}>Almost there</p>
+                    <h1 className={styles.verificationTitle}>Verifying your reset link</h1>
+                    <p className={styles.verificationMessage}>
+                        We&apos;re checking your secure link. This will only take a moment.
+                    </p>
+                    <div className={styles.verificationProgress} aria-hidden="true">
+                        <span />
+                    </div>
+                    <p className={styles.verificationNote}>Please keep this window open</p>
+                </section>
+            </main>
+        )
     }
 
     return (

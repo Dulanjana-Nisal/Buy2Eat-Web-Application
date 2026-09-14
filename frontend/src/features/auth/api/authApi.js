@@ -35,3 +35,10 @@ export const resetPasswordApi = async(resetData) => {
     const response = await api.post('/auth/reset-password', resetData);
     return response.data;
 }
+
+// Reset Password API
+export const verifyResetPasswordApi = async(token) => {
+    const response = await api.get(`/auth/verify-reset-password/${token}`);
+    return response.data;
+}
+
