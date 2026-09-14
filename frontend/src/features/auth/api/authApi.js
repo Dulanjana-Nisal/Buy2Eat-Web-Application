@@ -1,5 +1,11 @@
 import api from "../../../app/config/api";
 
+// User Login API
+export const userLoginApi = async (loginData) => {
+    const response = await api.post('/auth/login', loginData);
+    return response.data;
+}
+
 // Customer Registration API
 export const customerRegistrationApi = async ( registerDetails ) => {
     const response = await api.post('/auth/register-customer', registerDetails);
@@ -21,5 +27,11 @@ export const resendOTPApi = async ( verification_id ) => {
 // Forgot Password API
 export const forgotPasswordApi = async (userData) => {
     const response = await api.post('/auth/forgot-password', userData);
+    return response.data;
+}
+
+// Reset Password API
+export const resetPasswordApi = async(resetData) => {
+    const response = await api.post('/auth/reset-password', resetData);
     return response.data;
 }

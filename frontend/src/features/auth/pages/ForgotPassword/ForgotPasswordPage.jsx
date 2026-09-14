@@ -67,6 +67,9 @@ function ForgotPassword() {
             localStorage.setItem(FORGOT_PASSWORD_COOLDOWN_KEY, String(nextCooldownUntil));
             setCooldownUntil(nextCooldownUntil);
             
+            // store conformation data in session storage
+            sessionStorage.setItem("fromForgotPassword", "true");
+
             navigate("/forgot-password/success", {
                 state: { fromForgotPassword: true }
             });

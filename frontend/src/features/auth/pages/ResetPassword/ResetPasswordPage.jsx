@@ -1,9 +1,10 @@
 import styles from './ResetPasswordPage.module.css';
 import login_background from '../../../../assets/images/customer-register-right-banner.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import UIbackground from '../../components/UIBackground/UIbackground';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import reset_password from '../../../../assets/images/reset-password.svg'
+import { resetPasswordApi } from '../../api/authApi';
 
 // calculate strength of password
 const getPasswordStrength = (password) => {
@@ -25,21 +26,47 @@ const getPasswordStrength = (password) => {
 
 function ResetPasswordPage() {
 
+    // get data from URL
+    const { token } = useParams();
+
     // useStates hooks
+    const [resetData, setResetData] = useState({ token: token, password: "", confPassword: "" });
     const [hidePassword, setHidePassword] = useState(true);
     const [hideConfPassword, setHideConfPassword] = useState(true);
     const [loading, setLoading] = useState(false);
-    const [loginDetails, setLoginDetails] = useState({ "password": "", "confPassword": "" });
-    const passwordStrength = getPasswordStrength(loginDetails.password);
+    const passwordStrength = getPasswordStrength(resetData.password);
 
     // Navigation hook
     const navigate = useNavigate();
 
+    // check reset link is send by forgot password page
+    useEffect(() => {
+        // to do
+    }, [navigate])
+
     // user reset password function 
     const resetPassword = async (e) => {
         e.preventDefault();
+
+        // check password and conf password is matched
+        if(resetData.password !== resetData.confPassword){
+            return console.error('Passwords are not matched!')
+        }
+
         setLoading(true);
-        setLoading(false);
+        try{
+            const resetPasswordResponse = await resetPasswordApi({ token: resetData.token, newPassword: resetData.password});
+            console.log(resetPasswordResponse);
+
+            // clear session storage
+            sessionStorage.removeItem("fromForgotPassword");
+        }
+        catch(err){
+            console.error(err.response?.data || err)
+        }
+        finally{
+            setLoading(false);
+        }
     }
 
     return (
@@ -97,9 +124,9 @@ function ResetPasswordPage() {
                                         <input
                                             type={hidePassword ? "password" : "text"}
                                             id="password"
-                                            value={loginDetails.password}
+                                            value={resetData.password}
                                             placeholder="Enter new password"
-                                            onChange={(e) => setLoginDetails({ ...loginDetails, password: e.target.value })}
+                                            onChange={(e) => setResetData({ ...resetData, password: e.target.value })}
                                         />
                                         <button type="button" className={styles.eyeIcon} onClick={() => setHidePassword(!hidePassword)}>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -150,9 +177,9 @@ function ResetPasswordPage() {
                                         <input
                                             type={hideConfPassword ? "password" : "text"}
                                             id="confPassword"
-                                            value={loginDetails.confPassword}
+                                            value={resetData.confPassword}
                                             placeholder="Conform new password"
-                                            onChange={(e) => setLoginDetails({ ...loginDetails, confPassword: e.target.value })}
+                                            onChange={(e) => setResetData({ ...resetData, confPassword: e.target.value })}
                                         />
                                         <button type="button" className={styles.eyeIcon} onClick={() => setHideConfPassword(!hideConfPassword)}>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
