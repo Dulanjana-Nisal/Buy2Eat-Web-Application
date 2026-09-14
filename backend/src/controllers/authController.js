@@ -858,6 +858,34 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 });
 
+// verify reset password controller
+const verifyResetPassword = asyncHandler( async (req,res) => {
+	const { token } = req.params;
+
+	// hashed token
+	const hashResetToken = crypto.createHash("sha256").update(token).digest("hex");
+
+	// check token is exist
+	const resetUser = await resetPasswordModel.findOne(
+		{ 
+			resetPasswordToken: hashResetToken,
+			expiredAt: { $gt: new Date() },
+		}
+	)
+
+	if(!resetUser){
+		return res.status(400).json({
+			success: false,
+			message: 'Invalid token or Token is expired!'
+		})
+	}
+
+	return res.status(200).json({
+		success: true,
+		message: 'Token is ok'
+	})
+})
+
 // refresh token auth for generate new tokens
 const refreshToken = asyncHandler(async (req, res) => {
 	const incomingRefreshToken = req.cookies?.refreshToken;
@@ -910,4 +938,5 @@ module.exports = {
 	resendOtp,
 	forgotPassword,
 	resetPassword,
+	verifyResetPassword,
 };
