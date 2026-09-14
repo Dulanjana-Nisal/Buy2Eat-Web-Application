@@ -69,12 +69,17 @@ function ResetPasswordPage() {
     // user reset password function 
     const resetPassword = async (e) => {
         e.preventDefault();
-
+        
         // check password and conf password is matched
         if (resetData.password !== resetData.confPassword) {
             return console.error('Passwords are not matched!')
         }
 
+        // check password characters more that 6
+        if((resetData.password).length < 6){
+            return console.error('Password must have more that 6 characters');
+        }
+        
         setLoading(true);
         try {
             const resetPasswordResponse = await resetPasswordApi({ token: resetData.token, newPassword: resetData.password });

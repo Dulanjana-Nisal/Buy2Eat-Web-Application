@@ -26,7 +26,7 @@ function ResetPasswordForm({ resetPassword, resetData, setResetData, passwordStr
                     </div>
                     <form className={styles.form} onSubmit={resetPassword}>
                         <div className={styles.inputGroup}>
-                            <label htmlFor="email">New Password</label>
+                            <label htmlFor="password">New Password</label>
                             <div className={styles.passwordInputContainer}>
                                 <input
                                     type={hidePassword ? "password" : "text"}
@@ -79,7 +79,7 @@ function ResetPasswordForm({ resetPassword, resetData, setResetData, passwordStr
                             </div>
                         </div>
                         <div className={styles.inputGroup}>
-                            <label htmlFor="email">Conform New Password</label>
+                            <label htmlFor="confPassword">Conform New Password</label>
                             <div className={styles.passwordInputContainer}>
                                 <input
                                     type={hideConfPassword ? "password" : "text"}
