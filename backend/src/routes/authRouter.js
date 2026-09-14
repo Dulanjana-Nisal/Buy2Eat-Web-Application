@@ -23,6 +23,6 @@ router.post('/resend-otp', resendOtp);
 router.post('/refresh-token', refreshToken);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
-router.post('/verify-reset-password/:token', verifyResetPassword);
+router.get('/verify-reset-password/:token', verifyResetPassword);
 
 module.exports = router;
