@@ -1,53 +1,147 @@
-import styles from './LoginPage.module.css';
+import styles from './ResetPasswordPage.module.css';
 import login_background from '../../../../assets/images/customer-register-right-banner.png';
-import { useState } from 'react';
-import LoginForm from '../../components/LoginForm/LoginForm';
+import { useEffect, useState } from 'react';
 import UIbackground from '../../components/UIBackground/UIbackground';
-import { useNavigate } from 'react-router-dom';
-import { userLoginApi } from '../../api/authApi';
+import { useNavigate, useParams } from 'react-router-dom';
+import { resetPasswordApi, verifyResetPasswordApi } from '../../api/authApi';
+import ResetPasswordForm from '../../components/ResetPasswordForm/ResetPasswordForm';
 
-/** Manages login form state and submits user credentials. */
-function LoginPage() {
+// calculate strength of password
+const getPasswordStrength = (password) => {
+    if (!password) return { score: 0, label: 'Not rated' };
+
+    const checks = [
+        password.length >= 8,
+        password.length >= 12,
+        /[a-z]/.test(password),
+        /[A-Z]/.test(password),
+        /\d/.test(password),
+        /[^A-Za-z0-9]/.test(password),
+    ];
+    const score = Math.min(5, checks.filter(Boolean).length - (password.length < 8 ? 1 : 0));
+    const labels = ['Very weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very strong'];
+
+    return { score: Math.max(1, score), label: labels[Math.max(1, score)] };
+};
+
+/** Verifies the reset link and manages the password-reset workflow. */
+function ResetPasswordPage() {
+
+    // get data from URL
+    const { token } = useParams();
 
     // useStates hooks
+    const [resetData, setResetData] = useState({ token: token, password: "", confPassword: "" });
     const [loading, setLoading] = useState(false);
-    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
+    const [verifying, setVerifying] = useState(false);
+    const passwordStrength = getPasswordStrength(resetData.password);
 
     // Navigation hook
     const navigate = useNavigate();
 
-    // user login function 
-    const userLogin = async (e) => {
+    /* 
+    * check reset link is send by forgot password page
+    * check reset link with calling verify reset password api
+    * set verification status
+    * return back to forgot password page if failed to verify
+    */
+    useEffect(() => {
+        const verifyResetPassword = async () => {
+            setVerifying(true)
+            try {
+                await verifyResetPasswordApi(token);
+            }
+            catch (err) {
+                const response = err.response?.data.success;
+                setVerifying(false);
+
+                if (!response) {
+                    navigate('/forgot-password', { replace: true });
+                }
+            }
+            finally {
+                setVerifying(false);
+            }
+        }
+
+        verifyResetPassword();
+    }, [navigate, token]);
+
+    // user reset password function 
+    const resetPassword = async (e) => {
         e.preventDefault();
+        
+        // check password and conf password is matched
+        if (resetData.password !== resetData.confPassword) {
+            return console.error('Passwords are not matched!')
+        }
 
-        // call backend user login api
+        // check password characters more that 6
+        if((resetData.password).length < 6){
+            return console.error('Password must have more that 6 characters');
+        }
+        
+        setLoading(true);
         try {
-            setLoading(true);
-            await userLoginApi(loginDetails);
+            const resetPasswordResponse = await resetPasswordApi({ token: resetData.token, newPassword: resetData.password });
 
-            // Remove login details
-            setLoginDetails({
-                email: '',
-                password: '',
-            })
+            if (resetPasswordResponse.success) {
+                // store conformation data in session storage
+                sessionStorage.setItem("fromForgotPassword", "true");
+
+                // navigate success page 
+                navigate("/reset-password/success", {
+                    state: { fromResetPassword: true }
+                });
+            }
         }
         catch (err) {
-            console.log(err?.response?.data);
+            console.error(err.response?.data || err)
         }
         finally {
             setLoading(false);
         }
     }
 
+    // container for display verifying status
+    if (verifying) {
+        return (
+            <main className={styles.verificationScreen} aria-live="polite" aria-busy="true">
+                <UIbackground />
+                <div className={styles.verificationGlow} aria-hidden="true" />
+                <section className={styles.verificationPanel}>
+                    <div className={styles.verificationIcon} aria-hidden="true">
+                        <span className={styles.verificationOrbit} />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M13.5 8.5 15 7a3.54 3.54 0 0 1 5 5l-3 3a3.54 3.54 0 0 1-5 0" />
+                            <path d="m10.5 15.5-1.5 1.5a3.54 3.54 0 0 1-5-5l3-3a3.54 3.54 0 0 1 5 0" />
+                            <path d="m8 16 8-8" />
+                        </svg>
+                    </div>
+                    <p className={styles.verificationEyebrow}>Almost there</p>
+                    <h1 className={styles.verificationTitle}>Verifying your reset link</h1>
+                    <p className={styles.verificationMessage}>
+                        We&apos;re checking your secure link. This will only take a moment.
+                    </p>
+                    <div className={styles.verificationProgress} aria-hidden="true">
+                        <span />
+                    </div>
+                    <p className={styles.verificationNote}>Please keep this window open</p>
+                </section>
+            </main>
+        )
+    }
+
     return (
         <>
             <div className={styles.section}>
+
                 {/* Transparent mini images */}
                 <UIbackground />
 
                 {/* Top Navigation */}
                 <nav className={styles.topNav}>
-                    <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
+                    <button className={styles.backButton} type='button' onClick={() => navigate('/forgot-password')}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
@@ -59,10 +153,10 @@ function LoginPage() {
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>
                     <h1 className={styles.mainTitle}>
-                        Access Your <span className={styles.cursiveText}>Bu2Eat</span> Account
+                        Reset Your <span className={styles.cursiveText}>Password</span>
                     </h1>
                     <p className={styles.subTitle}>
-                        Join thousands of food lovers and order your favorite meals
+                        Create new password to regain access to your account
                         <svg fill="currentColor" viewBox="0 0 512 512" id="_x30_1" version="1.1" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M471.079,77.334c-46.964-52.452-127.837-55.735-177.137-5.541C268.648,97.547,256,131.784,256,166.021 c0-34.237-12.647-68.473-37.942-94.227c-49.3-50.195-130.173-46.912-177.138,5.541c-106.53,118.98,7.88,303.709,194.087,393.846 c13.275,6.426,28.709,6.426,41.985,0C463.2,381.043,577.61,196.314,471.079,77.334z"></path></g></svg>
                     </p>
                 </div>
@@ -70,12 +164,13 @@ function LoginPage() {
                 {/* Main Container */}
                 <div className={styles.container}>
 
-                    {/* Left Panel - Login Form */}
-                    <LoginForm
+                    {/* Left Panel - Reset Form */}
+                    <ResetPasswordForm
+                        resetPassword={resetPassword}
+                        resetData={resetData}
+                        setResetData={setResetData}
+                        passwordStrength={passwordStrength}
                         loading={loading}
-                        loginDetails={loginDetails}
-                        userLogin={userLogin}
-                        setLoginDetails={setLoginDetails}
                     />
 
                     {/* Right Panel - Image & Widgets */}
@@ -132,4 +227,4 @@ function LoginPage() {
     )
 }
 
-export default LoginPage;
+export default ResetPasswordPage;

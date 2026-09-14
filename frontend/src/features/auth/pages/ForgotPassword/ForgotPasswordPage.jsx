@@ -10,6 +10,7 @@ import ForgotPasswordForm from '../../components/ForgotPasswordForm/ForgotPasswo
 const FORGOT_PASSWORD_COOLDOWN_KEY = 'forgot-password-cooldown-until';
 const FORGOT_PASSWORD_COOLDOWN_MS = 60 * 1000;
 
+/** Manages password-reset requests and the resend cooldown. */
 function ForgotPassword() {
 
     // useStats hook for UI
@@ -67,6 +68,9 @@ function ForgotPassword() {
             localStorage.setItem(FORGOT_PASSWORD_COOLDOWN_KEY, String(nextCooldownUntil));
             setCooldownUntil(nextCooldownUntil);
             
+            // store conformation data in session storage
+            sessionStorage.setItem("fromForgotPassword", "true");
+
             navigate("/forgot-password/success", {
                 state: { fromForgotPassword: true }
             });

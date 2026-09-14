@@ -5,8 +5,10 @@ import RegisterPage from '../features/auth/pages/Register/RegisterPage';
 import VerifyOTPPage from '../features/auth/pages/VerifyOTP/VerifyOTPPage';
 import ForgotPassword from '../features/auth/pages/ForgotPassword/ForgotPasswordPage';
 import ForgotPasswordSuccessPage from '../features/auth/pages/ForgotPassword/ForgotPasswordSuccessPage';
-import ResetPassword from '../features/auth/pages/ResetPasswordPage';
+import ResetPassword from '../features/auth/pages/ResetPassword/ResetPasswordPage';
+import ResetPasswordSuccessPage from '../features/auth/pages/ResetPassword/ResetPasswordSuccessPage';
 
+/** Renders the application router and its authentication routes. */
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +21,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/forgot-password/success" element={<ForgotPasswordSuccessPage />} />
+        <Route path="/reset-password/success" element={<ResetPasswordSuccessPage />} />
       </Routes>
     </BrowserRouter>
   )
