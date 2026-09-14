@@ -1,10 +1,10 @@
 import styles from './LoginPage.module.css';
 import login_background from '../../../../assets/images/customer-register-right-banner.png';
 import { useState } from 'react';
-import api from '../../../../app/config/api';
 import LoginForm from '../../components/LoginForm/LoginForm';
 import UIbackground from '../../components/UIBackground/UIbackground';
 import { useNavigate } from 'react-router-dom';
+import { userLoginApi } from '../../api/authApi';
 
 function LoginPage() {
 
@@ -22,7 +22,7 @@ function LoginPage() {
         // call backend user login api
         try {
             setLoading(true);
-            await api.post('/auth/login', loginDetails);
+            await userLoginApi(loginDetails);
 
             // Remove login details
             setLoginDetails({
