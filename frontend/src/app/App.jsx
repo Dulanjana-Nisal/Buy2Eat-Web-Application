@@ -7,6 +7,7 @@ import ForgotPassword from '../features/auth/pages/ForgotPassword/ForgotPassword
 import ForgotPasswordSuccessPage from '../features/auth/pages/ForgotPassword/ForgotPasswordSuccessPage';
 import ResetPassword from '../features/auth/pages/ResetPassword/ResetPasswordPage';
 import ResetPasswordSuccessPage from '../features/auth/pages/ResetPassword/ResetPasswordSuccessPage';
+import SellerRegisterPage from '../features/auth/pages/SellerRegister/SellerRegisterPage';
 
 /** Renders the application router and its authentication routes. */
 function App() {
@@ -16,7 +17,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/register/customer" element={<CustomerRegister />} />
-        <Route path="/register/seller" element={<CustomerRegister />} />
+        <Route path="/register/seller" element={<SellerRegisterPage />} />
         <Route path="/verify-otp" element={<VerifyOTPPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
