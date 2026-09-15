@@ -36,6 +36,13 @@ function SellerRegisterPage() {
             return console.error('Passwords are not matched!')
         }
 
+        // check password length
+        if ((registerDetails.password).length < 6) {
+            setLoading(false)
+            return console.error('Passwords must have more that 6 characters!')
+        }
+
+
         // check if agreement is sign
         if (!registerDetails.agreement) {
             setLoading(false)
