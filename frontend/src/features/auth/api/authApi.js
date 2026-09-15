@@ -12,6 +12,12 @@ export const customerRegistrationApi = async ( registerDetails ) => {
     return response.data;
 }
 
+// Seller Registration API
+export const sellerRegistrationApi = async ( registerDetails ) => {
+    const response = await api.post('/auth/register-seller', registerDetails);
+    return response.data;
+}
+
 // Submit OTP API
 export const submitOTPApi = async ( submitDetails ) => {
     const response = await api.post('/auth/verify-otp', submitDetails);
