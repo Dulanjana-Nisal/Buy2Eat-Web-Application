@@ -1,5 +1,5 @@
 import styles from './SellerRegisterForm.module.css';
-import left_transparent_banner from '../../../../assets/images/customer-card.svg';
+import left_transparent_banner from '../../../../assets/images/seller-card.svg';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -20,7 +20,7 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                         </svg>
                     </div>
                     <div>
-                        <h2>Register as a Customer</h2>
+                        <h2>Register as a Seller</h2>
                         <p>Fill in your details to get started</p>
                     </div>
                 </div>
