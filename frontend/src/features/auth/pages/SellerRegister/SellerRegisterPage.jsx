@@ -115,37 +115,62 @@ function SellerRegisterPage() {
                     {/* Right Side: Features / Info */}
                     <div className={styles.infoPanel}>
                         <h3 className={styles.infoTitle}>
-                            Great food is just <br /> <span className={styles.cursiveText}>one tap</span> away.
+                            Grow your business <br /> <span className={styles.cursiveText}>one order</span> at a Time.
                         </h3>
 
                         <div className={styles.featureList}>
                             <div className={styles.featureItem}>
                                 <div className={styles.featureIcon}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                </div>
-                                <div className={styles.featureText}>
-                                    <h4>Discover Local Favorites</h4>
-                                    <p>Explore a wide variety of local<br />shops and cuisines.</p>
-                                </div>
-                            </div>
-
-                            <div className={styles.featureItem}>
-                                <div className={styles.featureIcon}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                                </div>
-                                <div className={styles.featureText}>
-                                    <h4>Fast & Easy Ordering</h4>
-                                    <p>Place your order in seconds<br />and enjoy your meal.</p>
-                                </div>
-                            </div>
-
-                            <div className={styles.featureItem}>
-                                <div className={styles.featureIcon}>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                                 </div>
                                 <div className={styles.featureText}>
-                                    <h4>Track Your Order</h4>
-                                    <p>Real-time updates from kitchen<br />to your doorstep.</p>
+                                    <h4>Reach Local Customers</h4>
+                                    <p>Connect with hungry customers<br />and showcase your food locally.</p>
+                                </div>
+                            </div>
+
+                            <div className={styles.featureItem}>
+                                <div className={styles.featureIcon}>
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <rect x="5" y="4" width="14" height="17" rx="2"></rect>
+                                        <path d="M9 4V2h6v2"></path>
+                                        <polyline points="9 13 11 15 15 11"></polyline>
+                                    </svg>
+                                </div>
+                                <div className={styles.featureText}>
+                                    <h4>Manage Orders Easily</h4>
+                                    <p>Receive orders instantly, manage<br />menu, and serve customers faster.</p>
+                                </div>
+                            </div>
+
+                            <div className={styles.featureItem}>
+                                <div className={styles.featureIcon}>
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <polyline points="3 17 9 11 13 15 21 7"></polyline>
+                                        <polyline points="14 7 21 7 21 14"></polyline>
+                                    </svg>
+                                </div>
+                                <div className={styles.featureText}>
+                                    <h4>Grow Your Business</h4>
+                                    <p>Build your reputation, attract more<br />customers, and increase your sales.</p>
                                 </div>
                             </div>
                         </div>

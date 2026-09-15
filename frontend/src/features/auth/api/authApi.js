@@ -7,25 +7,25 @@ export const userLoginApi = async (loginData) => {
 }
 
 // Customer Registration API
-export const customerRegistrationApi = async ( registerDetails ) => {
+export const customerRegistrationApi = async (registerDetails) => {
     const response = await api.post('/auth/register-customer', registerDetails);
     return response.data;
 }
 
 // Seller Registration API
-export const sellerRegistrationApi = async ( registerDetails ) => {
+export const sellerRegistrationApi = async (registerDetails) => {
     const response = await api.post('/auth/register-seller', registerDetails);
     return response.data;
 }
 
 // Submit OTP API
-export const submitOTPApi = async ( submitDetails ) => {
+export const submitOTPApi = async (submitDetails) => {
     const response = await api.post('/auth/verify-otp', submitDetails);
     return response.data;
 }
 
 // Resend OTP API
-export const resendOTPApi = async ( verification_id ) => {
+export const resendOTPApi = async (verification_id) => {
     const response = await api.post('/auth/resend-otp', verification_id);
     return response.data;
 }
@@ -37,13 +37,13 @@ export const forgotPasswordApi = async (userData) => {
 }
 
 // Reset Password API
-export const resetPasswordApi = async(resetData) => {
+export const resetPasswordApi = async (resetData) => {
     const response = await api.post('/auth/reset-password', resetData);
     return response.data;
 }
 
 // Reset Password API
-export const verifyResetPasswordApi = async(token) => {
+export const verifyResetPasswordApi = async (token) => {
     const response = await api.get(`/auth/verify-reset-password/${token}`);
     return response.data;
 }
