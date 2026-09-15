@@ -42,7 +42,6 @@ function SellerRegisterPage() {
             return console.error('Passwords must have more that 6 characters!')
         }
 
-
         // check if agreement is sign
         if (!registerDetails.agreement) {
             setLoading(false)
@@ -50,6 +49,8 @@ function SellerRegisterPage() {
         }
 
         try {
+
+            // call seller register api
             const registration = await sellerRegistrationApi(registerDetails);
 
             // navigate OTP verification page
