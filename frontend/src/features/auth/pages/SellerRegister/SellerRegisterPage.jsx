@@ -30,6 +30,12 @@ function SellerRegisterPage() {
 
         setLoading(true)
 
+        // check email is not empty
+        if ((registerDetails.email).length < 2) {
+            setLoading(false)
+            return console.error('Email is required please fill that filed!')
+        }
+
         // check password and conform password is same
         if (registerDetails.password !== registerDetails.confPass) {
             setLoading(false)
@@ -40,6 +46,12 @@ function SellerRegisterPage() {
         if ((registerDetails.password).length < 6) {
             setLoading(false)
             return console.error('Passwords must have more that 6 characters!')
+        }
+
+        // check Phone number length
+        if ((registerDetails.phone_number).length <= 6) {
+            setLoading(false)
+            return console.error('Phone number have more that 6 numbers!')
         }
 
         // check if agreement is sign

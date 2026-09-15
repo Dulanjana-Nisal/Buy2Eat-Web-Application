@@ -52,7 +52,7 @@ function VerifyOTPPage() {
     // use effect get state data from navigate
     useEffect(() => {
         const verificationId = location.state?.verification_id
-        
+
         if (!verificationId) {
             navigate("/register", { replace: true })
         }
@@ -75,7 +75,7 @@ function VerifyOTPPage() {
 
             if (otpVerification.success) {
                 setVerificationStatus('success');
-                
+
                 // delete all navigation data
                 navigate(location.pathname, {
                     replace: true,
