@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './OTPForm.module.css';
 import left_transparent_banner from '../../../../assets/images/otp-background.svg';
 
-function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verificationStatus, submitOtp, loading, }) {
+function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verificationStatus, submitOtp, loading, maskedEmail }) {
 
     // navigation hook
     const navigate = useNavigate();
@@ -40,7 +40,7 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                         <h2>Enter OTP code</h2>
                         <p>
                             We've sent a 6-digits code to <br />
-                            <span> {location.state?.maskEmail || "youremail@domain.com"}</span>
+                            <span> {maskedEmail || "youremail@domain.com"}</span>
                         </p>
                     </div>
                 </div>
