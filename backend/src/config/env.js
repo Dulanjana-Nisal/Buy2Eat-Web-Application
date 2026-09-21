@@ -12,6 +12,7 @@ const {
     EMAIL_USER,
     EMAIL_APP_PASSWORD,
     GOOGLE_CLIENT_SECRET,
+    GOOGLE_CLIENT_ID,
     CLIENT_URL 
 } = process.env;
 
@@ -25,5 +26,6 @@ module.exports = {
     EMAIL_USER,
     EMAIL_APP_PASSWORD ,
     GOOGLE_CLIENT_SECRET,
+    GOOGLE_CLIENT_ID,
     CLIENT_URL 
 }; 

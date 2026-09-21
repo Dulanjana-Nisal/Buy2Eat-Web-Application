@@ -1,4 +1,4 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET } = require('../config/env');
+const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
@@ -106,17 +106,53 @@ const authLogin = asyncHandler(async (req, res) => {
 });
 
 // Google auth for users
-const googleAuth = asyncHandler( async(req,res)=>{
+const googleAuth = asyncHandler(async (req, res) => {
 	const { credentials } = req.body
 
 	// check google credentials
-	if(!credentials) return res.status(400).json({
+	if (!credentials) return res.status(400).json({
 		success: false,
 		message: 'Invalid Google credentials!'
 	})
 
-	res.status(200).send('Google Authentication')
-} )
+	// token verification
+	const ticket = await client.verifyIdToken({
+		idToken: credentials,
+		audience: GOOGLE_CLIENT_ID
+	})
+
+	// get payload form ticket
+	const { email, email_verified, picture, given_name, family_name } = ticket.getPayload();
+
+	// check email is verified
+	if (!email_verified) return res.status(400).json({
+		success: false,
+		message: 'Email is not verified in Google!'
+	})
+
+	// check user already exist
+	const user = await Users.findOne({ email })
+
+	if (!user) {
+		// register user
+	}
+
+	// create jwt tokens and save it into cookie
+	const { accessToken, refreshToken } = createTokenPair(user);
+	setAuthCookies(res, accessToken, refreshToken);
+
+	// send response
+	return res.status(200).json({
+		success: true,
+		message: 'User logged in successfully!',
+		user: {
+			_id: user._id,
+			email: user.email,
+			role: user.role,
+		}
+	});
+	
+})
 
 // Register auth for customers
 const registerCustomers = asyncHandler(async (req, res) => {
@@ -784,7 +820,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 	});
 
 	// check password have enough characters
-	if( newPassword.length <= 6){
+	if (newPassword.length <= 6) {
 		return res.status(400).json({
 			success: false,
 			message: 'Password should be more than 6 characters!'
@@ -808,7 +844,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{ session }
 		);
 
-		if (!resetUser){
+		if (!resetUser) {
 			// Abort transaction
 			await session.abortTransaction();
 
@@ -816,7 +852,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 				success: false,
 				message: "Your reset password link is expired or Invalid token"
 			});
-		} 
+		}
 
 		// hash password using bcrypt
 		const salt = await bcrypt.genSalt(10)
@@ -835,15 +871,15 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{ new: true, session }
 		);
 
-		if (!updateUser){
+		if (!updateUser) {
 			// Abort transaction
 			await session.abortTransaction();
 
 			return res.status(400).json({
 				success: false,
 				message: "User dose not exist"
-			});	
-		} 
+			});
+		}
 
 		// delete forgot password data from database
 		await resetPasswordModel.deleteOne(
@@ -853,7 +889,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 		// commit transaction
 		await session.commitTransaction();
-		
+
 		// send success response
 		return res.status(200).json({
 			success: true,
@@ -873,7 +909,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 });
 
 // verify reset password controller
-const verifyResetPassword = asyncHandler( async (req,res) => {
+const verifyResetPassword = asyncHandler(async (req, res) => {
 	const { token } = req.params;
 
 	// hashed token
@@ -881,13 +917,13 @@ const verifyResetPassword = asyncHandler( async (req,res) => {
 
 	// check token is exist
 	const resetUser = await resetPasswordModel.findOne(
-		{ 
+		{
 			resetPasswordToken: hashResetToken,
 			expiredAt: { $gt: new Date() },
 		}
 	)
 
-	if(!resetUser){
+	if (!resetUser) {
 		return res.status(400).json({
 			success: false,
 			message: 'Invalid token or Token is expired!'
