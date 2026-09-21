@@ -1,4 +1,4 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, PORT, CLIENT_URL } = require('../config/env');
+const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { sendEmailOTP, sendEmailResetPassword, resendEmailOTP } = require('../utils/sendEmails');
+const { OAuth2Client } = require('google-auth-library');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
@@ -47,7 +48,8 @@ const setAuthCookies = (res, accessToken, refreshToken) => {
 	});
 };
 
-
+// get google client
+const client = new OAuth2Client(GOOGLE_CLIENT_SECRET)
 
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
@@ -105,6 +107,14 @@ const authLogin = asyncHandler(async (req, res) => {
 
 // Google auth for users
 const googleAuth = asyncHandler( async(req,res)=>{
+	const { credentials } = req.body
+
+	// check google credentials
+	if(!credentials) return res.status(400).json({
+		success: false,
+		message: 'Invalid Google credentials!'
+	})
+
 	res.status(200).send('Google Authentication')
 } )
 
