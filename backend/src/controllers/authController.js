@@ -47,6 +47,8 @@ const setAuthCookies = (res, accessToken, refreshToken) => {
 	});
 };
 
+
+
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
@@ -100,6 +102,11 @@ const authLogin = asyncHandler(async (req, res) => {
 		}
 	});
 });
+
+// Google auth for users
+const googleAuth = asyncHandler( async(req,res)=>{
+	res.status(200).send('Google Authentication')
+} )
 
 // Register auth for customers
 const registerCustomers = asyncHandler(async (req, res) => {
@@ -927,6 +934,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 module.exports = {
 	authLogin,
+	googleAuth,
 	refreshToken,
 	registerCustomers,
 	registerSellers,

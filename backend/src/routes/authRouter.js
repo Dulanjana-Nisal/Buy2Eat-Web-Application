@@ -1,6 +1,7 @@
 const express = require('express');
 const { 
     authLogin, 
+    googleAuth,
     refreshToken, 
     registerCustomers, 
     registerSellers, 
@@ -15,6 +16,7 @@ const {
 const router = express.Router();
 
 router.post('/login', authLogin);
+router.post('/google', googleAuth);
 router.post('/register-customer', registerCustomers);
 router.post('/register-seller', registerSellers);
 router.post('/logout', userLogout);

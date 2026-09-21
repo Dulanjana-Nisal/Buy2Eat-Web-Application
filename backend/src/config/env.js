@@ -11,6 +11,7 @@ const {
     REFRESH_EXPIRED,
     EMAIL_USER,
     EMAIL_APP_PASSWORD,
+    GOOGLE_CLIENT_SECRET,
     CLIENT_URL 
 } = process.env;
 
@@ -23,5 +24,6 @@ module.exports = {
     REFRESH_EXPIRED,
     EMAIL_USER,
     EMAIL_APP_PASSWORD ,
+    GOOGLE_CLIENT_SECRET,
     CLIENT_URL 
 }; 
