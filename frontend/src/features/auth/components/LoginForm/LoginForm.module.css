@@ -75,12 +75,14 @@
 
 /* Social Buttons */
 .socialAuth {
+    width: 100%;
     display: flex;
     gap: 16px;
     margin-bottom: 24px;
 }
 
 .socialButton {
+    margin: auto;
     font-family: var(--font-family);
     flex: 1;
     display: flex;
@@ -91,9 +93,9 @@
     background-color: var(--color-surface-hover);
     border: 1px solid var(--color-border);
     border-radius: 8px;
+    cursor: pointer;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    cursor: pointer;
     color: var(--color-text-primary);
     transition: background-color var(--transition-normal);
 }

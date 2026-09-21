@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import CustomerRegister from '../features/auth/pages/CustomerRegister/CustomerRegisterPage';
 import LoginPage from '../features/auth/pages/Login/LoginPage';
 import RegisterPage from '../features/auth/pages/Register/RegisterPage';
@@ -13,17 +14,19 @@ import SellerRegisterPage from '../features/auth/pages/SellerRegister/SellerRegi
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/register/customer" element={<CustomerRegister />} />
-        <Route path="/register/seller" element={<SellerRegisterPage />} />
-        <Route path="/verify-otp" element={<VerifyOTPPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/forgot-password/success" element={<ForgotPasswordSuccessPage />} />
-        <Route path="/reset-password/success" element={<ResetPasswordSuccessPage />} />
-      </Routes>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/register/customer" element={<CustomerRegister />} />
+          <Route path="/register/seller" element={<SellerRegisterPage />} />
+          <Route path="/verify-otp" element={<VerifyOTPPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/forgot-password/success" element={<ForgotPasswordSuccessPage />} />
+          <Route path="/reset-password/success" element={<ResetPasswordSuccessPage />} />
+        </Routes>
+      </GoogleOAuthProvider>
     </BrowserRouter>
   )
 }
