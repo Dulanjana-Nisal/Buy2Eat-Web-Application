@@ -122,7 +122,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	})
 
 	// get payload form ticket
-	const { email, email_verified, picture, given_name, family_name } = ticket.getPayload();
+	const { email, email_verified, sub, picture, given_name, family_name } = ticket.getPayload();
 
 	// check email is verified
 	if (!email_verified) return res.status(400).json({
@@ -131,10 +131,70 @@ const googleAuth = asyncHandler(async (req, res) => {
 	})
 
 	// check user already exist
-	const user = await Users.findOne({ email })
+	const user = await Users.findOneAndUpdate(
+		{ email },
+		{
+			$set: {
+				google_id: sub,
+			}
+		},
+		{ new: true }
+	)
 
 	if (!user) {
 		// register user
+		return res.status(400).json({
+			success: false,
+			message: 'User is not Registered!'
+		})
+	}
+
+	// update user profiles
+	try {
+		// if customer
+		if (user.role === 'customer') {
+			await CustomerProfile.findOneAndUpdate(
+				{ user_id: user._id },
+				{
+					$set: {
+						profile_image: picture,
+
+					}
+				},
+				{ new: true }
+			)
+		}
+
+		// if seller
+		if (user.role === 'seller') {
+			await SellerProfile.findOneAndUpdate(
+				{ user_id: user._id },
+				{
+					$set: {
+						profile_image: picture,
+
+					}
+				},
+				{ new: true }
+			)
+		}
+	}
+	catch (err) {
+		await Users.findOneAndUpdate(
+			{ email },
+			{
+				$set: {
+					google_id: undefined,
+				}
+			},
+			{ new: true }
+		);
+
+		// send response
+		return res.status(400).json({
+			success: false,
+			message: 'Error while update profile!'
+		}) 
 	}
 
 	// create jwt tokens and save it into cookie
@@ -151,7 +211,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			role: user.role,
 		}
 	});
-	
+
 })
 
 // Register auth for customers
