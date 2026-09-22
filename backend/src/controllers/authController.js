@@ -13,6 +13,7 @@ const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
 const maskEmail = require('../utils/maskEmail');
+const OTPHelper = require('../services/OTPHelper');
 
 // cookie options
 const cookieOptions = {
@@ -142,7 +143,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 		// check if google register user already exist
 		const existUser = await GoogleRegisterModel.findOne({ email: email });
-		if(existUser){
+		if (existUser) {
 			return res.status(400).json({
 				success: false,
 				message: 'Google Register user already exist!'
@@ -160,7 +161,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
 		});
 
-		if(!googleRegisterUser){
+		if (!googleRegisterUser) {
 			throw new Error('Error while google registration!');
 		}
 
@@ -173,7 +174,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	}
 
 	// update user
-	if(user.google_id && user.google_id !== sub){
+	if (user.google_id && user.google_id !== sub) {
 		return res.status(400).json({
 			success: false,
 			message: 'Google account linked to another account!'
@@ -181,39 +182,39 @@ const googleAuth = asyncHandler(async (req, res) => {
 	}
 
 	// link account if not link to another account
-	if(!user.google_id){
+	if (!user.google_id) {
 		user.google_id = sub;
 		await user.save();
 	}
 
 	// update user profiles
-	if(picture){
+	if (picture) {
 		try {
 			// if customer
 			if (user.role === 'customer') {
 				await CustomerProfile.findOneAndUpdate(
-					{ 
+					{
 						user_id: user._id
 					},
 					{
 						$set: {
 							profile_image: picture,
-	
+
 						}
 					},
 					{ new: true }
 				)
-			}	
+			}
 			// if seller
 			if (user.role === 'seller') {
 				await SellerProfile.findOneAndUpdate(
-					{ 
+					{
 						user_id: user._id
 					},
 					{
 						$set: {
 							profile_image: picture,
-	
+
 						}
 					},
 					{ new: true }
@@ -230,7 +231,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 				},
 				{ new: true }
 			);
-	
+
 			// send response
 			return res.status(500).json({
 				success: false,
@@ -258,8 +259,126 @@ const googleAuth = asyncHandler(async (req, res) => {
 })
 
 // Google Registration
-const googleRegistration = asyncHandler( async (req,res) => {
-	res.status(200).send('Google User Registration...');
+const googleRegistration = asyncHandler(async (req, res) => {
+	const { registerToken, role, phone_number, email } = req.body;
+
+	// check if registerToken is exist
+	if (!registerToken) {
+		return res.status(400).json({
+			success: false,
+			message: 'Register token is missing!'
+		});
+	}
+
+	// check if role and phone number is provided
+	if (!role || !phone_number || !email) {
+		return res.status(400).json({
+			success: false,
+			message: 'Please provide role and phone number and email!'
+		});
+	}
+
+	// validating phone number
+	if (phone_number.length < 6) {
+		return res.status(400).json({
+			success: false,
+			message: 'Phone number must have more that 6 numbers'
+		});
+	}
+
+	// check rolls are right
+	if (!['customer', 'seller'].includes(role)) {
+		return res.status(400).json({
+			success: false,
+			message: 'Invalid role selection!'
+		});
+	}
+
+	// check if user exist in registry
+	const googleRegisteredUser = await GoogleRegisterModel.findOne(
+		{
+			email: email,
+			expiresAt: {
+				$gt: new Date()
+			}
+		});
+
+	if (!googleRegisteredUser) {
+		return res.status(400).json({
+			success: false,
+			message: 'Register user '
+		});
+	}
+
+	// verify register token 
+	const checkPass = await bcrypt.compare(registerToken, googleRegisteredUser.registration_token);
+	if (!checkPass) {
+		return res.status(400).json({
+			success: false,
+			message: 'Register token verification failed! '
+		});
+	}
+
+	// check if user exist again
+	const existUserAgain = await Users.findOne({ email: googleRegisteredUser.email });
+	if (existUserAgain) {
+		return res.status(400).json({
+			success: false,
+			message: 'User already exist!'
+		});
+	}
+
+	// If all things passed
+	try {
+		// create user
+		const createUser = await Users.create({
+			email: email,
+			google_id: googleRegisteredUser.google_id,
+			role: role
+		})
+
+		if (!createUser) {
+			return res.status(400).json({
+				success: false,
+				message: 'Error while create user!'
+			})
+		}
+
+		// update profiles
+		if (role === 'customer') {
+			await CustomerProfile.create({
+				user_id: createUser._id,
+				first_name: googleRegisteredUser.first_name,
+				last_name: googleRegisteredUser.last_name,
+				profile_image: googleRegisteredUser.profile_image,
+				phone_number: phone_number,
+			});
+		}
+		else if (role === 'seller') {
+			await SellerProfile.create({
+				user_id: createUser._id,
+				first_name: googleRegisteredUser.first_name,
+				last_name: googleRegisteredUser.last_name,
+				profile_image: googleRegisteredUser.profile_image,
+				phone_number: phone_number,
+			});
+		}
+
+		// if all things are success delete google Register user
+		await GoogleRegisterModel.deleteOne({ _id: googleRegisteredUser._id });
+
+
+
+		//send response
+		res.status(201).json({
+			success: true,
+			isRegistered: true,
+			message: 'User registered successfully'
+		});
+	}
+	catch (err) {
+		throw new Error('Error while create Profiles!', err)
+	}
 });
 
 // Register auth for customers
@@ -306,56 +425,82 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
 
-	// generate otp
-	const generateOtp = crypto.randomInt(100000, 1000000).toString();
-	const hashOtp = await bcrypt.hash(generateOtp, 10);
-
-	// generate verification_id 
-	const verification_id_value = crypto.randomUUID();
-
-	// delete old OTP from same email
-	await registrationOtpModel.deleteMany({ email: normalizedEmail })
-
-	// save otp in database
-	const nowDate = new Date();
-	const otpCreation = await registrationOtpModel.create({
-		verification_id: verification_id_value,
-		email: email,
-		hash_otp: hashOtp,
-		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
-		session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
-		role: 'customer',
-		hash_password: hashedPassword,
-		profile_data: {
-			first_name,
-			last_name,
-			addresses,
-			profile_image,
-			favorite_shops,
-			favorite_foods,
-			phone_number,
-		}
-	})
-
-	// if something wrong wile create database schema
-	if (!otpCreation) {
-		throw new Error('Error while create database schema!')
+	// set profile_data
+	const profile_data = {
+		first_name: first_name,
+		last_name: last_name,
+		addresses: addresses,
+		profile_image: profile_image,
+		favorite_shops: favorite_shops,
+		favorite_foods: favorite_foods,
+		phone_number: phone_number,
 	}
 
-	// mask email for sending otp
-	const maskedEmail = maskEmail(email);
-
-	// send otp via email
-	await sendEmailOTP(email, first_name, last_name, generateOtp)
-
+	// send OTP to user
+	const sendOTP = await OTPHelper(normalizedEmail, 'customer', hashedPassword, profile_data);
+			
 	// send response
-	res.status(200).json({
-		success: true,
-		message: 'OTP send successfully...',
-		verification_id: verification_id_value,
-		masked_email: maskedEmail,
-		expiresAt: otpCreation.expiresAt
-	})
+	if(!sendOTP){
+		return res.status(400).json({
+			success: false,
+			message: 'Send OTP Failed!'
+		})
+	}
+
+	 // send response
+	res.status(200).json(sendOTP);
+
+
+	// // generate otp
+	// const generateOtp = crypto.randomInt(100000, 1000000).toString();
+	// const hashOtp = await bcrypt.hash(generateOtp, 10);
+
+	// // generate verification_id 
+	// const verification_id_value = crypto.randomUUID();
+
+	// // delete old OTP from same email
+	// await registrationOtpModel.deleteMany({ email: normalizedEmail })
+
+	// // save otp in database
+	// const nowDate = new Date();
+	// const otpCreation = await registrationOtpModel.create({
+	// 	verification_id: verification_id_value,
+	// 	email: email,
+	// 	hash_otp: hashOtp,
+	// 	expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
+	// 	session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
+	// 	role: 'customer',
+	// 	hash_password: hashedPassword,
+	// 	profile_data: {
+	// 		first_name,
+	// 		last_name,
+	// 		addresses,
+	// 		profile_image,
+	// 		favorite_shops,
+	// 		favorite_foods,
+	// 		phone_number,
+	// 	}
+	// })
+
+	// // if something wrong wile create database schema
+	// if (!otpCreation) {
+	// 	throw new Error('Error while create database schema!')
+	// }
+
+	// // mask email for sending otp
+	// const maskedEmail = maskEmail(email);
+
+	// // send otp via email
+	// await sendEmailOTP(email, first_name, last_name, generateOtp)
+
+	// // send response
+	// res.status(200).json({
+	// 	success: true,
+	// 	message: 'OTP send successfully...',
+	// 	verification_id: verification_id_value,
+	// 	masked_email: maskedEmail,
+	// 	expiresAt: otpCreation.expiresAt
+	// })
 });
 
 // Register auth for sellers
