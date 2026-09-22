@@ -260,7 +260,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 // Google Registration
 const googleRegistration = asyncHandler(async (req, res) => {
 	const { registerToken, role, phone_number } = req.body;
-	
+
 	// check if registerToken is exist
 	if (!registerToken) {
 		return res.status(400).json({
@@ -322,8 +322,13 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		});
 	}
 
+	// ===== Start Transaction =====
+	const session = await mongoose.startSession();
+
 	// If all things passed
 	try {
+		session.startTransaction();
+
 		let profile_data;
 		if (role === 'customer') {
 			// set profile_data
@@ -349,28 +354,30 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		}
 
 		// send OTP to user
-		const sendOTP = await OTPHelper(
-			googleRegisteredUser.email,
+		const sendOTP = await OTPHelper({
+			normalizedEmail: googleRegisteredUser.email,
 			role,
-			undefined,
-			profile_data
-		);
+			hashedPassword: undefined,
+			profile_data,
+			session
+		});
 
 		// send response
-		if (!sendOTP) {
+		if (!sendOTP?.success) {
 			return res.status(400).json({
 				success: false,
-				message: 'Send OTP Failed!'
+				message: sendOTP?.message || "Send OTP Failed!"
 			})
 		}
 
-		// send response
-		if (!sendOTP.success) {
-			return res.status(400).json({
-				success: sendOTP.success,
-				message: sendOTP.message,
-			})
-		}
+		// if all things are success delete google Register user
+		await GoogleRegisterModel.deleteOne(
+			{ _id: googleRegisteredUser._id }, 
+			{ session }
+		);
+
+		await session.commitTransaction(); // commit transaction
+
 		return res.status(200).json({
 			success: sendOTP.success,
 			message: sendOTP.message,
@@ -379,13 +386,16 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			expiresAt: sendOTP.expiresAt
 		});
 
-		// if all things are success delete google Register user
-		// await GoogleRegisterModel.deleteOne({ _id: googleRegisteredUser._id });
-
 	}
 	catch (err) {
+		await session.abortTransaction();
 		throw err;
 	}
+	finally {
+		await session.endSession();
+	}
+	// ===== End Transaction =====
+
 });
 
 // Register auth for customers
@@ -444,7 +454,14 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	}
 
 	// send OTP to user
-	const sendOTP = await OTPHelper(normalizedEmail, 'customer', hashedPassword, profile_data);
+	const sendOTP = await OTPHelper(
+		{
+			normalizedEmail, 
+			role: 'customer', 
+			hashedPassword, 
+			profile_data
+		}
+	);
 
 	// send response
 	if (!sendOTP) {
@@ -521,7 +538,14 @@ const registerSellers = asyncHandler(async (req, res) => {
 	}
 
 	// send OTP to user
-	const sendOTP = await OTPHelper(normalizedEmail, 'seller', hashedPassword, profile_data);
+	const sendOTP = await OTPHelper(
+		{
+			normalizedEmail, 
+			role: 'seller', 
+			hashedPassword, 
+			profile_data
+		}
+	); 
 
 	// send response
 	if (!sendOTP) {
@@ -621,7 +645,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		// create user 
 		const [user] = await Users.create([{
 			email: otpUser.email,
-			password: otpUser.hash_password,
+			password: otpUser.hash_password || undefined,
 			role: otpUser.role,
 		}], { session });
 
@@ -630,7 +654,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		if (otpUser.role === 'customer') {
 			[userProfile] = await CustomerProfile.create([{ ...otpUser.profile_data, user_id: user._id }], { session });
 		}
-		if (otpUser.role === 'seller') {
+		else if (otpUser.role === 'seller') {
 			[userProfile] = await SellerProfile.create([{ ...otpUser.profile_data, user_id: user._id }], { session });
 		}
 

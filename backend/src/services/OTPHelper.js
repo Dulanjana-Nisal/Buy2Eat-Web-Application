@@ -4,16 +4,35 @@ const registrationOtpModel = require('../models/registrationOtpModel');
 const maskEmail = require('../utils/maskEmail');
 const { sendEmailOTP } = require('../utils/sendEmails');
 
-const OTPHelper = async (normalizedEmail, role, hashedPassword, profile_data) => {
-
+// OTPHelper Service function
+const OTPHelper = async ({
+    normalizedEmail,
+    role,
+    hashedPassword,
+    profile_data,
+    session = null
+}) => {
+    console.log(normalizedEmail,
+    role,
+    hashedPassword,
+    profile_data,
+    session = null)
     // check roles are valid
-    if (!['customer','seller'].includes(role)) {
+    if (!['customer', 'seller'].includes(role)) {
         return {
-            code: 400,
             success: false,
             message: 'Wrong role selecting!',
-
         }
+    }
+
+    // Normalize email and check
+    const email = normalizedEmail?.trim().toLowerCase();
+
+    if (!email) {
+        return {
+            success: false,
+            message: 'Email is required!'
+        };
     }
 
     // generate otp
@@ -24,41 +43,73 @@ const OTPHelper = async (normalizedEmail, role, hashedPassword, profile_data) =>
     const verification_id_value = crypto.randomUUID();
 
     // delete old OTP from same email
-    await registrationOtpModel.deleteMany({ email: normalizedEmail })
+    await registrationOtpModel.deleteMany(
+        { email: email },
+        session ? { session } : {}
+    );
 
     // save otp in database
     const nowDate = new Date();
-    const otpCreation = await registrationOtpModel.create({
+    const options = session ? { session } : {}
+
+    // OTP data
+    const otpData = {
         verification_id: verification_id_value,
-        email: normalizedEmail,
+        email: email,
         hash_otp: hashOtp,
-        expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
+        expiresAt: new Date(nowDate.getTime() + 5 * 60 * 1000), // expires in 5 min
         session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
         role: role,
         hash_password: hashedPassword,
         profile_data: profile_data,
-    })
+    }
 
-    // if something wrong wile create database schema
-    if (!otpCreation) {
-        throw new Error('Error while create database schema!')
+    // otp creation
+    let otpCreation;
+    if(session){
+        const result = await registrationOtpModel.create(
+            [otpData],
+            options
+        );
+        otpCreation = result[0]
+    }
+    else{
+        otpCreation = await registrationOtpModel.create(
+            otpData
+        );
     }
 
     // mask email for sending otp
-    const maskedEmail = maskEmail(normalizedEmail);
+    const maskedEmail = maskEmail(email);
 
-    // send otp via email
-    await sendEmailOTP(normalizedEmail, profile_data.first_name, profile_data.last_name, generateOtp)
+    try {
+        // send otp via email
+        await sendEmailOTP(email, profile_data.first_name, profile_data.last_name, generateOtp);
 
-    // return data
-    return {
-        code: 200,
-        success: true,
-        message: 'OTP send successfully...',
-        verification_id: verification_id_value,
-        masked_email: maskedEmail,
-        expiresAt: otpCreation.expiresAt
+        // return data
+        return {
+            success: true,
+            message: 'OTP send successfully...',
+            verification_id: verification_id_value,
+            masked_email: maskedEmail,
+            expiresAt: otpCreation.expiresAt
+        }
+    }
+    catch {
+        await registrationOtpModel.findOneAndUpdate(
+            { _id: otpCreation._id },
+            {
+                $set: {
+                    expiresAt: new Date()
+                }
+            },
+            { 
+                new: true,
+                ...options
+            }
+        );
 
+        throw new Error('Error while sending OTP!')
     }
 }
 
