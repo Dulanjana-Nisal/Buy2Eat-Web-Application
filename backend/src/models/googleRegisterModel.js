@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const googleRegisterModel = mongoose.Schema({
+const GoogleRegisterModel = mongoose.Schema({
     google_id: {
         type: String,
         required: [true, 'google_id is required!'],
@@ -14,12 +14,10 @@ const googleRegisterModel = mongoose.Schema({
     first_name: {
         type: String,
         required: [true, 'First Name is required!'],
-        minlength: [2, 'First name must be more than 2 letters']
     },
     last_name: {
         type: String,
         required: [true, 'Last Name is required!'],
-        minlength: [2, 'Last name must be more than 2 letters']
     },
     profile_image: {
         type: String,
@@ -30,8 +28,9 @@ const googleRegisterModel = mongoose.Schema({
     },
     expiresAt: {
         type: Date,
-        required: [true, 'Date is required!']
+        required: [true, 'Date is required!'],
+        expires: 600
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model("GoogleRegister", googleRegisterModel)
+module.exports = mongoose.model("GoogleRegister", GoogleRegisterModel)

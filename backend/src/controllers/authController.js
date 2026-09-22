@@ -3,6 +3,7 @@ const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
 const SellerProfile = require('../models/sellerProfileModel');
+const GoogleRegisterModel = require('../models/googleRegisterModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -122,7 +123,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	});
 
 	// get payload form ticket
-	const { email, email_verified, sub, picture } = ticket.getPayload();
+	const { email, email_verified, sub, picture, given_name, family_name } = ticket.getPayload();
 
 	// check email is verified
 	if (!email_verified) return res.status(400).json({
@@ -134,10 +135,30 @@ const googleAuth = asyncHandler(async (req, res) => {
 	const user = await Users.findOne({ email });
 
 	if (!user) {
+
+		// Generate and hash register token
+		const registerToken = crypto.randomBytes(32).toString('hex');
+		const hashedRegisterToken = await bcrypt.hash(registerToken, 10);
+
+		// create new google register user
+		const googleRegisterUser = await GoogleRegisterModel.create({
+			google_id: sub,
+			email: email,
+			first_name: given_name,
+			last_name: family_name,
+			registration_token: hashedRegisterToken,
+			expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
+		});
+
+		if(!googleRegisterUser){
+			throw new Error('Error while google registration!')
+		}
+
 		// register user
 		return res.status(400).json({
-			success: false,
-			message: 'User is not Registered!'
+			success: true,
+			isRegistered: false,
+			register_token: registerToken
 		});
 	}
 
