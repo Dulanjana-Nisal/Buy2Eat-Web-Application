@@ -28,8 +28,7 @@ const registrationOtpModel = mongoose.Schema({
         required: [true, "hash_otp is required!"]
     },
     hash_password: {
-        type: String,
-        required: [true, "hash_password is required!"]
+        type: String
     },
     expiresAt: {
         type: Date,

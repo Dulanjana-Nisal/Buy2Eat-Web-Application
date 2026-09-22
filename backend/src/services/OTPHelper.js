@@ -6,14 +6,17 @@ const { sendEmailOTP } = require('../utils/sendEmails');
 
 const OTPHelper = async (normalizedEmail, role, hashedPassword, profile_data) => {
 
+    console.log(normalizedEmail, role, hashedPassword, profile_data)
     // check roles are valid
-    if (!['customer', 'seller'].includes(role)) {
+    if (!['customer','seller'].includes(role)) {
         return {
             code: 400,
             success: false,
-            message: 'Role selection incorrect!',
+            message: 'Wrong role selecting!',
+
         }
     }
+
     // generate otp
     const generateOtp = crypto.randomInt(100000, 1000000).toString();
     const hashOtp = await bcrypt.hash(generateOtp, 10);

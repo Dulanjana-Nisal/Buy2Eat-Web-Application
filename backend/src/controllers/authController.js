@@ -7,12 +7,11 @@ const GoogleRegisterModel = require('../models/googleRegisterModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendEmailOTP, sendEmailResetPassword, resendEmailOTP } = require('../utils/sendEmails');
+const { sendEmailResetPassword, resendEmailOTP } = require('../utils/sendEmails');
 const { OAuth2Client } = require('google-auth-library');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
-const maskEmail = require('../utils/maskEmail');
 const OTPHelper = require('../services/OTPHelper');
 
 // cookie options
@@ -139,7 +138,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 		// Generate and hash register token
 		const registerToken = crypto.randomBytes(32).toString('hex');
-		const hashedRegisterToken = await bcrypt.hash(registerToken, 10);
+		const hashedRegisterToken = crypto.createHash('sha256').update(registerToken).digest('hex');
 
 		// check if google register user already exist
 		const existUser = await GoogleRegisterModel.findOne({ email: email });
@@ -166,7 +165,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 		}
 
 		// register user
-		return res.status(200).json({
+		return res.status(201).json({
 			success: true,
 			isRegistered: false,
 			register_token: registerToken
@@ -260,8 +259,8 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 // Google Registration
 const googleRegistration = asyncHandler(async (req, res) => {
-	const { registerToken, role, phone_number, email } = req.body;
-
+	const { registerToken, role, phone_number } = req.body;
+	
 	// check if registerToken is exist
 	if (!registerToken) {
 		return res.status(400).json({
@@ -271,10 +270,10 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	}
 
 	// check if role and phone number is provided
-	if (!role || !phone_number || !email) {
+	if (!role || !phone_number) {
 		return res.status(400).json({
 			success: false,
-			message: 'Please provide role and phone number and email!'
+			message: 'Please provide role and phone number!'
 		});
 	}
 
@@ -294,28 +293,23 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		});
 	}
 
+	// create hash token for verification
+	const tokenHash = crypto.createHash('sha256').update(registerToken).digest('hex');
+
 	// check if user exist in registry
 	const googleRegisteredUser = await GoogleRegisterModel.findOne(
 		{
-			email: email,
+			registration_token: tokenHash,
 			expiresAt: {
 				$gt: new Date()
 			}
-		});
+		}
+	);
 
 	if (!googleRegisteredUser) {
 		return res.status(400).json({
 			success: false,
-			message: 'Register user '
-		});
-	}
-
-	// verify register token 
-	const checkPass = await bcrypt.compare(registerToken, googleRegisteredUser.registration_token);
-	if (!checkPass) {
-		return res.status(400).json({
-			success: false,
-			message: 'Register token verification failed! '
+			message: 'Register user not found!'
 		});
 	}
 
@@ -330,54 +324,68 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 	// If all things passed
 	try {
-		// create user
-		const createUser = await Users.create({
-			email: email,
-			google_id: googleRegisteredUser.google_id,
-			role: role
-		})
+		let profile_data;
+		if (role === 'customer') {
+			// set profile_data
+			profile_data = {
+				first_name: googleRegisteredUser.first_name,
+				last_name: googleRegisteredUser.last_name,
+				addresses: [],
+				profile_image: googleRegisteredUser.profile_image,
+				favorite_shops: [],
+				favorite_foods: [],
+				phone_number: phone_number,
+			}
+		}
 
-		if (!createUser) {
+		else if (role === 'seller') {
+			// set profile_data
+			profile_data = {
+				first_name: googleRegisteredUser.first_name,
+				last_name: googleRegisteredUser.last_name,
+				profile_image: googleRegisteredUser.profile_image,
+				phone_number: phone_number,
+			}
+		}
+		console.log("googleRegisteredUser.email,profile_data,role")
+		// send OTP to user
+		const sendOTP = await OTPHelper(
+			googleRegisteredUser.email,
+			role,
+			undefined,
+			profile_data
+		);
+
+		// send response
+		if (!sendOTP) {
 			return res.status(400).json({
 				success: false,
-				message: 'Error while create user!'
+				message: 'Send OTP Failed!'
 			})
 		}
 
-		// update profiles
-		if (role === 'customer') {
-			await CustomerProfile.create({
-				user_id: createUser._id,
-				first_name: googleRegisteredUser.first_name,
-				last_name: googleRegisteredUser.last_name,
-				profile_image: googleRegisteredUser.profile_image,
-				phone_number: phone_number,
-			});
+		// send response
+		if (!sendOTP.success) {
+			return res.status(400).json({
+				success: sendOTP.success,
+				message: sendOTP.message,
+			})
 		}
-		else if (role === 'seller') {
-			await SellerProfile.create({
-				user_id: createUser._id,
-				first_name: googleRegisteredUser.first_name,
-				last_name: googleRegisteredUser.last_name,
-				profile_image: googleRegisteredUser.profile_image,
-				phone_number: phone_number,
-			});
-		}
+		return res.status(200).json({
+			success: sendOTP.success,
+			message: sendOTP.message,
+			verification_id: sendOTP.verification_id,
+			masked_email: sendOTP.masked_email,
+			expiresAt: sendOTP.expiresAt
+		});
 
 		// if all things are success delete google Register user
-		await GoogleRegisterModel.deleteOne({ _id: googleRegisteredUser._id });
+		// await GoogleRegisterModel.deleteOne({ _id: googleRegisteredUser._id });
 
-
-
-		//send response
-		res.status(201).json({
-			success: true,
-			isRegistered: true,
-			message: 'User registered successfully'
-		});
 	}
 	catch (err) {
-		throw new Error('Error while create Profiles!', err)
+		console.log('hello')
+		throw err;
 	}
 });
 
@@ -448,7 +456,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	}
 
 	// send response
-	if(!sendOTP.success){
+	if (!sendOTP.success) {
 		return res.status(400).json({
 			success: sendOTP.success,
 			message: sendOTP.message,
@@ -457,9 +465,9 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	return res.status(200).json({
 		success: sendOTP.success,
 		message: sendOTP.message,
-        verification_id: sendOTP.verification_id,
-        masked_email: sendOTP.masked_email,
-        expiresAt: sendOTP.expiresAt
+		verification_id: sendOTP.verification_id,
+		masked_email: sendOTP.masked_email,
+		expiresAt: sendOTP.expiresAt
 	});
 
 });
@@ -472,9 +480,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 		first_name,
 		last_name,
 		phone_number,
-		profile_image,
-		ratings = 0,
-		rank,
+		profile_image
 	} = req.body;
 
 	// check required fields are filled
@@ -512,9 +518,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 		first_name: first_name,
 		last_name: last_name,
 		profile_image: profile_image,
-		phone_number: phone_number,
-		ratings: ratings,
-		rank: rank,
+		phone_number: phone_number
 	}
 
 	// send OTP to user
@@ -529,7 +533,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	}
 
 	// send response
-	if(!sendOTP.success){
+	if (!sendOTP.success) {
 		return res.status(400).json({
 			success: sendOTP.success,
 			message: sendOTP.message,
@@ -538,9 +542,9 @@ const registerSellers = asyncHandler(async (req, res) => {
 	return res.status(200).json({
 		success: sendOTP.success,
 		message: sendOTP.message,
-        verification_id: sendOTP.verification_id,
-        masked_email: sendOTP.masked_email,
-        expiresAt: sendOTP.expiresAt
+		verification_id: sendOTP.verification_id,
+		masked_email: sendOTP.masked_email,
+		expiresAt: sendOTP.expiresAt
 	});
 
 });
