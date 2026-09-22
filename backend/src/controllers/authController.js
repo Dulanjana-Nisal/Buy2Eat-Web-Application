@@ -438,69 +438,30 @@ const registerCustomers = asyncHandler(async (req, res) => {
 
 	// send OTP to user
 	const sendOTP = await OTPHelper(normalizedEmail, 'customer', hashedPassword, profile_data);
-			
+
 	// send response
-	if(!sendOTP){
+	if (!sendOTP) {
 		return res.status(400).json({
 			success: false,
 			message: 'Send OTP Failed!'
 		})
 	}
 
-	 // send response
-	res.status(200).json(sendOTP);
+	// send response
+	if(!sendOTP.success){
+		return res.status(400).json({
+			success: sendOTP.success,
+			message: sendOTP.message,
+		})
+	}
+	return res.status(200).json({
+		success: sendOTP.success,
+		message: sendOTP.message,
+        verification_id: sendOTP.verification_id,
+        masked_email: sendOTP.masked_email,
+        expiresAt: sendOTP.expiresAt
+	});
 
-
-	// // generate otp
-	// const generateOtp = crypto.randomInt(100000, 1000000).toString();
-	// const hashOtp = await bcrypt.hash(generateOtp, 10);
-
-	// // generate verification_id 
-	// const verification_id_value = crypto.randomUUID();
-
-	// // delete old OTP from same email
-	// await registrationOtpModel.deleteMany({ email: normalizedEmail })
-
-	// // save otp in database
-	// const nowDate = new Date();
-	// const otpCreation = await registrationOtpModel.create({
-	// 	verification_id: verification_id_value,
-	// 	email: email,
-	// 	hash_otp: hashOtp,
-	// 	expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
-	// 	session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
-	// 	role: 'customer',
-	// 	hash_password: hashedPassword,
-	// 	profile_data: {
-	// 		first_name,
-	// 		last_name,
-	// 		addresses,
-	// 		profile_image,
-	// 		favorite_shops,
-	// 		favorite_foods,
-	// 		phone_number,
-	// 	}
-	// })
-
-	// // if something wrong wile create database schema
-	// if (!otpCreation) {
-	// 	throw new Error('Error while create database schema!')
-	// }
-
-	// // mask email for sending otp
-	// const maskedEmail = maskEmail(email);
-
-	// // send otp via email
-	// await sendEmailOTP(email, first_name, last_name, generateOtp)
-
-	// // send response
-	// res.status(200).json({
-	// 	success: true,
-	// 	message: 'OTP send successfully...',
-	// 	verification_id: verification_id_value,
-	// 	masked_email: maskedEmail,
-	// 	expiresAt: otpCreation.expiresAt
-	// })
 });
 
 // Register auth for sellers
@@ -546,55 +507,42 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
 
-	// generate otp
-	const generateOtp = crypto.randomInt(100000, 1000000).toString();
-	const hashOtp = await bcrypt.hash(generateOtp, 10);
-
-	// generate verification_id 
-	const verification_id_value = crypto.randomUUID();
-
-	// delete old OTP from same email
-	await registrationOtpModel.deleteMany({ email: normalizedEmail })
-
-	// save otp in database
-	const nowDate = new Date();
-	const otpCreation = await registrationOtpModel.create({
-		verification_id: verification_id_value,
-		email: email,
-		hash_otp: hashOtp,
-		hash_password: hashedPassword,
-		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
-		session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
-		role: 'seller',
-		profile_data: {
-			first_name,
-			last_name,
-			profile_image,
-			phone_number,
-			ratings,
-			rank,
-		}
-	})
-
-	// if something wrong while create schema
-	if (!otpCreation) {
-		throw new Error('Error while create database schema!')
+	// set profile_data
+	const profile_data = {
+		first_name: first_name,
+		last_name: last_name,
+		profile_image: profile_image,
+		phone_number: phone_number,
+		ratings: ratings,
+		rank: rank,
 	}
 
-	// mask email for sending otp
-	const maskedEmail = maskEmail(email);
-
-	// send otp via email
-	await sendEmailOTP(email, first_name, last_name, generateOtp)
+	// send OTP to user
+	const sendOTP = await OTPHelper(normalizedEmail, 'seller', hashedPassword, profile_data);
 
 	// send response
-	res.status(200).json({
-		success: true,
-		message: 'OTP send successfully...',
-		verification_id: verification_id_value,
-		masked_email: maskedEmail,
-		expiresAt: otpCreation.expiresAt
-	})
+	if (!sendOTP) {
+		return res.status(400).json({
+			success: false,
+			message: 'Error while sending OTP!'
+		})
+	}
+
+	// send response
+	if(!sendOTP.success){
+		return res.status(400).json({
+			success: sendOTP.success,
+			message: sendOTP.message,
+		})
+	}
+	return res.status(200).json({
+		success: sendOTP.success,
+		message: sendOTP.message,
+        verification_id: sendOTP.verification_id,
+        masked_email: sendOTP.masked_email,
+        expiresAt: sendOTP.expiresAt
+	});
+
 });
 
 // verify otp controller

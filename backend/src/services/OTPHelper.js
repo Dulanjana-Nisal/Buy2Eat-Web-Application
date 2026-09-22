@@ -4,7 +4,16 @@ const registrationOtpModel = require('../models/registrationOtpModel');
 const maskEmail = require('../utils/maskEmail');
 const { sendEmailOTP } = require('../utils/sendEmails');
 
-const OTPHelper = async ( normalizedEmail, role, hashedPassword, profile_data ) => {
+const OTPHelper = async (normalizedEmail, role, hashedPassword, profile_data) => {
+
+    // check roles are valid
+    if (!['customer', 'seller'].includes(role)) {
+        return {
+            code: 400,
+            success: false,
+            message: 'Role selection incorrect!',
+        }
+    }
     // generate otp
     const generateOtp = crypto.randomInt(100000, 1000000).toString();
     const hashOtp = await bcrypt.hash(generateOtp, 10);
@@ -41,6 +50,7 @@ const OTPHelper = async ( normalizedEmail, role, hashedPassword, profile_data ) 
 
     // return data
     return {
+        code: 200,
         success: true,
         message: 'OTP send successfully...',
         verification_id: verification_id_value,
