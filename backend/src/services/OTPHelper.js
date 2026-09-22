@@ -6,7 +6,6 @@ const { sendEmailOTP } = require('../utils/sendEmails');
 
 const OTPHelper = async (normalizedEmail, role, hashedPassword, profile_data) => {
 
-    console.log(normalizedEmail, role, hashedPassword, profile_data)
     // check roles are valid
     if (!['customer','seller'].includes(role)) {
         return {

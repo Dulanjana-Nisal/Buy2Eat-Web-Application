@@ -347,7 +347,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 				phone_number: phone_number,
 			}
 		}
-		console.log("googleRegisteredUser.email,profile_data,role")
+
 		// send OTP to user
 		const sendOTP = await OTPHelper(
 			googleRegisteredUser.email,
@@ -384,7 +384,6 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 	}
 	catch (err) {
-		console.log('hello')
 		throw err;
 	}
 });
