@@ -107,94 +107,105 @@ const authLogin = asyncHandler(async (req, res) => {
 
 // Google auth for users
 const googleAuth = asyncHandler(async (req, res) => {
-	const { credentials } = req.body
+	const { credentials } = req.body;
 
 	// check google credentials
 	if (!credentials) return res.status(400).json({
 		success: false,
 		message: 'Invalid Google credentials!'
-	})
+	});
 
 	// token verification
 	const ticket = await client.verifyIdToken({
 		idToken: credentials,
 		audience: GOOGLE_CLIENT_ID
-	})
+	});
 
 	// get payload form ticket
-	const { email, email_verified, sub, picture, given_name, family_name } = ticket.getPayload();
+	const { email, email_verified, sub, picture } = ticket.getPayload();
 
 	// check email is verified
 	if (!email_verified) return res.status(400).json({
 		success: false,
 		message: 'Email is not verified in Google!'
-	})
+	});
 
 	// check user already exist
-	const user = await Users.findOneAndUpdate(
-		{ email },
-		{
-			$set: {
-				google_id: sub,
-			}
-		},
-		{ new: true }
-	)
+	const user = await Users.findOne({ email });
 
 	if (!user) {
 		// register user
 		return res.status(400).json({
 			success: false,
 			message: 'User is not Registered!'
-		})
+		});
+	}
+
+	// update user
+	if(user.google_id && user.google_id !== sub){
+		return res.status(400).json({
+			success: false,
+			message: 'Google account linked to another account!'
+		});
+	}
+
+	// link account if not link to another account
+	if(!user.google_id){
+		user.google_id = sub;
+		await user.save();
 	}
 
 	// update user profiles
-	try {
-		// if customer
-		if (user.role === 'customer') {
-			await CustomerProfile.findOneAndUpdate(
-				{ user_id: user._id },
+	if(picture){
+		try {
+			// if customer
+			if (user.role === 'customer') {
+				await CustomerProfile.findOneAndUpdate(
+					{ 
+						user_id: user._id
+					},
+					{
+						$set: {
+							profile_image: picture,
+	
+						}
+					},
+					{ new: true }
+				)
+			}	
+			// if seller
+			if (user.role === 'seller') {
+				await SellerProfile.findOneAndUpdate(
+					{ 
+						user_id: user._id
+					},
+					{
+						$set: {
+							profile_image: picture,
+	
+						}
+					},
+					{ new: true }
+				)
+			}
+		}
+		catch (err) {
+			await Users.findOneAndUpdate(
+				{ _id: user._id },
 				{
 					$set: {
-						profile_image: picture,
-
+						google_id: undefined,
 					}
 				},
 				{ new: true }
-			)
+			);
+	
+			// send response
+			return res.status(500).json({
+				success: false,
+				message: 'Error while update profile!'
+			});
 		}
-
-		// if seller
-		if (user.role === 'seller') {
-			await SellerProfile.findOneAndUpdate(
-				{ user_id: user._id },
-				{
-					$set: {
-						profile_image: picture,
-
-					}
-				},
-				{ new: true }
-			)
-		}
-	}
-	catch (err) {
-		await Users.findOneAndUpdate(
-			{ email },
-			{
-				$set: {
-					google_id: undefined,
-				}
-			},
-			{ new: true }
-		);
-
-		// send response
-		return res.status(400).json({
-			success: false,
-			message: 'Error while update profile!'
-		}) 
 	}
 
 	// create jwt tokens and save it into cookie
