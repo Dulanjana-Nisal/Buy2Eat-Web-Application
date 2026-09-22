@@ -7,6 +7,7 @@ const GoogleRegisterModel = mongoose.Schema({
     },
     email: {
         type: String,
+        unique: [true, 'Email must unique!'],
         required: [true, 'Email is required!'],
         lowercase: true,
         trim: true,

@@ -140,22 +140,32 @@ const googleAuth = asyncHandler(async (req, res) => {
 		const registerToken = crypto.randomBytes(32).toString('hex');
 		const hashedRegisterToken = await bcrypt.hash(registerToken, 10);
 
+		// check if google register user already exist
+		const existUser = await GoogleRegisterModel.findOne({ email: email });
+		if(existUser){
+			return res.status(400).json({
+				success: false,
+				message: 'Google Register user already exist!'
+			});
+		}
+
 		// create new google register user
 		const googleRegisterUser = await GoogleRegisterModel.create({
 			google_id: sub,
 			email: email,
 			first_name: given_name,
 			last_name: family_name,
+			profile_image: picture,
 			registration_token: hashedRegisterToken,
 			expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
 		});
 
 		if(!googleRegisterUser){
-			throw new Error('Error while google registration!')
+			throw new Error('Error while google registration!');
 		}
 
 		// register user
-		return res.status(400).json({
+		return res.status(200).json({
 			success: true,
 			isRegistered: false,
 			register_token: registerToken
@@ -236,6 +246,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	// send response
 	return res.status(200).json({
 		success: true,
+		isRegistered: true,
 		message: 'User logged in successfully!',
 		user: {
 			_id: user._id,
@@ -245,6 +256,11 @@ const googleAuth = asyncHandler(async (req, res) => {
 	});
 
 })
+
+// Google Registration
+const googleRegistration = asyncHandler( async (req,res) => {
+	res.status(200).send('Google User Registration...');
+});
 
 // Register auth for customers
 const registerCustomers = asyncHandler(async (req, res) => {
@@ -1073,6 +1089,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 module.exports = {
 	authLogin,
 	googleAuth,
+	googleRegistration,
 	refreshToken,
 	registerCustomers,
 	registerSellers,
