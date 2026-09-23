@@ -19,9 +19,16 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
         // call google auth api
         try{
             const googleAuth = await googleAuthApi(credentialResponse.credential);
-            if(!googleAuth.isRegistered){
-                navigate('/register')
+            if(!googleAuth){
+                return console.log('Something error!')
             }
+
+            if(!googleAuth?.isRegistered){
+                navigate('/google-register');
+            }
+
+            console.log(googleAuth, 'User logged!')
+
         }
         catch(err){
             console.log(err.response)
