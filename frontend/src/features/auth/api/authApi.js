@@ -7,8 +7,8 @@ export const userLoginApi = async (loginData) => {
 }
 
 // Google Auth API
-export const googleAuthApi = async (credentials) => {
-    const response = await api.post('/auth/google', { credentials });
+export const googleAuthApi = async (code) => {
+    const response = await api.post('/auth/google', { code: code });
     return response.data;
 }
 
