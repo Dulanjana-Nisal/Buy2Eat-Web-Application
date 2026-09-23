@@ -1,6 +1,8 @@
 const express = require('express');
 const { 
     authLogin, 
+    googleAuth,
+    googleRegistration,
     refreshToken, 
     registerCustomers, 
     registerSellers, 
@@ -9,12 +11,14 @@ const {
     userLogout, 
     forgotPassword,
     resetPassword,
-    verifyResetPassword,
+    verifyResetPassword
 } = require('../controllers/authController');
 
 const router = express.Router();
 
 router.post('/login', authLogin);
+router.post('/google', googleAuth);
+router.post('/google/register', googleRegistration);
 router.post('/register-customer', registerCustomers);
 router.post('/register-seller', registerSellers);
 router.post('/logout', userLogout);

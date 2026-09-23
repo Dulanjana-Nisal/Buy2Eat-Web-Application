@@ -1,16 +1,18 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, PORT, CLIENT_URL } = require('../config/env');
+const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
 const SellerProfile = require('../models/sellerProfileModel');
+const GoogleRegisterModel = require('../models/googleRegisterModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendEmailOTP, sendEmailResetPassword, resendEmailOTP } = require('../utils/sendEmails');
+const { sendEmailResetPassword, resendEmailOTP } = require('../utils/sendEmails');
+const { OAuth2Client } = require('google-auth-library');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
-const maskEmail = require('../utils/maskEmail');
+const OTPHelper = require('../services/OTPHelper');
 
 // cookie options
 const cookieOptions = {
@@ -46,6 +48,9 @@ const setAuthCookies = (res, accessToken, refreshToken) => {
 		maxAge: 7 * 24 * 60 * 60 * 1000,
 	});
 };
+
+// get google client
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
@@ -101,6 +106,305 @@ const authLogin = asyncHandler(async (req, res) => {
 	});
 });
 
+// Google auth for users
+const googleAuth = asyncHandler(async (req, res) => {
+	const { credentials } = req.body;
+
+	// check google credentials
+	if (!credentials) return res.status(400).json({
+		success: false,
+		message: 'Invalid Google credentials!'
+	});
+
+	// token verification
+	const ticket = await client.verifyIdToken({
+		idToken: credentials,
+		audience: GOOGLE_CLIENT_ID
+	});
+
+	// get payload form ticket
+	const { email, email_verified, sub, picture, given_name, family_name, name } = ticket.getPayload();
+
+	// check email is verified
+	if (!email_verified) return res.status(400).json({
+		success: false,
+		message: 'Email is not verified in Google!'
+	});
+
+	// check user already exist
+	const user = await Users.findOne({ email });
+
+	if (!user) {
+
+		// Generate and hash register token
+		const registerToken = crypto.randomBytes(32).toString('hex');
+		const hashedRegisterToken = crypto.createHash('sha256').update(registerToken).digest('hex');
+
+		// check if google register user already exist
+		const existUser = await GoogleRegisterModel.findOneAndUpdate(
+			{
+				email: email,
+				google_id: sub,
+			},
+			{
+				$set: {
+					registration_token: hashedRegisterToken,
+					expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
+				}
+			},
+			{
+				new: true,
+			}
+		);
+
+		if (!existUser) {
+			// create new google register user
+			const googleRegisterUser = await GoogleRegisterModel.create({
+				google_id: sub,
+				email: email,
+				first_name: given_name || name || "User",
+				last_name: family_name || undefined,
+				profile_image: picture,
+				registration_token: hashedRegisterToken,
+				expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
+			});
+
+			if (!googleRegisterUser) {
+				throw new Error('Error while google registration!');
+			}
+		}
+
+		// register user
+		return res.status(201).json({
+			success: true,
+			isRegistered: false,
+			register_token: registerToken
+		});
+
+	}
+
+	// update user
+	if (user.google_id && user.google_id !== sub) {
+		return res.status(400).json({
+			success: false,
+			message: 'Google account linked to another account!'
+		});
+	}
+
+	// link account if not link to another account
+	let linkedNow = false;
+	if (!user.google_id) {
+		user.google_id = sub;
+		await user.save();
+		linkedNow = true
+	}
+
+	// update user profiles
+	if (picture) {
+		try {
+			// if customer
+			if (user.role === 'customer') {
+				await CustomerProfile.findOneAndUpdate(
+					{
+						user_id: user._id
+					},
+					{
+						$set: {
+							profile_image: picture,
+
+						}
+					},
+					{ new: true }
+				)
+			}
+			// if seller
+			if (user.role === 'seller') {
+				await SellerProfile.findOneAndUpdate(
+					{
+						user_id: user._id
+					},
+					{
+						$set: {
+							profile_image: picture,
+
+						}
+					},
+					{ new: true }
+				)
+			}
+		}
+		catch (err) {
+			if (linkedNow) {
+				await Users.updateOne({ _id: user._id }, { $unset: { google_id: 1 } });
+			}
+
+			// send response
+			return res.status(500).json({
+				success: false,
+				message: 'Error while update profile!'
+			});
+		}
+	}
+
+	// create jwt tokens and save it into cookie
+	const { accessToken, refreshToken } = createTokenPair(user);
+	setAuthCookies(res, accessToken, refreshToken);
+
+	// send response
+	return res.status(200).json({
+		success: true,
+		isRegistered: true,
+		message: 'User logged in successfully!',
+		user: {
+			_id: user._id,
+			email: user.email,
+			role: user.role,
+		}
+	});
+
+})
+
+// Google Registration
+const googleRegistration = asyncHandler(async (req, res) => {
+	const { registerToken, role, phone_number } = req.body;
+
+	// check if registerToken is exist
+	if (!registerToken) {
+		return res.status(400).json({
+			success: false,
+			message: 'Register token is missing!'
+		});
+	}
+
+	// check if role and phone number is provided
+	if (!role || !phone_number) {
+		return res.status(400).json({
+			success: false,
+			message: 'Please provide role and phone number!'
+		});
+	}
+
+	// validating phone number
+	if (phone_number.length < 6) {
+		return res.status(400).json({
+			success: false,
+			message: 'Phone number must have more that 6 numbers'
+		});
+	}
+
+	// check rolls are right
+	if (!['customer', 'seller'].includes(role)) {
+		return res.status(400).json({
+			success: false,
+			message: 'Invalid role selection!'
+		});
+	}
+
+	// create hash token for verification
+	const tokenHash = crypto.createHash('sha256').update(registerToken).digest('hex');
+
+	// check if user exist in registry
+	const googleRegisteredUser = await GoogleRegisterModel.findOne(
+		{
+			registration_token: tokenHash,
+			expiresAt: {
+				$gt: new Date()
+			}
+		}
+	);
+
+	if (!googleRegisteredUser) {
+		return res.status(400).json({
+			success: false,
+			message: 'Register user not found!'
+		});
+	}
+
+	// check if user exist again
+	const existUserAgain = await Users.findOne({ email: googleRegisteredUser.email });
+	if (existUserAgain) {
+		return res.status(400).json({
+			success: false,
+			message: 'User already exist!'
+		});
+	}
+
+	// ===== Start Transaction =====
+	const session = await mongoose.startSession();
+
+	// If all things passed
+	try {
+		session.startTransaction();
+
+		let profile_data;
+		if (role === 'customer') {
+			// set profile_data
+			profile_data = {
+				first_name: googleRegisteredUser.first_name,
+				last_name: googleRegisteredUser.last_name,
+				addresses: [],
+				profile_image: googleRegisteredUser.profile_image,
+				favorite_shops: [],
+				favorite_foods: [],
+				phone_number: phone_number,
+			}
+		}
+
+		else if (role === 'seller') {
+			// set profile_data
+			profile_data = {
+				first_name: googleRegisteredUser.first_name,
+				last_name: googleRegisteredUser.last_name,
+				profile_image: googleRegisteredUser.profile_image,
+				phone_number: phone_number,
+			}
+		}
+
+		// send OTP to user
+		const sendOTP = await OTPHelper({
+			normalizedEmail: googleRegisteredUser.email,
+			role,
+			hashedPassword: undefined,
+			profile_data,
+			session
+		});
+
+		// send response
+		if (!sendOTP?.success) {
+			return res.status(400).json({
+				success: false,
+				message: sendOTP?.message || "Send OTP Failed!"
+			})
+		}
+
+		// if all things are success delete google Register user
+		await GoogleRegisterModel.deleteOne(
+			{ _id: googleRegisteredUser._id },
+			{ session }
+		);
+
+		await session.commitTransaction(); // commit transaction
+
+		return res.status(200).json({
+			success: sendOTP.success,
+			message: sendOTP.message,
+			verification_id: sendOTP.verification_id,
+			masked_email: sendOTP.masked_email,
+			expiresAt: sendOTP.expiresAt
+		});
+
+	}
+	catch (err) {
+		await session.abortTransaction();
+		throw err;
+	}
+	finally {
+		await session.endSession();
+	}
+	// ===== End Transaction =====
+
+});
+
 // Register auth for customers
 const registerCustomers = asyncHandler(async (req, res) => {
 	const {
@@ -145,56 +449,50 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
 
-	// generate otp
-	const generateOtp = crypto.randomInt(100000, 1000000).toString();
-	const hashOtp = await bcrypt.hash(generateOtp, 10);
-
-	// generate verification_id 
-	const verification_id_value = crypto.randomUUID();
-
-	// delete old OTP from same email
-	await registrationOtpModel.deleteMany({ email: normalizedEmail })
-
-	// save otp in database
-	const nowDate = new Date();
-	const otpCreation = await registrationOtpModel.create({
-		verification_id: verification_id_value,
-		email: email,
-		hash_otp: hashOtp,
-		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
-		session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
-		role: 'customer',
-		hash_password: hashedPassword,
-		profile_data: {
-			first_name,
-			last_name,
-			addresses,
-			profile_image,
-			favorite_shops,
-			favorite_foods,
-			phone_number,
-		}
-	})
-
-	// if something wrong wile create database schema
-	if (!otpCreation) {
-		throw new Error('Error while create database schema!')
+	// set profile_data
+	const profile_data = {
+		first_name: first_name,
+		last_name: last_name,
+		addresses: addresses,
+		profile_image: profile_image,
+		favorite_shops: favorite_shops,
+		favorite_foods: favorite_foods,
+		phone_number: phone_number,
 	}
 
-	// mask email for sending otp
-	const maskedEmail = maskEmail(email);
-
-	// send otp via email
-	await sendEmailOTP(email, first_name, last_name, generateOtp)
+	// send OTP to user
+	const sendOTP = await OTPHelper(
+		{
+			normalizedEmail,
+			role: 'customer',
+			hashedPassword,
+			profile_data
+		}
+	);
 
 	// send response
-	res.status(200).json({
-		success: true,
-		message: 'OTP send successfully...',
-		verification_id: verification_id_value,
-		masked_email: maskedEmail,
-		expiresAt: otpCreation.expiresAt
-	})
+	if (!sendOTP) {
+		return res.status(400).json({
+			success: false,
+			message: 'Send OTP Failed!'
+		})
+	}
+
+	// send response
+	if (!sendOTP.success) {
+		return res.status(400).json({
+			success: sendOTP.success,
+			message: sendOTP.message,
+		})
+	}
+	return res.status(200).json({
+		success: sendOTP.success,
+		message: sendOTP.message,
+		verification_id: sendOTP.verification_id,
+		masked_email: sendOTP.masked_email,
+		expiresAt: sendOTP.expiresAt
+	});
+
 });
 
 // Register auth for sellers
@@ -205,9 +503,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 		first_name,
 		last_name,
 		phone_number,
-		profile_image,
-		ratings = 0,
-		rank,
+		profile_image
 	} = req.body;
 
 	// check required fields are filled
@@ -240,55 +536,47 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
 
-	// generate otp
-	const generateOtp = crypto.randomInt(100000, 1000000).toString();
-	const hashOtp = await bcrypt.hash(generateOtp, 10);
-
-	// generate verification_id 
-	const verification_id_value = crypto.randomUUID();
-
-	// delete old OTP from same email
-	await registrationOtpModel.deleteMany({ email: normalizedEmail })
-
-	// save otp in database
-	const nowDate = new Date();
-	const otpCreation = await registrationOtpModel.create({
-		verification_id: verification_id_value,
-		email: email,
-		hash_otp: hashOtp,
-		hash_password: hashedPassword,
-		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // expires in 5 min
-		session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
-		role: 'seller',
-		profile_data: {
-			first_name,
-			last_name,
-			profile_image,
-			phone_number,
-			ratings,
-			rank,
-		}
-	})
-
-	// if something wrong while create schema
-	if (!otpCreation) {
-		throw new Error('Error while create database schema!')
+	// set profile_data
+	const profile_data = {
+		first_name: first_name,
+		last_name: last_name,
+		profile_image: profile_image,
+		phone_number: phone_number
 	}
 
-	// mask email for sending otp
-	const maskedEmail = maskEmail(email);
-
-	// send otp via email
-	await sendEmailOTP(email, first_name, last_name, generateOtp)
+	// send OTP to user
+	const sendOTP = await OTPHelper(
+		{
+			normalizedEmail,
+			role: 'seller',
+			hashedPassword,
+			profile_data
+		}
+	);
 
 	// send response
-	res.status(200).json({
-		success: true,
-		message: 'OTP send successfully...',
-		verification_id: verification_id_value,
-		masked_email: maskedEmail,
-		expiresAt: otpCreation.expiresAt
-	})
+	if (!sendOTP) {
+		return res.status(400).json({
+			success: false,
+			message: 'Error while sending OTP!'
+		})
+	}
+
+	// send response
+	if (!sendOTP.success) {
+		return res.status(400).json({
+			success: sendOTP.success,
+			message: sendOTP.message,
+		})
+	}
+	return res.status(200).json({
+		success: sendOTP.success,
+		message: sendOTP.message,
+		verification_id: sendOTP.verification_id,
+		masked_email: sendOTP.masked_email,
+		expiresAt: sendOTP.expiresAt
+	});
+
 });
 
 // verify otp controller
@@ -364,7 +652,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		// create user 
 		const [user] = await Users.create([{
 			email: otpUser.email,
-			password: otpUser.hash_password,
+			password: otpUser.hash_password || undefined,
 			role: otpUser.role,
 		}], { session });
 
@@ -373,7 +661,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		if (otpUser.role === 'customer') {
 			[userProfile] = await CustomerProfile.create([{ ...otpUser.profile_data, user_id: user._id }], { session });
 		}
-		if (otpUser.role === 'seller') {
+		else if (otpUser.role === 'seller') {
 			[userProfile] = await SellerProfile.create([{ ...otpUser.profile_data, user_id: user._id }], { session });
 		}
 
@@ -767,7 +1055,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 	});
 
 	// check password have enough characters
-	if( newPassword.length <= 6){
+	if (newPassword.length <= 6) {
 		return res.status(400).json({
 			success: false,
 			message: 'Password should be more than 6 characters!'
@@ -791,7 +1079,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{ session }
 		);
 
-		if (!resetUser){
+		if (!resetUser) {
 			// Abort transaction
 			await session.abortTransaction();
 
@@ -799,7 +1087,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 				success: false,
 				message: "Your reset password link is expired or Invalid token"
 			});
-		} 
+		}
 
 		// hash password using bcrypt
 		const salt = await bcrypt.genSalt(10)
@@ -818,15 +1106,15 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{ new: true, session }
 		);
 
-		if (!updateUser){
+		if (!updateUser) {
 			// Abort transaction
 			await session.abortTransaction();
 
 			return res.status(400).json({
 				success: false,
 				message: "User dose not exist"
-			});	
-		} 
+			});
+		}
 
 		// delete forgot password data from database
 		await resetPasswordModel.deleteOne(
@@ -836,7 +1124,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 		// commit transaction
 		await session.commitTransaction();
-		
+
 		// send success response
 		return res.status(200).json({
 			success: true,
@@ -856,7 +1144,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 });
 
 // verify reset password controller
-const verifyResetPassword = asyncHandler( async (req,res) => {
+const verifyResetPassword = asyncHandler(async (req, res) => {
 	const { token } = req.params;
 
 	// hashed token
@@ -864,13 +1152,13 @@ const verifyResetPassword = asyncHandler( async (req,res) => {
 
 	// check token is exist
 	const resetUser = await resetPasswordModel.findOne(
-		{ 
+		{
 			resetPasswordToken: hashResetToken,
 			expiredAt: { $gt: new Date() },
 		}
 	)
 
-	if(!resetUser){
+	if (!resetUser) {
 		return res.status(400).json({
 			success: false,
 			message: 'Invalid token or Token is expired!'
@@ -927,6 +1215,8 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 module.exports = {
 	authLogin,
+	googleAuth,
+	googleRegistration,
 	refreshToken,
 	registerCustomers,
 	registerSellers,

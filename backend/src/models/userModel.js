@@ -13,10 +13,13 @@ const UserModel = mongoose.Schema({
             "Please enter a valid email address"
         ]
     },
+    google_id:{
+        type: String,
+        unique: true,
+        sparse: true
+    },
     password: {
         type: String,
-        required: [true, 'Password is required!'],
-        minlength: [6, 'Password must be more than 6 characters!']
     },
     role: {
         type: String,
