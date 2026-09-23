@@ -50,7 +50,7 @@ const setAuthCookies = (res, accessToken, refreshToken) => {
 };
 
 // get google client
-const client = new OAuth2Client(GOOGLE_CLIENT_SECRET)
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
@@ -123,7 +123,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	});
 
 	// get payload form ticket
-	const { email, email_verified, sub, picture, given_name, family_name } = ticket.getPayload();
+	const { email, email_verified, sub, picture, given_name, family_name, name } = ticket.getPayload();
 
 	// check email is verified
 	if (!email_verified) return res.status(400).json({
@@ -141,27 +141,37 @@ const googleAuth = asyncHandler(async (req, res) => {
 		const hashedRegisterToken = crypto.createHash('sha256').update(registerToken).digest('hex');
 
 		// check if google register user already exist
-		const existUser = await GoogleRegisterModel.findOne({ email: email });
-		if (existUser) {
-			return res.status(400).json({
-				success: false,
-				message: 'Google Register user already exist!'
+		const existUser = await GoogleRegisterModel.findOneAndUpdate(
+			{ 
+				email: email,
+				google_id: sub,
+			},
+			{
+				$set: {
+					registration_token: hashedRegisterToken,
+					expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
+				}
+			},
+			{
+				new: true,
+			}
+		);
+
+		if (!existUser) {
+			// create new google register user
+			const googleRegisterUser = await GoogleRegisterModel.create({
+				google_id: sub,
+				email: email,
+				first_name: given_name || name || "User",
+				last_name: family_name || "",
+				profile_image: picture,
+				registration_token: hashedRegisterToken,
+				expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
 			});
-		}
-
-		// create new google register user
-		const googleRegisterUser = await GoogleRegisterModel.create({
-			google_id: sub,
-			email: email,
-			first_name: given_name,
-			last_name: family_name,
-			profile_image: picture,
-			registration_token: hashedRegisterToken,
-			expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
-		});
-
-		if (!googleRegisterUser) {
-			throw new Error('Error while google registration!');
+	
+			if (!googleRegisterUser) {
+				throw new Error('Error while google registration!');
+			}
 		}
 
 		// register user
@@ -170,6 +180,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			isRegistered: false,
 			register_token: registerToken
 		});
+
 	}
 
 	// update user
@@ -181,9 +192,11 @@ const googleAuth = asyncHandler(async (req, res) => {
 	}
 
 	// link account if not link to another account
+	let linkedNow = true;
 	if (!user.google_id) {
 		user.google_id = sub;
 		await user.save();
+		linkedNow= false
 	}
 
 	// update user profiles
@@ -221,15 +234,9 @@ const googleAuth = asyncHandler(async (req, res) => {
 			}
 		}
 		catch (err) {
-			await Users.findOneAndUpdate(
-				{ _id: user._id },
-				{
-					$set: {
-						google_id: undefined,
-					}
-				},
-				{ new: true }
-			);
+			if(linkedNow){
+				await Users.updateOne({_id: user_id},{$unset: {google_id: 1}});
+			}
 
 			// send response
 			return res.status(500).json({

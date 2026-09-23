@@ -23,7 +23,7 @@ const sellerProfileModel = mongoose.Schema({
     phone_number: {
         type: String,
         required: [true, 'Phone Number is required!'],
-        minlength: [10, 'Phone Number must have 10 numbers']
+        minlength: [6, 'Phone Number must have 6 numbers']
     },
     ratings: {
         type: Number,

@@ -12,11 +12,7 @@ const OTPHelper = async ({
     profile_data,
     session = null
 }) => {
-    console.log(normalizedEmail,
-    role,
-    hashedPassword,
-    profile_data,
-    session = null)
+
     // check roles are valid
     if (!['customer', 'seller'].includes(role)) {
         return {
