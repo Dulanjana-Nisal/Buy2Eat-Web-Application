@@ -13,6 +13,7 @@ const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
 const OTPHelper = require('../services/OTPHelper');
+const axios = require('axios');
 
 // cookie options
 const cookieOptions = {
@@ -108,17 +109,51 @@ const authLogin = asyncHandler(async (req, res) => {
 
 // Google auth for users
 const googleAuth = asyncHandler(async (req, res) => {
-	const { credentials } = req.body;
+	const { code } = req.body;
 
-	// check google credentials
-	if (!credentials) return res.status(400).json({
+	// check google code is exist
+	if (!code) return res.status(400).json({
 		success: false,
-		message: 'Invalid Google credentials!'
+		message: 'Invalid Google authorization code!'
 	});
+
+	// convert authorization code in to google token
+	let tokenResponse;
+	try{
+		tokenResponse = await axios.post(
+			'https://oauth2.googleapis.com/token',
+			{
+				code,
+				client_id: GOOGLE_CLIENT_ID,
+				client_secret: GOOGLE_CLIENT_SECRET,
+				redirect_uri: 'postmessage',
+				grant_type: 'authorization_code'
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				timeout: 10_000
+			}
+		)
+	}
+	catch(err){
+		throw err;
+	}
+
+	// get token id
+	const { id_token } = tokenResponse.data;
+
+	if (!id_token) {
+		return res.status(400).json({
+			success: false,
+			message: 'Google ID token was not received!'
+		});
+	}
 
 	// token verification
 	const ticket = await client.verifyIdToken({
-		idToken: credentials,
+		idToken: id_token,
 		audience: GOOGLE_CLIENT_ID
 	});
 
@@ -149,7 +184,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			{
 				$set: {
 					registration_token: hashedRegisterToken,
-					expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
+					expiresAt: new Date(Date.now() + 40 * 60 * 1000) // expired in 40 minutes
 				}
 			},
 			{
@@ -166,7 +201,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 				last_name: family_name || undefined,
 				profile_image: picture,
 				registration_token: hashedRegisterToken,
-				expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
+				expiresAt: new Date(Date.now() + 40 * 60 * 1000) // expired in 40 minutes
 			});
 
 			if (!googleRegisterUser) {
@@ -604,15 +639,19 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 	// check if OTP is expired
 	if (otpUser.expiresAt <= new Date()) {
-
-		await registrationOtpModel.deleteOne({
-			_id: otpUser._id
-		});
-
 		return res.status(400).json({
 			success: false,
-			message: 'OTP is Expired!'
+			message: 'OTP is Expired!, Please request a new OTP'
 		})
+	}
+
+	// validate OTP with correct format
+	const normalizedOtp = String(otp).trim();
+	if (!/^\d*$/.test(normalizedOtp)) {
+		return res.status(400).json({
+			success: false,
+			message: 'OTP in wrong format!'
+		});
 	}
 
 	// check is attempt ok
@@ -642,6 +681,14 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		success: false,
 		message: 'Invalid OTP'
 	})
+
+	// check role is correct
+	if (!['customer', 'seller'].includes(otpUser.role)) {
+		return res.status(400).json({
+			success: false,
+			message: 'Invalid role selection!'
+		})
+	}
 
 	// == Start Transaction ==
 	const session = await mongoose.startSession();

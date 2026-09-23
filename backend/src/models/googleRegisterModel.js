@@ -29,7 +29,7 @@ const GoogleRegisterModel = mongoose.Schema({
     expiresAt: {
         type: Date,
         required: [true, 'Date is required!'],
-        expires: 600
+        expires: 0
     }
 }, { timestamps: true });
 
