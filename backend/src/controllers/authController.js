@@ -13,6 +13,7 @@ const registrationOtpModel = require('../models/registrationOtpModel');
 const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
 const OTPHelper = require('../services/OTPHelper');
+const axios = require('axios');
 
 // cookie options
 const cookieOptions = {
@@ -108,17 +109,37 @@ const authLogin = asyncHandler(async (req, res) => {
 
 // Google auth for users
 const googleAuth = asyncHandler(async (req, res) => {
-	const { credentials } = req.body;
+	const { code } = req.body;
 
-	// check google credentials
-	if (!credentials) return res.status(400).json({
+	// check google code is exist
+	if (!code) return res.status(400).json({
 		success: false,
-		message: 'Invalid Google credentials!'
+		message: 'Invalid Google authorization code!'
 	});
+
+	// convert authorization code in to google token
+	const tokenResponse = await axios.post(
+		'https://oauth2.googleapis.com/token',
+		{
+			code,
+			client_id: GOOGLE_CLIENT_ID,
+			client_secret: GOOGLE_CLIENT_SECRET,
+			redirect_uri: 'postmessage',
+			grant_type: 'authorization_code'
+		},
+		{
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}
+	)
+
+	// get token id
+	const { token_id } = tokenResponse.data;
 
 	// token verification
 	const ticket = await client.verifyIdToken({
-		idToken: credentials,
+		idToken: token_id,
 		audience: GOOGLE_CLIENT_ID
 	});
 
