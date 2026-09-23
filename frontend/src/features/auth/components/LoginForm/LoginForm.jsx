@@ -18,13 +18,13 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
     const googleLoginSuccess = async (credentialResponse) => {
 
         // call google auth api
-        try{
+        try {
             const googleAuth = await googleAuthApi(credentialResponse.credential);
-            if(!googleAuth){
+            if (!googleAuth) {
                 return console.log('Something error!')
             }
 
-            if(!googleAuth?.isRegistered){
+            if (!googleAuth?.isRegistered) {
                 return navigate("/google-register", {
                     state: { register_token: googleAuth.register_token }
                 });
@@ -33,7 +33,7 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
             console.log(googleAuth, 'User logged!')
 
         }
-        catch(err){
+        catch (err) {
             console.log(err.response)
         }
 

@@ -99,11 +99,11 @@
     color: var(--color-text-primary);
     transition: background-color var(--transition-normal);
 }
-
+/* 
 .socialButton:hover {
-    /* background-color: var(--color-hover);
-    color: var(--color-text-primary); */
-}
+    background-color: var(--color-hover);
+    color: var(--color-text-primary);
+} */
 
 .socialButton:active {
     background-color: var(--color-active);

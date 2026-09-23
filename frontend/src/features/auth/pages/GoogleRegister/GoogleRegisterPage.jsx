@@ -16,7 +16,7 @@ function GoogleRegister() {
         phone_number: "",
         agreement: false,
     })
-    
+
     // useStats hook for UI
     const [loading, setLoading] = useState(false);
 
@@ -32,7 +32,7 @@ function GoogleRegister() {
     // Customer registration function
     const customerRegister = async (e) => {
         e.preventDefault();
-        
+
         // get register token from location state
         const register_token = location.state?.register_token;
 
@@ -47,10 +47,10 @@ function GoogleRegister() {
         try {
             // all google register api
             const registration = await googleRegisterApi(
-                { 
-                    registerToken: register_token, 
-                    role: registerDetails.role, 
-                    phone_number: registerDetails.phone_number 
+                {
+                    registerToken: register_token,
+                    role: registerDetails.role,
+                    phone_number: registerDetails.phone_number
                 }
             );
 
