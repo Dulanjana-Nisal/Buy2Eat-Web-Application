@@ -118,21 +118,28 @@ const googleAuth = asyncHandler(async (req, res) => {
 	});
 
 	// convert authorization code in to google token
-	const tokenResponse = await axios.post(
-		'https://oauth2.googleapis.com/token',
-		{
-			code,
-			client_id: GOOGLE_CLIENT_ID,
-			client_secret: GOOGLE_CLIENT_SECRET,
-			redirect_uri: 'postmessage',
-			grant_type: 'authorization_code'
-		},
-		{
-			headers: {
-				'Content-Type': 'application/json'
+	let tokenResponse;
+	try{
+		tokenResponse = await axios.post(
+			'https://oauth2.googleapis.com/token',
+			{
+				code,
+				client_id: GOOGLE_CLIENT_ID,
+				client_secret: GOOGLE_CLIENT_SECRET,
+				redirect_uri: 'postmessage',
+				grant_type: 'authorization_code'
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				timeout: 10_000
 			}
-		}
-	)
+		)
+	}
+	catch(err){
+		throw err;
+	}
 
 	// get token id
 	const { id_token } = tokenResponse.data;
@@ -632,15 +639,19 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 	// check if OTP is expired
 	if (otpUser.expiresAt <= new Date()) {
-
-		await registrationOtpModel.deleteOne({
-			_id: otpUser._id
-		});
-
 		return res.status(400).json({
 			success: false,
-			message: 'OTP is Expired!'
+			message: 'OTP is Expired!, Please request a new OTP'
 		})
+	}
+
+	// validate OTP with correct format
+	const normalizedOtp = String(otp).trim();
+	if (!/^\d*$/.test(normalizedOtp)) {
+		return res.status(400).json({
+			success: false,
+			message: 'OTP in wrong format!'
+		});
 	}
 
 	// check is attempt ok
@@ -670,6 +681,14 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		success: false,
 		message: 'Invalid OTP'
 	})
+
+	// check role is correct
+	if (!['customer', 'seller'].includes(otpUser.role)) {
+		return res.status(400).json({
+			success: false,
+			message: 'Invalid role selection!'
+		})
+	}
 
 	// == Start Transaction ==
 	const session = await mongoose.startSession();
