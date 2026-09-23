@@ -30,8 +30,16 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
     }
 
     // handle otp past
-    const handleOtpPast = () => {
+    const handleOtpPast = (e) => {
+        const pastValue = e.clipboardData.getData("text").trim();
+        if (!/^\d*$/.test(pastValue)) return
 
+        const otpData = [...otp];
+        for(let i = 0; i < 6; i++){
+            otpData[i] = pastValue[i]
+        }
+
+        setOtp(otpData)
     }
 
     return (
