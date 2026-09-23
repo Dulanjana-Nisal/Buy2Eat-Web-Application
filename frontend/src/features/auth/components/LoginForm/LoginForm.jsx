@@ -1,43 +1,18 @@
 import { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
 import styles from './LoginForm.module.css';
 import small_meal_dish from '../../../../assets/images/small-meal-dish.webp';
 import small_mint_leaf from '../../../../assets/images/mint-leaf.png';
 import login_transparent from '../../../../assets/images/login_transparent.svg';
-import { Link, useNavigate } from 'react-router-dom'
-import { googleAuthApi } from '../../api/authApi';
+import { Link } from 'react-router-dom'
+import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 
 function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
 
     // useStates hooks
     const [hidePassword, setHidePassword] = useState(true);
-    const navigate = useNavigate();
 
-    // google login
-    const googleAuthButton = useGoogleLogin({
-        flow: 'auth-code',
-
-        onSuccess: async (codeResponse) => {
-            try {
-                const googleAuth = await googleAuthApi(codeResponse.code);
-                if (!googleAuth) {
-                    return console.log('Something error!')
-                }
-
-                if (!googleAuth?.isRegistered) {
-                    return navigate("/google-register", {
-                        state: { register_token: googleAuth.register_token }
-                    });
-                }
-
-                console.log(googleAuth, 'User logged!')
-
-            }
-            catch (err) {
-                console.log(err.response)
-            }
-        }
-    })
+    // use custom hooks
+    const { continueWithGoogle } = useGoogleAuth();
 
     return (
         <>
@@ -58,7 +33,7 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                         </div>
                     </div>
                     <div className={styles.socialAuth}>
-                        <button className={styles.socialButton} onClick={() => googleAuthButton()}>
+                        <button className={styles.socialButton} onClick={() => continueWithGoogle()}>
                             <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
