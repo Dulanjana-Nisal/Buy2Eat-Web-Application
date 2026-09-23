@@ -1,25 +1,37 @@
 import { useState } from 'react';
-// import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import styles from './LoginForm.module.css';
 import small_meal_dish from '../../../../assets/images/small-meal-dish.webp';
 import small_mint_leaf from '../../../../assets/images/mint-leaf.png';
 import login_transparent from '../../../../assets/images/login_transparent.svg';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { googleAuthApi } from '../../api/authApi';
 
 /** Renders the login form and its password visibility control. */
 function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
 
     // useStates hooks
     const [hidePassword, setHidePassword] = useState(true);
+    const navigate = useNavigate();
 
     // google login
-    // const googleLoginSuccess = async (credentialResponse) => {
-    //     console.log(credentialResponse)
-    // }
+    const googleLoginSuccess = async (credentialResponse) => {
+        // call google auth api
+        try{
+            const googleAuth = await googleAuthApi(credentialResponse.credential);
+            if(!googleAuth.isRegistered){
+                navigate('/register')
+            }
+        }
+        catch(err){
+            console.log(err.response)
+        }
 
-    // const googleLoginError = () => {
-    //     console.error("Google login failed!")
-    // }
+    }
+
+    const googleLoginError = () => {
+        console.error("Google login failed!")
+    }
 
 
     return (
@@ -49,7 +61,7 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                             </svg>
                             Google
-                            {/* <GoogleLogin
+                            <GoogleLogin
                                 onSuccess={googleLoginSuccess}
                                 onError={googleLoginError}
                                 theme="outline"
@@ -58,7 +70,7 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                                 shape="rectangular"
                                 width="400"
                             >
-                            </GoogleLogin> */}
+                            </GoogleLogin>
                         </div>
                     </div>
                     <div className={styles.divider}>
