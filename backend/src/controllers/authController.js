@@ -135,11 +135,18 @@ const googleAuth = asyncHandler(async (req, res) => {
 	)
 
 	// get token id
-	const { token_id } = tokenResponse.data;
+	const { id_token } = tokenResponse.data;
+
+	if (!id_token) {
+		return res.status(400).json({
+			success: false,
+			message: 'Google ID token was not received!'
+		});
+	}
 
 	// token verification
 	const ticket = await client.verifyIdToken({
-		idToken: token_id,
+		idToken: id_token,
 		audience: GOOGLE_CLIENT_ID
 	});
 
