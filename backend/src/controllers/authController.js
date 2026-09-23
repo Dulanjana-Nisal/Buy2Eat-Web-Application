@@ -177,7 +177,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			{
 				$set: {
 					registration_token: hashedRegisterToken,
-					expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
+					expiresAt: new Date(Date.now() + 40 * 60 * 1000) // expired in 40 minutes
 				}
 			},
 			{
@@ -194,7 +194,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 				last_name: family_name || undefined,
 				profile_image: picture,
 				registration_token: hashedRegisterToken,
-				expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
+				expiresAt: new Date(Date.now() + 40 * 60 * 1000) // expired in 40 minutes
 			});
 
 			if (!googleRegisterUser) {
