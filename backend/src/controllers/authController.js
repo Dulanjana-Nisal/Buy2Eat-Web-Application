@@ -142,7 +142,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 		// check if google register user already exist
 		const existUser = await GoogleRegisterModel.findOneAndUpdate(
-			{ 
+			{
 				email: email,
 				google_id: sub,
 			},
@@ -163,12 +163,12 @@ const googleAuth = asyncHandler(async (req, res) => {
 				google_id: sub,
 				email: email,
 				first_name: given_name || name || "User",
-				last_name: family_name || "",
+				last_name: family_name || undefined,
 				profile_image: picture,
 				registration_token: hashedRegisterToken,
 				expiresAt: new Date(Date.now() + 10 * 60 * 1000) // expired in 10 minutes
 			});
-	
+
 			if (!googleRegisterUser) {
 				throw new Error('Error while google registration!');
 			}
@@ -192,11 +192,11 @@ const googleAuth = asyncHandler(async (req, res) => {
 	}
 
 	// link account if not link to another account
-	let linkedNow = true;
+	let linkedNow = false;
 	if (!user.google_id) {
 		user.google_id = sub;
 		await user.save();
-		linkedNow= false
+		linkedNow = true
 	}
 
 	// update user profiles
@@ -234,8 +234,8 @@ const googleAuth = asyncHandler(async (req, res) => {
 			}
 		}
 		catch (err) {
-			if(linkedNow){
-				await Users.updateOne({_id: user_id},{$unset: {google_id: 1}});
+			if (linkedNow) {
+				await Users.updateOne({ _id: user._id }, { $unset: { google_id: 1 } });
 			}
 
 			// send response
@@ -379,7 +379,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 		// if all things are success delete google Register user
 		await GoogleRegisterModel.deleteOne(
-			{ _id: googleRegisteredUser._id }, 
+			{ _id: googleRegisteredUser._id },
 			{ session }
 		);
 
@@ -463,9 +463,9 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	// send OTP to user
 	const sendOTP = await OTPHelper(
 		{
-			normalizedEmail, 
-			role: 'customer', 
-			hashedPassword, 
+			normalizedEmail,
+			role: 'customer',
+			hashedPassword,
 			profile_data
 		}
 	);
@@ -547,12 +547,12 @@ const registerSellers = asyncHandler(async (req, res) => {
 	// send OTP to user
 	const sendOTP = await OTPHelper(
 		{
-			normalizedEmail, 
-			role: 'seller', 
-			hashedPassword, 
+			normalizedEmail,
+			role: 'seller',
+			hashedPassword,
 			profile_data
 		}
-	); 
+	);
 
 	// send response
 	if (!sendOTP) {
