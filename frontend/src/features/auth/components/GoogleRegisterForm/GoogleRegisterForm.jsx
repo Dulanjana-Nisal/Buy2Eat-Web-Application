@@ -1,13 +1,8 @@
 import styles from './GoogleRegisterForm.module.css';
 import left_transparent_banner from '../../../../assets/images/google-register.svg';
 import { Link } from 'react-router-dom';
-// import { useState } from 'react';
 
 function GoogleRegisterForm({ setRegisterDetails, registerDetails, customerRegister, loading }) {
-
-    // useStats hook for UI
-    // const [hidePass, setHidePass] = useState(true);
-    // const [hidePassConform, setHidePassConform] = useState(true);
 
     return (
         <>

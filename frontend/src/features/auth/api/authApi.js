@@ -13,8 +13,8 @@ export const googleAuthApi = async (credentials) => {
 }
 
 // Google Registration API
-export const googleRegisterApi = async (registrationToken, role, phone_number) => {
-    const response = await api.post('/auth/google/register', { registrationToken, role, phone_number });
+export const googleRegisterApi = async (registerData) => {
+    const response = await api.post('/auth/google/register', registerData);
     return response.data;
 }
 

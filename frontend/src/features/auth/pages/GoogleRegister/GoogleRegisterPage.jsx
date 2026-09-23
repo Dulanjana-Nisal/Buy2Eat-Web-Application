@@ -1,41 +1,42 @@
 import styles from './GoogleRegisterPage.module.css';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import UIbackground from '../../components/UIBackground/UIbackground';
-import { customerRegistrationApi } from '../../api/authApi';
+import { googleRegisterApi } from '../../api/authApi';
 import GoogleRegisterForm from '../../components/GoogleRegisterForm/GoogleRegisterForm';
 
 function GoogleRegister() {
-
-    // useStats hook for UI
-    const [loading, setLoading] = useState(false);
-
     // Navigation hooks
     const navigate = useNavigate();
+    const location = useLocation();
 
     // useState hooks for handle data
     const [registerDetails, setRegisterDetails] = useState({
-        email: "",
         role: "customer",
-        password: "",
-        confPass: "",
-        first_name: "",
-        last_name: "",
         phone_number: "",
         agreement: false,
     })
+    
+    // useStats hook for UI
+    const [loading, setLoading] = useState(false);
+
+    // use effect get state data from navigate
+    useEffect(() => {
+        const register_token = location.state?.register_token
+
+        if (!register_token) {
+            navigate("/login", { replace: true })
+        }
+    }, [location.state?.register_token, navigate])
 
     // Customer registration function
     const customerRegister = async (e) => {
         e.preventDefault();
+        
+        // get register token from location state
+        const register_token = location.state?.register_token;
 
         setLoading(true)
-
-        // check password and conform password is same
-        if (registerDetails.password !== registerDetails.confPass) {
-            setLoading(false)
-            return console.error('Passwords are not matched!')
-        }
 
         // check if agreement is sign
         if (!registerDetails.agreement) {
@@ -44,7 +45,14 @@ function GoogleRegister() {
         }
 
         try {
-            const registration = await customerRegistrationApi(registerDetails);
+            // all google register api
+            const registration = await googleRegisterApi(
+                { 
+                    registerToken: register_token, 
+                    role: registerDetails.role, 
+                    phone_number: registerDetails.phone_number 
+                }
+            );
 
             // navigate OTP verification page
             if (registration.success) {

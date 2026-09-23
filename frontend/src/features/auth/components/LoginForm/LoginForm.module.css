@@ -90,10 +90,10 @@
     justify-content: center;
     gap: 8px;
     padding: 10px;
-    background-color: var(--color-surface-hover);
-    border: 1px solid var(--color-border);
+    /* background-color: var(--color-surface-hover); */
+    /* border: 1px solid var(--color-border); */
     border-radius: 8px;
-    cursor: pointer;
+    /* cursor: pointer; */
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     color: var(--color-text-primary);
@@ -101,8 +101,8 @@
 }
 
 .socialButton:hover {
-    background-color: var(--color-hover);
-    color: var(--color-text-primary);
+    /* background-color: var(--color-hover);
+    color: var(--color-text-primary); */
 }
 
 .socialButton:active {
