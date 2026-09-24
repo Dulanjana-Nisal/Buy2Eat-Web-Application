@@ -18,17 +18,18 @@ function RegisterPage() {
                 {/* background mini transparent images */}
                 <UIbackground />
                 
-                {/* Top Navigation */}
-                <nav className={styles.topNav}>
-                    <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
-                </nav>
-
                 {/* Registration Header */}
                 <div className={styles.header}>
+                    {/* Top Navigation */}
+                    <nav className={styles.topNav}>
+                        <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </nav>
+
+                    {/* Registration Header content */}
                     <h1 className={styles.title}>Join <span>Buy2Eat</span> Marketplace</h1>
                     <p className={styles.subtitle}>Tell us how you want to use our platform
                         <span className={styles.heart}>
