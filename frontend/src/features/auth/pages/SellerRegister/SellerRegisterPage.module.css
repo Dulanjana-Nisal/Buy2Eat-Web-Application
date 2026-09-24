@@ -13,25 +13,30 @@
 }
 
 /* Header Section */
+/* Navigation Section */
 .topNav {
-    width: 100%;
-    max-width: 1100px;
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 20px;
+    position: absolute;
+    top: 15px;
+    left: 0;
     z-index: 1;
 }
 
 .backButton {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: none;
-    border: none;
+    justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-bold);
     color: var(--color-text-primary);
     cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-normal);
 }
 
 .backButton svg {
@@ -39,8 +44,24 @@
     transition: transform 0.2s ease;
 }
 
-.backButton:hover svg {
-    transform: translateX(-4px);
+.backButton:hover {
+    border: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-md);
+}
+
+.backButton:hover svg{
+    transform: translateX(-2px);
+}
+
+/* Header texts */
+.headerTexts {
+  width: 100%;
+  max-width: 1100px;
+  margin: auto;
+  position: relative;
+  text-align: center;
+  margin-bottom: 40px;
+  z-index: 1;
 }
 
 /* Header texts */
