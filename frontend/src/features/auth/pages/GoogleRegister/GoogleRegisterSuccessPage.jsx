@@ -4,24 +4,18 @@ import UIbackground from '../../components/UIBackground/UIbackground';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
-/** Renders the reset confirmation for users arriving from a successful reset. */
 function GoogleRegisterSuccessPage() {
-
-    // use state hooks
-    const [role,setRole] = useState('user');
 
     // navigation hooks
     const location = useLocation();
     const navigate = useNavigate();
 
+    // use state hooks
+    const [role] = useState(location.state?.role ? location.state.role : 'user');
+    
     // check if user is successfully send reset link
     if (!location.state?.isRegistered) {
         return <Navigate to='/login' replace />;
-    }
-
-    // check role in registered user
-    if(location.state?.role){
-        setRole(location.state.role);
     }
 
     return (

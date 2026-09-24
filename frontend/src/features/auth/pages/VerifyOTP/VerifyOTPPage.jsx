@@ -77,9 +77,11 @@ function VerifyOTPPage() {
                 setVerificationStatus('success');
 
                 // delete all navigation data
-                navigate(location.pathname, {
-                    replace: true,
-                    state: null,
+                navigate('/register/success', {
+                    state: {
+                        isRegistered: otpVerification.success,
+                        role: otpVerification.user?.role || 'user'
+                    }
                 })
             } else {
                 setVerificationStatus('failure');

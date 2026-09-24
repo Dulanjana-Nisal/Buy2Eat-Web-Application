@@ -26,7 +26,7 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOTPPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/google-register/success" element={<GoogleRegisterSuccessPage />} />
+          <Route path="/register/success" element={<GoogleRegisterSuccessPage />} />
           <Route path="/forgot-password/success" element={<ForgotPasswordSuccessPage />} />
           <Route path="/reset-password/success" element={<ResetPasswordSuccessPage />} />
         </Routes>
