@@ -12,7 +12,7 @@ function GoogleRegister() {
 
     // useState hooks for handle data
     const [registerDetails, setRegisterDetails] = useState({
-        role: "",
+        role: "customer",
         phone_number: "",
         agreement: false,
     })
@@ -61,7 +61,8 @@ function GoogleRegister() {
                     state: {
                         verification_id: registration.verification_id,
                         maskEmail: registration.masked_email,
-                        expiresAt: registration.expiresAt
+                        expiresAt: registration.expiresAt,
+                        role: registerDetails.role,
                     }
                 })
             }

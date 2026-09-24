@@ -45,19 +45,19 @@ function LoginPage() {
                 {/* Transparent mini images */}
                 <UIbackground />
 
-                {/* Top Navigation */}
-                <nav className={styles.topNav}>
-                    <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        Back
-                    </button>
-                </nav>
-
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>
+                    
+                    {/* Top Navigation */}
+                    <nav className={styles.topNav}>
+                        <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </nav>
+
+                    {/* Header Text content */}
                     <h1 className={styles.mainTitle}>
                         Access Your <span className={styles.cursiveText}>Bu2Eat</span> Account
                     </h1>

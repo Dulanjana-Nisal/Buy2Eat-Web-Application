@@ -89,6 +89,11 @@
     pointer-events: none;
 }
 
+.roleOption:focus-within {
+    outline: 1px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
 .selectedRole {
     background-color: var(--color-primary-light);
     border-color: transparent;
@@ -159,6 +164,16 @@
 
 .roleWarning p {
     margin: 0;
+}
+
+.roleWarning p span{
+    text-decoration: underline;
+    cursor: pointer;
+    margin: 0 3px;
+}
+
+.roleWarning p span:hover{
+    color: var(--color-warning)
 }
 
 .inputGroup {

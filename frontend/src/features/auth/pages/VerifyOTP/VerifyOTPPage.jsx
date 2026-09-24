@@ -78,9 +78,10 @@ function VerifyOTPPage() {
 
                 // delete all navigation data
                 navigate('/register/success', {
+                    replace: true,
                     state: {
                         isRegistered: otpVerification.success,
-                        role: otpVerification.user?.role || 'user'
+                        role: otpVerification.user?.role || location.state?.role || 'user'
                     }
                 })
             } else {
