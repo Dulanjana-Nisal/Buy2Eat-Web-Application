@@ -58,6 +58,23 @@ function VerifyOTPPage() {
         }
     }, [location.state?.verification_id, navigate])
 
+    // block return back page if register with google
+    useEffect(() => {
+        if (location.state?.register_with !== 'email') {
+            window.history.pushState(null, "", window.location.href);
+
+            const handlePopState = () => {
+                window.history.pushState(null, "", window.location.href);
+            };
+
+            window.addEventListener("popstate", handlePopState);
+
+            return () => {
+                window.removeEventListener("popstate", handlePopState);
+            };
+        }
+    }, [location.state?.register_with]);
+
     // submit OTP
     const submitOtp = async (e) => {
         e.preventDefault();
@@ -77,9 +94,12 @@ function VerifyOTPPage() {
                 setVerificationStatus('success');
 
                 // delete all navigation data
-                navigate(location.pathname, {
+                navigate('/register/success', {
                     replace: true,
-                    state: null,
+                    state: {
+                        isRegistered: otpVerification.success,
+                        role: otpVerification.user?.role || location.state?.role || 'user'
+                    }
                 })
             } else {
                 setVerificationStatus('failure');
@@ -142,6 +162,7 @@ function VerifyOTPPage() {
                         verificationStatus={verificationStatus}
                         submitOtp={submitOtp}
                         loading={loading}
+                        registerWith={location.state?.register_with || ""}
                         maskedEmail={location.state?.maskEmail}
                     />
 

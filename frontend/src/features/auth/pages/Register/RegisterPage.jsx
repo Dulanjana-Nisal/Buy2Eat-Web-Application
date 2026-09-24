@@ -1,5 +1,5 @@
 import styles from './RegisterPage.module.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import customer_card from '../../../../assets/images/customer-card.svg';
 import seller_card from '../../../../assets/images/seller-card.svg';
 import customer_register from '../../../../assets/images/customer-register-background.jpg';
@@ -7,15 +7,29 @@ import seller_register from '../../../../assets/images/seller-register-backgroun
 import UIbackground from '../../components/UIBackground/UIbackground';
 
 function RegisterPage() {
+
+    // navigation hook
+    const navigate = useNavigate();
+
     return (
         <>
             <div className={styles.container}>
 
                 {/* background mini transparent images */}
                 <UIbackground />
-
+                
                 {/* Registration Header */}
                 <div className={styles.header}>
+                    {/* Top Navigation */}
+                    <nav className={styles.topNav}>
+                        <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </nav>
+
+                    {/* Registration Header content */}
                     <h1 className={styles.title}>Join <span>Buy2Eat</span> Marketplace</h1>
                     <p className={styles.subtitle}>Tell us how you want to use our platform
                         <span className={styles.heart}>

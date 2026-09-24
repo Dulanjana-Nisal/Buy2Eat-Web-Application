@@ -6,6 +6,18 @@ export const userLoginApi = async (loginData) => {
     return response.data;
 }
 
+// Google Auth API
+export const googleAuthApi = async (code) => {
+    const response = await api.post('/auth/google', { code: code });
+    return response.data;
+}
+
+// Google Registration API
+export const googleRegisterApi = async (registerData) => {
+    const response = await api.post('/auth/google/register', registerData);
+    return response.data;
+}
+
 // Customer Registration API
 export const customerRegistrationApi = async (registerDetails) => {
     const response = await api.post('/auth/register-customer', registerDetails);
