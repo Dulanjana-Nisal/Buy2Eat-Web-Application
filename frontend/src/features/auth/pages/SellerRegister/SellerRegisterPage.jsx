@@ -72,7 +72,8 @@ function SellerRegisterPage() {
                     state: {
                         verification_id: registration.verification_id,
                         maskEmail: registration.masked_email,
-                        expiresAt: registration.expiresAt
+                        expiresAt: registration.expiresAt,
+                        register_with: registration.register_with || ''
                     }
                 })
             }

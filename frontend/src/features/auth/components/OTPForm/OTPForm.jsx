@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './OTPForm.module.css';
 import left_transparent_banner from '../../../../assets/images/otp-background.svg';
 
-function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verificationStatus, submitOtp, loading, maskedEmail }) {
+function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verificationStatus, submitOtp, loading, registerWith, maskedEmail }) {
 
     // navigation hook
     const navigate = useNavigate();
@@ -35,7 +35,7 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
         if (!/^\d*$/.test(pastValue)) return
 
         const otpData = [...otp];
-        for(let i = 0; i < 6; i++){
+        for (let i = 0; i < 6; i++) {
             otpData[i] = pastValue[i]
         }
 
@@ -130,16 +130,20 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                                 </>
                         }
                     </button>
+                    {
+                        registerWith === 'email' &&
+                        <>
+                            <div className={styles.divider}>
+                                <span>Or need change details</span>
+                            </div>
 
-                    <div className={styles.divider}>
-                        <span>Or need change details</span>
-                    </div>
-
-                    <button type="button" className={styles.backRegisterBtn} onClick={() => navigate(-1)}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" ><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                        </svg>
-                        Edit details
-                    </button>
+                            <button type="button" className={styles.backRegisterBtn} onClick={() => navigate(-1)}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" ><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                Edit details
+                            </button>
+                        </>
+                    }
                 </form>
 
                 <img src={left_transparent_banner} alt="left-transparent" className={styles.leftTransparentBanner} />
