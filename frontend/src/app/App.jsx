@@ -10,6 +10,7 @@ import ResetPassword from '../features/auth/pages/ResetPassword/ResetPasswordPag
 import ResetPasswordSuccessPage from '../features/auth/pages/ResetPassword/ResetPasswordSuccessPage';
 import SellerRegisterPage from '../features/auth/pages/SellerRegister/SellerRegisterPage';
 import GoogleRegister from '../features/auth/pages/GoogleRegister/GoogleRegisterPage';
+import GoogleRegisterSuccessPage from '../features/auth/pages/GoogleRegister/GoogleRegisterSuccessPage';
 
 /** Renders the application router and its authentication routes. */
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOTPPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/google-register/success" element={<GoogleRegisterSuccessPage />} />
           <Route path="/forgot-password/success" element={<ForgotPasswordSuccessPage />} />
           <Route path="/reset-password/success" element={<ResetPasswordSuccessPage />} />
         </Routes>
