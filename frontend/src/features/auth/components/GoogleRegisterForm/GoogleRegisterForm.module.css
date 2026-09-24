@@ -150,7 +150,7 @@
     border: 1px solid var(--color-warning-light);
     border-radius: var(--radius-md);
     border: 1px solid var(--color-warning-border);
-    background-color: #fff8e8;
+    background-color: var(--color-warning-light);
     color: var(--color-warning-hover);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
@@ -166,14 +166,179 @@
     margin: 0;
 }
 
-.roleWarning p span{
+.roleDetailsTrigger {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
     text-decoration: underline;
     cursor: pointer;
-    margin: 0 3px;
 }
 
-.roleWarning p span:hover{
+.roleDetailsTrigger:hover,
+.roleDetailsTrigger:focus-visible {
     color: var(--color-warning)
+}
+
+.roleDetailsTrigger:focus-visible,
+.modalCloseButton:focus-visible,
+.modalDoneButton:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background-color: var(--color-surface);
+}
+
+.roleDetailsModal {
+    width: min(100%, 500px);
+    max-height: min(650px, calc(100vh - 48px));
+    overflow-y: auto;
+    padding: 28px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-md);
+    color: var(--color-text-primary);
+    animation: modalEnter 0.2s ease-out;
+}
+
+.modalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.modalEyebrow {
+    color: var(--color-primary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.modalHeader h2 {
+    margin: 4px 0 0;
+    font-size: var(--font-size-xl);
+}
+
+.modalCloseButton {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background-color: var(--color-surface-active);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.modalCloseButton:hover {
+    border-color: var(--color-primary-border);
+    color: var(--color-primary);
+}
+
+.modalIntro {
+    margin: 18px 0 20px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.55;
+}
+
+.roleDetailsList {
+    display: grid;
+    gap: 12px;
+}
+
+.roleDetailsItem {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-active);
+}
+
+.roleDetailsIcon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 50%;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.roleDetailsItem h3 {
+    margin: 0 0 4px;
+    font-size: var(--font-size-md);
+}
+
+.roleDetailsItem p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+}
+
+.modalReminder {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 20px 0;
+    padding: 12px;
+    border: 1px solid var(--color-warning-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-warning-light);
+    color: var(--color-warning-hover);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.45;
+}
+
+.modalReminder svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.modalDoneButton {
+    width: 100%;
+    height: var(--button-height-lg);
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+}
+
+.modalDoneButton:hover {
+    background-color: var(--color-primary-hover);
+}
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .inputGroup {
