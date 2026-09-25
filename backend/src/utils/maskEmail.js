@@ -18,7 +18,7 @@ function maskString(str) {
     if (str.length === 2) return str[0] + '*';
     const visibleStart = str.slice(0, 3);
     const visibleEnd = str.slice(-2);
-    const stars = '*'.repeat(Math.max(str.length - 3, 3)); 
+    const stars = '*'.repeat(Math.max(str.length - 3, 3));
     return visibleStart + stars + visibleEnd;
 }
 

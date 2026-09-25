@@ -8,11 +8,11 @@ async function connectDatabase() {
     return;
   }
 
-  try{
+  try {
     await mongoose.connect(MONGO_URI);
-    console.log('Database connected!'); 
+    console.log('Database connected!');
   }
-  catch(err){
+  catch (err) {
     console.error('Database Connection failed!', err)
   }
 }

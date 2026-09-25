@@ -22,7 +22,7 @@ const foodsModel = mongoose.Schema({
     category: {
         type: String,
         required: [true, 'food must have category!'],
-        enum: ['rice-and-curry','kottu','hoppers','short-eats','seafood','desserts-and-sweets','beverages','street-food','devilled-dishes','meats','bites']
+        enum: ['rice-and-curry', 'kottu', 'hoppers', 'short-eats', 'seafood', 'desserts-and-sweets', 'beverages', 'street-food', 'devilled-dishes', 'meats', 'bites']
     },
     tags: [{
         type: String,
@@ -41,6 +41,6 @@ const foodsModel = mongoose.Schema({
         type: Number,
         required: [true, 'Price is required!']
     }
-}, { timestamps: true } )
+}, { timestamps: true })
 
 module.exports = mongoose.model('Foods', foodsModel)

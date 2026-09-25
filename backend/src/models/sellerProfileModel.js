@@ -38,7 +38,7 @@ const sellerProfileModel = mongoose.Schema({
     food_quality_rank: {
         type: String,
         enum: ['do-not-serve', 'health-watch', 'fresh-start', 'kitchen-certified', "chef's-choice"],
-        default: 'fresh-start' 
+        default: 'fresh-start'
     }
 })
 

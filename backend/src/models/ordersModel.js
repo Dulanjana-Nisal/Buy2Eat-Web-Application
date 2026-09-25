@@ -17,10 +17,10 @@ const orderItemSchema = mongoose.Schema({
 	image: {
 		type: String,
 	},
-    availability: {
-        type: Boolean,
-        required: [true, 'availability is required!']
-    },
+	availability: {
+		type: Boolean,
+		required: [true, 'availability is required!']
+	},
 
 })
 

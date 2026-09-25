@@ -119,7 +119,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 	// convert authorization code in to google token
 	let tokenResponse;
-	try{
+	try {
 		tokenResponse = await axios.post(
 			'https://oauth2.googleapis.com/token',
 			{
@@ -137,7 +137,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			}
 		)
 	}
-	catch(err){
+	catch (err) {
 		throw err;
 	}
 

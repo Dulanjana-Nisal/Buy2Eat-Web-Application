@@ -13,7 +13,7 @@ const foodListModel = mongoose.Schema({
     category: {
         type: String,
         required: [true, 'food must have category!'],
-        enum: ['rice-and-curry','kottu','hoppers','short-eats','seafood','desserts-and-sweets','beverages','street-food','devilled-dishes','meats','bites']
+        enum: ['rice-and-curry', 'kottu', 'hoppers', 'short-eats', 'seafood', 'desserts-and-sweets', 'beverages', 'street-food', 'devilled-dishes', 'meats', 'bites']
     },
     tags: [{
         type: String,
@@ -31,7 +31,7 @@ const foodListModel = mongoose.Schema({
 
 // foodMenuModel Schema
 const foodMenuModel = mongoose.Schema({
-    shop_id : {
+    shop_id: {
         type: mongoose.Schema.Types.ObjectId,
         required: [true, 'shop_id is required!'],
         ref: 'Shops'
@@ -53,12 +53,12 @@ const foodMenuModel = mongoose.Schema({
     meal_type: {
         type: String,
         required: [true, 'meal_type is required!'],
-        enum: ['breakfast', 'lunch', 'dinner','tea-time','snack']
+        enum: ['breakfast', 'lunch', 'dinner', 'tea-time', 'snack']
     },
     menu_availability: {
         type: String,
         required: [true, 'menu_availability is required!'],
-        enum: ['open','close']
+        enum: ['open', 'close']
     },
     discount_price: {
         type: Number,
@@ -74,7 +74,7 @@ const foodMenuModel = mongoose.Schema({
     stock_type: {
         type: String,
         required: [true, 'stock_type is required!'],
-        enum: ['g','kg','l','ml','cup-of','packs','bottle-of']
+        enum: ['g', 'kg', 'l', 'ml', 'cup-of', 'packs', 'bottle-of']
     }
 }, { timestamps: true })
 
