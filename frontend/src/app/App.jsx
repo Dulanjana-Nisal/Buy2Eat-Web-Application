@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AuthRouter from './router/AuthRoutes';
 
@@ -7,9 +7,7 @@ function App() {
   return (
     <BrowserRouter>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-        <Routes>
-          <Route path="/*" element={<AuthRouter />} />
-        </Routes>
+        <AuthRouter />
       </GoogleOAuthProvider>
     </BrowserRouter>
   )
