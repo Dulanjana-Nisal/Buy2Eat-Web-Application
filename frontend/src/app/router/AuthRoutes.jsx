@@ -10,20 +10,20 @@ import GoogleRegisterSuccessPage from '../../features/auth/pages/GoogleRegister/
 import ForgotPasswordSuccessPage from '../../features/auth/pages/ForgotPassword/ForgotPasswordSuccessPage';
 import ResetPasswordSuccessPage from '../../features/auth/pages/ResetPassword/ResetPasswordSuccessPage';
 import ResetPasswordPage from '../../features/auth/pages/ResetPassword/ResetPasswordPage';
-// import PublicRoute from './PublicRoute';
+import PublicRoute from './PublicRoute';
 
 function AuthRouter() {
     return (
         <Routes>
 
             {/* Inside PublicRouter */}
-            {/* <Route element={PublicRoute}> */}
+            <Route element={<PublicRoute />}>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/register/customer" element={<CustomerRegister />} />
                 <Route path="/register/seller" element={<SellerRegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-            {/* </Route> */}
+            </Route>
             {/* ------------------- */}
 
             <Route path="/google-register" element={<GoogleRegister />} />

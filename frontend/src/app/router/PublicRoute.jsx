@@ -1,9 +1,7 @@
+import { Outlet } from "react-router-dom";
+
 function PublicRoute(){
-    return(
-        <>
-            
-        </>
-    )
+    return <Outlet />
 }
 
 export default PublicRoute;
