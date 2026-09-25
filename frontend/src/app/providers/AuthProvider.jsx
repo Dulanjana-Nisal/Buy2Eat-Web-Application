@@ -4,10 +4,11 @@ const AuthContext = createContext();
 
 export default function AuthProvider({ children }){
 
-    const [example,setExample] = useState('some example value')
+    // use state hook
+    const [user,setUser] = useState(localStorage.getItem('user') || null);
 
     return(
-        <AuthContext.Provider value={{ example, setExample }}>
+        <AuthContext.Provider value={{ user, setUser }}>
             {children}
         </AuthContext.Provider>
     )
