@@ -1,10 +1,10 @@
 import styles from './ResetPasswordPage.module.css';
 import login_background from '../../../../assets/images/customer-register-right-banner.png';
 import { useEffect, useState } from 'react';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import { useNavigate, useParams } from 'react-router-dom';
 import { resetPasswordApi, verifyResetPasswordApi } from '../../api/authApi';
 import ResetPasswordForm from '../../components/ResetPasswordForm/ResetPasswordForm';
+import Background from '../../../../shared/components/ui/background';
 
 // calculate strength of password
 const getPasswordStrength = (password) => {
@@ -107,7 +107,7 @@ function ResetPasswordPage() {
     if (verifying) {
         return (
             <main className={styles.verificationScreen} aria-live="polite" aria-busy="true">
-                <UIbackground />
+                <Background />
                 <div className={styles.verificationGlow} aria-hidden="true" />
                 <section className={styles.verificationPanel}>
                     <div className={styles.verificationIcon} aria-hidden="true">
@@ -137,7 +137,7 @@ function ResetPasswordPage() {
             <div className={styles.section}>
 
                 {/* Transparent mini images */}
-                <UIbackground />
+                <Background />
 
                 {/* Top Navigation */}
                 <nav className={styles.topNav}>

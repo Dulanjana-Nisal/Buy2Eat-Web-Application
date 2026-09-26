@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import styles from './ForgotPasswordPage.module.css';
 import { useEffect, useState } from 'react';
 import { forgotPasswordApi } from '../../api/authApi';
 import ForgotPasswordForm from '../../components/ForgotPasswordForm/ForgotPasswordForm';
+import Background from '../../../../shared/components/ui/background';
 
 
 // Main variables for cooldown calculation
@@ -88,7 +88,7 @@ function ForgotPassword() {
             <div className={styles.container}>
 
                 {/* background mini transparent images */}
-                <UIbackground />
+                <Background />
 
                 {/* Main Form Card */}
                 <div className={styles.mainCard}>

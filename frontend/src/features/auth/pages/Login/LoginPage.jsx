@@ -2,9 +2,9 @@ import styles from './LoginPage.module.css';
 import login_background from '../../../../assets/images/customer-register-right-banner.png';
 import { useState } from 'react';
 import LoginForm from '../../components/LoginForm/LoginForm';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import { useNavigate } from 'react-router-dom';
 import { userLoginApi } from '../../api/authApi';
+import Background from '../../../../shared/components/ui/background';
 
 /** Manages login form state and submits user credentials. */
 function LoginPage() {
@@ -43,7 +43,7 @@ function LoginPage() {
         <>
             <div className={styles.section}>
                 {/* Transparent mini images */}
-                <UIbackground />
+                <Background />
 
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>

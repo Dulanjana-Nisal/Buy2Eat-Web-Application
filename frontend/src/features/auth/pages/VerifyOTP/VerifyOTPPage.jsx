@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import styles from './VerifyOTPPage.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import right_banner from '../../../../assets/images/customer-register-right-banner.png';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import OTPForm from '../../components/OTPForm/OTPForm';
 import { resendOTPApi, submitOTPApi } from '../../api/authApi';
+import Background from '../../../../shared/components/ui/background';
 
 function VerifyOTPPage() {
 
@@ -136,7 +136,7 @@ function VerifyOTPPage() {
             <div className={styles.container}>
 
                 {/* background mini transparent images */}
-                <UIbackground />
+                <Background />
 
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>

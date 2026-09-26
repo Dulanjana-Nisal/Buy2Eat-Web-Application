@@ -1,7 +1,7 @@
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import styles from './ForgotPasswordSuccessPage.module.css';
 import transparentBackground from '../../../../assets/images/forgot-password-success.svg';
+import Background from '../../../../shared/components/ui/background';
 
 function ForgotPasswordSuccessPage() {
 
@@ -19,7 +19,7 @@ function ForgotPasswordSuccessPage() {
             <div className={styles.container}>
 
                 {/* Background UI */}
-                <UIbackground />
+                <Background />
 
                 {/* Card Container */}
                 <div className={styles.card}>

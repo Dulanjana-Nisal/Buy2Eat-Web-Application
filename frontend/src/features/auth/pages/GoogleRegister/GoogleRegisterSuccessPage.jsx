@@ -1,8 +1,8 @@
 import styles from './GoogleRegisterSuccessPage.module.css';
 import transparentBackground from '../../../../assets/images/forgot-password-success.svg';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import Background from '../../../../shared/components/ui/background';
 
 function GoogleRegisterSuccessPage() {
 
@@ -23,7 +23,7 @@ function GoogleRegisterSuccessPage() {
             <div className={styles.container}>
 
                 {/* Background UI */}
-                <UIbackground />
+                <Background />
 
                 {/* Card Container */}
                 <div className={styles.card}>
