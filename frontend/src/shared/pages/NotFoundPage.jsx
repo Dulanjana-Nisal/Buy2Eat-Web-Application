@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import mealImage from '../../assets/images/small-meal-dish.webp';
 import styles from './NotFoundPage.module.css';
-import UIbackground from '../../features/auth/components/UIBackground/UIbackground';
+import Background from '../components/ui/background';
 
 function NotFoundPage() {
     const navigate = useNavigate();
@@ -11,7 +11,11 @@ function NotFoundPage() {
 
     return (
         <main className={styles.page}>
-            <UIbackground />
+
+            {/* Background UI  */}
+            <Background />
+
+            {/* Header */}
             <header className={styles.header}>
                 <Link className={styles.brand} to="/login" aria-label="Buy2Eat sign in">
                     <span className={styles.brandMark} aria-hidden="true">
@@ -24,6 +28,7 @@ function NotFoundPage() {
                 <Link className={styles.headerLink} to="/login">Sign in</Link>
             </header>
 
+            {/* Main container section */}
             <section className={styles.content} aria-labelledby="not-found-title">
                 <div className={styles.illustration} aria-hidden="true">
                     <span className={`${styles.number} ${styles.leftNumber}`}>4</span>
