@@ -10,6 +10,7 @@ import GoogleRegisterSuccessPage from '../../features/auth/pages/GoogleRegister/
 import ForgotPasswordSuccessPage from '../../features/auth/pages/ForgotPassword/ForgotPasswordSuccessPage';
 import ResetPasswordSuccessPage from '../../features/auth/pages/ResetPassword/ResetPasswordSuccessPage';
 import ResetPasswordPage from '../../features/auth/pages/ResetPassword/ResetPasswordPage';
+import NotFoundPage from '../../shared/pages/NotFoundPage';
 import PublicRoute from './PublicRoute';
 
 function AuthRouter() {
@@ -32,6 +33,7 @@ function AuthRouter() {
             <Route path="/register/success" element={<GoogleRegisterSuccessPage />} />
             <Route path="/forgot-password/success" element={<ForgotPasswordSuccessPage />} />
             <Route path="/reset-password/success" element={<ResetPasswordSuccessPage />} />
+            <Route path="*" element={<NotFoundPage />} />
         </Routes>
     )
 }
