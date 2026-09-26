@@ -9,16 +9,23 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
 
     // handel otp input values
     const handleOtpChange = (value, index) => {
-        if (!/^\d*$/.test(value)) return
+        const digits = value.replace(/\D/g, '').slice(0, otp.length - index)
+        if (!digits) {
+            if (value) return
+            const nextOtp = [...otp]
+            nextOtp[index] = ''
+            setOtp(nextOtp)
+            return
+        }
 
         const nextOtp = [...otp]
-        nextOtp[index] = value.slice(-1)
+        digits.split('').forEach((digit, offset) => {
+            nextOtp[index + offset] = digit
+        })
         setOtp(nextOtp)
 
-        if (value && index < otp.length - 1) {
-            const nextInput = document.getElementById(`otp-input-${index + 1}`)
-            if (nextInput) nextInput.focus()
-        }
+        const nextIndex = Math.min(index + digits.length, otp.length - 1)
+        document.getElementById(`otp-input-${nextIndex}`)?.focus()
     }
 
     // handel otp keys
@@ -30,16 +37,19 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
     }
 
     // handle otp past
-    const handleOtpPast = (e) => {
-        const pastValue = e.clipboardData.getData("text").trim();
-        if (!/^\d*$/.test(pastValue)) return
+    const handleOtpPaste = (event, index) => {
+        const pastedDigits = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, otp.length - index)
+        if (!pastedDigits) return
 
-        const otpData = [...otp];
-        for (let i = 0; i < 6; i++) {
-            otpData[i] = pastValue[i]
-        }
+        event.preventDefault()
+        const nextOtp = [...otp]
+        pastedDigits.split('').forEach((digit, offset) => {
+            nextOtp[index + offset] = digit
+        })
+        setOtp(nextOtp)
 
-        setOtp(otpData)
+        const nextIndex = Math.min(index + pastedDigits.length, otp.length - 1)
+        document.getElementById(`otp-input-${nextIndex}`)?.focus()
     }
 
     return (
@@ -58,7 +68,7 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                     </div>
                 </div>
 
-                <form>
+                <form onSubmit={submitOtp}>
                     <div className={styles.otpContainer}>
                         <div className={styles.otpInputRow}>
                             {otp.map((digit, index) => (
@@ -68,9 +78,11 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                                     type="text"
                                     inputMode="numeric"
                                     maxLength="1"
-                                    onPaste={handleOtpPast}
+                                    onPaste={(event) => handleOtpPaste(event, index)}
                                     value={digit}
                                     className={styles.otpDigitInput}
+                                    aria-label={`Digit ${index + 1} of ${otp.length}`}
+                                    autoComplete={index === 0 ? 'one-time-code' : 'off'}
                                     onChange={(event) => handleOtpChange(event.target.value, index)}
                                     onKeyDown={(event) => handleOtpKeyDown(event, index)}
                                 />
@@ -115,8 +127,7 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                     <button
                         type="submit"
                         className={`${styles.submitBtn} ${verificationStatus === 'success' ? styles.submitBtnSuccess : ''}`}
-                        onClick={(e) => submitOtp(e)}
-                        disabled={loading || verificationStatus === 'success'}
+                        disabled={loading || verificationStatus === 'success' || otp.some((digit) => !digit)}
                     >
                         {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
                             verificationStatus === 'success' ?
