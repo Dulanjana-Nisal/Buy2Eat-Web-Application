@@ -16,7 +16,7 @@ export default function AuthProvider({ children }){
         }
 
         addUserData();
-    }, [])
+    }, []);
 
     return(
         <AuthContext.Provider value={{ user, setUser }}>
