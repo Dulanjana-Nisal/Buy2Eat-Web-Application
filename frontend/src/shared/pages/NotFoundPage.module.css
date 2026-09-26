@@ -1,364 +1,380 @@
+/* NotFound.module.css */
 .page {
-	min-height: 100vh;
-	min-height: 100svh;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-	color: var(--color-text-primary);
-	background:
-		radial-gradient(ellipse at 50% 38%, var(--color-brand-50) 0, transparent 27rem),
-		var(--color-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(circle at 50% 35%, rgba(255, 106, 61, 0.055), transparent 32%), var(--color-bg);
+    overflow-x: hidden;
+	font-family: var(--font-family);
 }
 
-.header,
-.footer {
-	width: min(100% - 64px, 1100px);
-	margin-inline: auto;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
 
-.header {
-	min-height: 88px;
-}
-
-.brand {
-	display: inline-flex;
-	align-items: center;
-	gap: 10px;
-	color: var(--color-text-primary);
-	font-size: 1.3rem;
-	font-weight: 800;
-	text-decoration: none;
-}
-
-.brandMark {
-	width: 36px;
-	height: 36px;
-	display: grid;
-	place-items: center;
-	border-radius: 10px;
-	color: #fff;
-	background: var(--color-brand-600);
-}
-
-.brandMark svg {
-	width: 22px;
-	height: 22px;
-	stroke: currentColor;
-	stroke-width: 1.7;
-	stroke-linecap: round;
-	stroke-linejoin: round;
-}
-
-.headerLink,
-.helpText a {
-	color: var(--color-brand-600);
-	font-size: 0.9rem;
-	font-weight: 700;
-	text-decoration: none;
-}
-
-.headerLink:hover,
-.helpText a:hover {
-	color: var(--color-brand-700);
-	text-decoration: underline;
-	text-underline-offset: 3px;
-}
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
 
 .content {
-	width: min(100% - 40px, 680px);
-	margin: auto;
-	padding: 32px 0 56px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	text-align: center;
-	animation: arrive 500ms ease-out both;
+    width: min(900px, calc(100% - 40px));
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
 }
+
+
+/* =========================================================
+   404 ILLUSTRATION
+   ========================================================= */
 
 .illustration {
-	position: relative;
-	width: min(100%, 510px);
-	height: 250px;
-	display: grid;
-	grid-template-columns: 1fr 210px 1fr;
-	align-items: center;
-	margin-bottom: 14px;
+    width: min(720px, 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 28px;
+    position: relative;
 }
 
-.number {
-	z-index: 1;
-	color: var(--color-brand-600);
-	font-size: 170px;
-	font-weight: 800;
-	line-height: 0.8;
+
+/*
+ * Your transparent 404 artwork goes here.
+ *
+ * The generated artwork already contains:
+ * 404
+ * chef hat
+ * plate
+ * fork
+ * food decorations
+ * leaves
+ * etc.
+ */
+
+.illustration img {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
-.leftNumber {
-	justify-self: end;
-}
 
-.rightNumber {
-	justify-self: start;
-}
-
-.plate {
-	width: 204px;
-	aspect-ratio: 1;
-	padding: 12px;
-	display: grid;
-	place-items: center;
-	border: 1px solid rgb(234 88 12 / 0.12);
-	border-radius: 50%;
-	background: var(--color-surface);
-	box-shadow: 0 16px 40px rgb(93 58 34 / 0.12), 0 0 0 12px rgb(255 255 255 / 0.58);
-	animation: settle 650ms 100ms ease-out both;
-}
-
-.plate img {
-	width: 100%;
-	height: 100%;
-	display: block;
-	border-radius: 50%;
-	object-fit: cover;
-}
-
-.sparkleOne,
-.sparkleTwo {
-	position: absolute;
-	z-index: 2;
-	display: block;
-	color: var(--color-brand-500);
-}
-
-.sparkleOne {
-	top: 34px;
-	right: 38px;
-	width: 13px;
-	height: 13px;
-	border: 2px solid currentColor;
-	transform: rotate(45deg);
-}
-
-.sparkleTwo {
-	bottom: 24px;
-	left: 48px;
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	background: currentColor;
-	box-shadow: 0 0 0 5px rgb(249 115 22 / 0.12);
-}
-
-.dash {
-	position: absolute;
-	top: 45px;
-	left: 36px;
-	width: 24px;
-	height: 2px;
-	border-radius: 2px;
-	background: var(--color-brand-400);
-	transform: rotate(-35deg);
-}
-
-.eyebrow {
-	margin-bottom: 10px;
-	color: var(--color-brand-600);
-	font-size: 0.78rem;
-	font-weight: 800;
-	text-transform: uppercase;
-}
+/* =========================================================
+   TITLE
+   ========================================================= */
 
 .title {
-	max-width: 620px;
-	font-size: clamp(2rem, 5vw, 3rem);
-	font-weight: 800;
-	line-height: 1.12;
+    margin: 0;
+    max-width: 780px;
+    font-size: var(--font-size-4xl);
+    line-height: 1.08;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -1.8px;
+    color: var(--text);
 }
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
 
 .description {
-	max-width: 490px;
-	margin-top: 16px;
-	color: var(--color-text-secondary);
-	font-size: 1rem;
-	line-height: 1.7;
+    max-width: 500px;
+    margin: 20px auto 0;
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-tertiary);
 }
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
 
 .actions {
-	margin-top: 28px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 32px;
 }
 
-.primaryAction,
-.secondaryAction {
-	min-height: 48px;
-	padding: 0 20px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 12px;
-	border: 1px solid transparent;
-	border-radius: var(--radius-full);
-	font: inherit;
-	font-size: 0.92rem;
-	font-weight: 700;
-	text-decoration: none;
-	cursor: pointer;
-	transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
-}
+
+/* -------------------------
+   Primary button
+   ------------------------- */
 
 .primaryAction {
-	color: var(--color-on-primary);
-	background: var(--color-brand-600);
+    min-width: 155px;
+    height: var(--button-height-lg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 24px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    box-shadow:var(--shadow-md);
+    transition: var(--transition-normal);
 }
 
 .primaryAction:hover {
-	background: var(--color-brand-700);
-	transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
 }
+
+.primaryAction:active {
+    transform: translateY(0);
+}
+
+/* Arrow */
 
 .primaryAction svg {
-	width: 18px;
-	height: 18px;
-	stroke: currentColor;
-	stroke-width: 2;
-	stroke-linecap: round;
-	stroke-linejoin: round;
+    width: 19px;
+    height: var(--button-height-lg);
+    stroke: currentColor;
+    stroke-width: 2;
+    flex-shrink: 0;
+    transition: var(--transition-normal);
 }
 
+.primaryAction:hover svg {
+    transform: translateX(-3px);
+}
+
+
+/* -------------------------
+   Secondary button
+   ------------------------- */
+
 .secondaryAction {
-	border-color: var(--color-border-strong);
-	color: var(--color-text-primary);
-	background: var(--color-surface);
+    min-width: 120px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-subtle);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    transition: var(--transition-normal);
 }
 
 .secondaryAction:hover {
-	border-color: var(--color-brand-300);
-	background: var(--color-brand-50);
+    transform: translateY(-2px);
+	box-shadow: var(--shadow-xl);
 }
 
-.primaryAction:focus-visible,
-.secondaryAction:focus-visible,
-.headerLink:focus-visible,
-.brand:focus-visible,
-.helpText a:focus-visible {
-	outline: 3px solid var(--color-focus-ring);
-	outline-offset: 3px;
-}
+/* =========================================================
+   HELP TEXT
+   ========================================================= */
 
 .helpText {
-	margin-top: 26px;
-	color: var(--color-text-tertiary);
-	font-size: 0.88rem;
+    margin: 22px 0 0;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
 }
+
+.helpText a {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+    text-decoration: none;
+    transition: var(--transition-normal);
+}
+
+.helpText a:hover {
+    color: var(--color-primary-hover);
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
 
 .footer {
-	min-height: 66px;
-	border-top: 1px solid var(--color-border-light);
-	color: var(--color-text-tertiary);
-	font-size: 0.78rem;
+    width: min(1200px, calc(100% - 80px));
+    margin: auto auto 0;
+    padding: 24px 0;
+    border-top: 1px solid #eee4dc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #7a8186;
+    font-size: 13px;
 }
+
+
+/*
+ * Buy2Eat / Zesty name
+ */
 
 .footer span:last-child {
-	color: var(--color-text-secondary);
-	font-weight: 700;
+    color: var(--text);
+
+    font-weight: 800;
+
+    letter-spacing: -0.2px;
 }
 
-@keyframes arrive {
-	from { opacity: 0; transform: translateY(10px); }
-	to { opacity: 1; transform: translateY(0); }
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 768px) {
+    .content {
+        width: min(100% - 32px, 650px);
+
+        padding-top: 55px;
+        padding-bottom: 70px;
+    }
+
+    .illustration {
+        width: 100%;
+
+        margin-bottom: 20px;
+    }
+
+    .illustration img {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .title {
+        letter-spacing: -1px;
+    }
+
+    .description {
+        max-width: 520px;
+    }
+
+    .footer {
+        width: calc(100% - 40px);
+    }
 }
 
-@keyframes settle {
-	from { opacity: 0; transform: scale(0.92); }
-	to { opacity: 1; transform: scale(1); }
-}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 560px) {
-	.header,
-	.footer {
-		width: calc(100% - 36px);
-	}
+    .content {
+        width: calc(100% - 28px);
 
-	.header {
-		min-height: 72px;
-	}
+        padding-top: 38px;
+        padding-bottom: 55px;
+    }
 
-	.content {
-		width: calc(100% - 36px);
-		padding: 24px 0 40px;
-	}
+    .illustration {
+        margin-bottom: 15px;
+    }
 
-	.illustration {
-		height: 190px;
-		grid-template-columns: 1fr 150px 1fr;
-		margin-bottom: 10px;
-	}
+    .illustration img {
+        width: 108%;
+        max-width: none;
 
-	.number {
-		font-size: 112px;
-	}
+        margin-left: -4%;
+    }
 
-	.plate {
-		width: 146px;
-		padding: 9px;
-		box-shadow: 0 12px 28px rgb(93 58 34 / 0.12), 0 0 0 8px rgb(255 255 255 / 0.58);
-	}
+    .title {
+        font-size: 34px;
+        line-height: 1.12;
+        letter-spacing: -0.8px;
+    }
 
-	.sparkleOne {
-		top: 22px;
-		right: 18px;
-	}
+    .description {
+        margin-top: 16px;
 
-	.sparkleTwo {
-		bottom: 18px;
-		left: 20px;
-	}
+        font-size: 15px;
+        line-height: 1.65;
+    }
 
-	.dash {
-		top: 28px;
-		left: 12px;
-	}
+    .actions {
+        width: 100%;
 
-	.title {
-		max-width: 420px;
-		font-size: 2rem;
-	}
+        flex-direction: column;
+        gap: 12px;
 
-	.description {
-		font-size: 0.95rem;
-	}
+        margin-top: 27px;
+    }
 
-	.actions {
-		width: 100%;
-		flex-direction: column;
-		gap: 10px;
-	}
+    .primaryAction,
+    .secondaryAction {
+        width: min(280px, 100%);
+    }
 
-	.primaryAction,
-	.secondaryAction {
-		width: min(100%, 280px);
-	}
+    .helpText {
+        margin-top: 20px;
 
-	.footer {
-		min-height: 58px;
-		font-size: 0.7rem;
-	}
+        font-size: 13px;
+    }
+
+    .footer {
+        width: calc(100% - 28px);
+
+        padding: 20px 0;
+
+        flex-direction: column;
+        gap: 7px;
+
+        text-align: center;
+    }
 }
 
-@media (prefers-reduced-motion: reduce) {
-	.content,
-	.plate {
-		animation: none;
-	}
 
-	.primaryAction,
-	.secondaryAction {
-		transition: none;
-	}
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 360px) {
+    .content {
+        padding-top: 28px;
+    }
+
+    .title {
+        font-size: 30px;
+    }
+
+    .description {
+        font-size: 14px;
+    }
+
+    .primaryAction,
+    .secondaryAction {
+        height: 48px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .primaryAction,
+    .secondaryAction,
+    .primaryAction svg {
+        transition: none;
+    }
+
+    .primaryAction:hover,
+    .secondaryAction:hover {
+        transform: none;
+    }
 }
