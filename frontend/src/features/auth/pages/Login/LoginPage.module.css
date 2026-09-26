@@ -211,9 +211,7 @@
 /* Responsive adjustments */
 @media (max-width: 900px) {
     .container {
-        flex-direction: column;
-        height: fit-content;
-        padding: 3rem 2rem;
+        display: block;
     }
 
     .rightPanel {
@@ -223,6 +221,12 @@
 
 @media (max-width: 500px) {
     .container {
+        width: 90%;
+    }
+    .section{
+        padding: 3rem 0;
+    }
+    .headerTexts{
         width: 90%;
     }
 }

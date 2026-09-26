@@ -293,3 +293,10 @@
     opacity: 0.3;
     z-index: -1;
 }
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    .leftPanel{
+        padding: 3rem 1rem;
+    }
+}
