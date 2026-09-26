@@ -1,15 +1,15 @@
 import { createContext, useContext } from "react";
 
-const ThemeContext = createContext
+const ThemeContext = createContext();
 
 export default function ThemeProvider({ children }){
     
     const exampleValue='Example Value';
 
     return(
-        <ThemeContext.provider values={{exampleValue}}>
+        <ThemeContext.Provider values={{exampleValue}}>
             { children }
-        </ThemeContext.provider>
+        </ThemeContext.Provider>
     )
 }
 
