@@ -1,18 +1,21 @@
-import { createContext, useContext } from "react";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import AuthProvider from "./AuthProvider";
+import SocketProvider from "./SocketProvider";
+import ThemeProvider from "./ThemeProvider";
 
-const AppContext = createContext
 
-export default function AppProvider({ children }){
-    
-    const exampleValue='Example Value';
-
+function AppProvider({ children }){
     return(
-        <AppContext.provider values={{exampleValue}}>
-            { children }
-        </AppContext.provider>
+        <SocketProvider>
+            <ThemeProvider>
+                <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+                    <AuthProvider>
+                        { children }
+                    </AuthProvider>
+                </GoogleOAuthProvider>
+            </ThemeProvider>
+        </SocketProvider>
     )
 }
 
-export const UseApp = () => {
-    return useContext(AppContext)
-}
+export default AppProvider;
