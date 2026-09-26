@@ -1,7 +1,8 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { UseAuth } from "../providers/AuthProvider";
 
-function PublicRoute(){
+function PublicRoute({ children }){
+    
     // use UseAuth context for validate route
     const { user } = UseAuth();
 
@@ -9,7 +10,7 @@ function PublicRoute(){
         return <Navigate to='/' replace />
     }
     
-    return <Outlet />
+    return children
 }
 
 export default PublicRoute;
