@@ -18,10 +18,11 @@ function AppRouters() {
                         case "public": 
                             element = <PublicRoute>{element}</PublicRoute>
                             break;
+
+                        // ... should add more cases for in coming routers ...
                         
                         default: break;
 
-                        // ... should add more cases for in coming routers
                     }
 
                     // return router
