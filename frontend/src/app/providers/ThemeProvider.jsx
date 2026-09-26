@@ -7,12 +7,12 @@ export default function ThemeProvider({ children }){
     const exampleValue='Example Value';
 
     return(
-        <ThemeContext.Provider values={{exampleValue}}>
+        <ThemeContext.Provider value={{exampleValue}}>
             { children }
         </ThemeContext.Provider>
     )
 }
 
-export const UseApp = () => {
+export const UseTheme = () => {
     return useContext(ThemeContext)
 }

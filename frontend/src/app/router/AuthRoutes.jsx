@@ -12,7 +12,7 @@ import ResetPasswordSuccessPage from '../../features/auth/pages/ResetPassword/Re
 import ResetPasswordPage from '../../features/auth/pages/ResetPassword/ResetPasswordPage';
 import PublicRoute from './PublicRoute';
 
-function AuthRouter() {
+function AuthRouters() {
     return (
         <Routes>
 
@@ -36,4 +36,4 @@ function AuthRouter() {
     )
 }
 
-export default AuthRouter;
+export default AuthRouters;

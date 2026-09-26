@@ -1,17 +1,14 @@
 import { Routes, Route } from 'react-router-dom';
 import NotFoundPage from '../../shared/pages/NotFoundPage';
-import AuthRouter from './AuthRoutes';
+import AuthRouters from './AuthRoutes';
 
-function AppRouter() {
+function AppRouters() {
     return (
         <Routes>
-            {/* Auth routers */}
-            <AuthRouter />
-
-            {/* Notfound router */}
+            <Route path='/*' element={<AuthRouters />} />
             <Route path='*' element={<NotFoundPage />} />
         </Routes>
     )
 }
 
-export default AppRouter;
+export default AppRouters;

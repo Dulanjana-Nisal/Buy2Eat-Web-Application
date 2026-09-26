@@ -7,12 +7,12 @@ export default function SocketProvider({ children }){
     const exampleValue='Example Value';
 
     return(
-        <SocketContext.Provider values={{exampleValue}}>
+        <SocketContext.Provider value={{exampleValue}}>
             { children }
         </SocketContext.Provider>
     )
 }
 
-export const UseApp = () => {
-    return useContext(SocketContext)
+export const UseSocket = () => {
+    return useContext(SocketContext);
 }
