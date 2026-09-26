@@ -8,7 +8,7 @@ const registrationOtpModel = mongoose.Schema({
         unique: true,
         index: true
     },
-    reservation_id:{
+    reservation_id: {
         type: String,
         default: null,
     },

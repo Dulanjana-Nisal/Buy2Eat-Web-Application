@@ -44,10 +44,10 @@ const getSingleUser = asyncHandler(async (req, res) => {
 
     // find user form database base on id
     const user = await Users.findOne({ _id: id }).select("-password");
-    if(!user) return res.status(400).json({success: false, message: 'User is not exist!'})
+    if (!user) return res.status(400).json({ success: false, message: 'User is not exist!' })
 
     //send response
-    res.status(200).json({success: true, data: user})
+    res.status(200).json({ success: true, data: user })
 });
 
 module.exports = {

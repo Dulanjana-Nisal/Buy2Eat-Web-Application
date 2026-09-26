@@ -13,7 +13,7 @@ const UserModel = mongoose.Schema({
             "Please enter a valid email address"
         ]
     },
-    google_id:{
+    google_id: {
         type: String,
         unique: true,
         sparse: true
@@ -23,7 +23,7 @@ const UserModel = mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin','customer','seller'],
+        enum: ['admin', 'customer', 'seller'],
         required: [true, 'Role is required!']
     }
 }, { timestamps: true })

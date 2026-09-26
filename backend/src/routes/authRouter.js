@@ -1,14 +1,14 @@
 const express = require('express');
-const { 
-    authLogin, 
+const {
+    authLogin,
     googleAuth,
     googleRegistration,
-    refreshToken, 
-    registerCustomers, 
-    registerSellers, 
-    verifyOtp, 
+    refreshToken,
+    registerCustomers,
+    registerSellers,
+    verifyOtp,
     resendOtp,
-    userLogout, 
+    userLogout,
     forgotPassword,
     resetPassword,
     verifyResetPassword

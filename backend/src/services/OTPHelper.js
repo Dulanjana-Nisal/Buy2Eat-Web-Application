@@ -62,14 +62,14 @@ const OTPHelper = async ({
 
     // otp creation
     let otpCreation;
-    if(session){
+    if (session) {
         const result = await registrationOtpModel.create(
             [otpData],
             options
         );
         otpCreation = result[0]
     }
-    else{
+    else {
         otpCreation = await registrationOtpModel.create(
             otpData
         );
@@ -99,7 +99,7 @@ const OTPHelper = async ({
                     expiresAt: new Date()
                 }
             },
-            { 
+            {
                 new: true,
                 ...options
             }

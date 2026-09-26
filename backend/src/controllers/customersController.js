@@ -116,9 +116,9 @@ const updateCustomer = asyncHandler(async (req, res) => {
 
     // update database with querydata
     const customerUpdate = await customerProfileModel.findOneAndUpdate(
-        {user_id: id},
+        { user_id: id },
         queryData,
-        {runValidators: true, returnDocument: 'after'}
+        { runValidators: true, returnDocument: 'after' }
     )
     if (!customerUpdate) return res.status(400).json({
         success: false,
@@ -137,10 +137,10 @@ const updateCustomer = asyncHandler(async (req, res) => {
 const updateAddresses = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { _id } = req.body;
-    
+
     // check if customer and address is exist
     const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": _id });
-    if(!customer) return res.status(400).json({
+    if (!customer) return res.status(400).json({
         success: false,
         message: 'Address is not exist!'
     })
@@ -168,21 +168,21 @@ const updateAddresses = asyncHandler(async (req, res) => {
 const addAddresses = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { label, street, city, is_default } = req.body;
-    
+
     // check if customer is exist
     const customer = await customerProfileModel.findOne({ user_id: id });
-    if(!customer) return res.status(400).json({
+    if (!customer) return res.status(400).json({
         success: false,
         message: 'Customer is not exist!'
     })
 
     // if check all required fields are filled
-    if(!label || !street || !city || !is_default) return res.status(400).json({
+    if (!label || !street || !city || !is_default) return res.status(400).json({
         success: false,
         message: 'label, street city and is_default fields are required!'
     })
 
-     // Add customer address
+    // Add customer address
     const AddedCustomerAddress = await customerProfileModel.findOneAndUpdate(
         { user_id: id },
         {
@@ -206,10 +206,10 @@ const addAddresses = asyncHandler(async (req, res) => {
 const deleteAddress = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { _id } = req.body;
-    
+
     // check if customer and address is exist
     const customer = await customerProfileModel.findOne({ user_id: id, "addresses._id": _id });
-    if(!customer) return res.status(400).json({
+    if (!customer) return res.status(400).json({
         success: false,
         message: 'Address is not exist!'
     })
@@ -219,7 +219,7 @@ const deleteAddress = asyncHandler(async (req, res) => {
         { user_id: id },
         {
             $pull: {
-                addresses: {_id: _id}
+                addresses: { _id: _id }
             }
         },
         { runValidators: true, returnDocument: 'after' }
@@ -241,17 +241,17 @@ const deleteAddress = asyncHandler(async (req, res) => {
 const addFavShops = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     const { shop_id } = req.body;
-    
+
     // check if customer and shop is exist
     const customer = await customerProfileModel.findOne({ user_id: _id });
     const shop = await shopModel.findOne({ _id: shop_id });
 
-    if(!customer) return res.status(400).json({
+    if (!customer) return res.status(400).json({
         success: false,
         message: 'Customer is not exist!'
     })
 
-    if(!shop) return res.status(400).json({
+    if (!shop) return res.status(400).json({
         success: false,
         message: 'Shop is not exist!'
     })
@@ -265,10 +265,10 @@ const addFavShops = asyncHandler(async (req, res) => {
         description: shop.description
     }
 
-     // Add customer Shop
+    // Add customer Shop
     const addedCustomerShop = await customerProfileModel.findOneAndUpdate(
         { user_id: _id, 'favorite_shops.shop_id': { $ne: shop._id } },
-        { $addToSet: { favorite_shops: favoriteShop }},
+        { $addToSet: { favorite_shops: favoriteShop } },
         { runValidators: true, returnDocument: 'after' }
     );
 
@@ -291,10 +291,10 @@ const addFavShops = asyncHandler(async (req, res) => {
 const deleteFavShops = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     const { shop_id } = req.body;
-    
+
     // check if customer and Shop is exist
     const customer = await customerProfileModel.findOne({ user_id: _id, "favorite_shops.shop_id": shop_id });
-    if(!customer) return res.status(400).json({
+    if (!customer) return res.status(400).json({
         success: false,
         message: 'Shop is not exist!'
     })
@@ -304,7 +304,7 @@ const deleteFavShops = asyncHandler(async (req, res) => {
         { user_id: _id },
         {
             $pull: {
-                favorite_shops: {shop_id: shop_id}
+                favorite_shops: { shop_id: shop_id }
             }
         },
         { runValidators: true, returnDocument: 'after' }
@@ -327,17 +327,17 @@ const deleteFavShops = asyncHandler(async (req, res) => {
 const addFavFoods = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     const { food_id } = req.body;
-    
+
     // check if Food and shop is exist
     const customer = await customerProfileModel.findOne({ user_id: _id });
     const food = await foodsModel.findOne({ _id: food_id });
 
-    if(!customer) return res.status(400).json({
+    if (!customer) return res.status(400).json({
         success: false,
         message: 'Customer is not exist!'
     })
 
-    if(!food) return res.status(400).json({
+    if (!food) return res.status(400).json({
         success: false,
         message: 'Food is not exist!'
     })
@@ -348,10 +348,10 @@ const addFavFoods = asyncHandler(async (req, res) => {
         image: food.image,
     }
 
-     // Add customer Foods
+    // Add customer Foods
     const addedCustomerFood = await customerProfileModel.findOneAndUpdate(
         { user_id: _id, 'favorite_foods.food_id': { $ne: food._id } },
-        { $addToSet: { favorite_foods: favoriteFood }},
+        { $addToSet: { favorite_foods: favoriteFood } },
         { runValidators: true, returnDocument: 'after' }
     );
 
@@ -374,10 +374,10 @@ const addFavFoods = asyncHandler(async (req, res) => {
 const deleteFavFoods = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     const { food_id } = req.body;
-    
+
     // check if customer and Food is exist
     const customer = await customerProfileModel.findOne({ user_id: _id, "favorite_foods.food_id": food_id });
-    if(!customer) return res.status(400).json({
+    if (!customer) return res.status(400).json({
         success: false,
         message: 'Food is not exist!'
     })
