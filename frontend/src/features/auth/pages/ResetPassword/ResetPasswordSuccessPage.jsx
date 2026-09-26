@@ -1,7 +1,7 @@
 import styles from './ResetPasswordSuccessPage.module.css';
 import transparentBackground from '../../../../assets/images/forgot-password-success.svg';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import Background from '../../../../shared/components/ui/background';
 
 /** Renders the reset confirmation for users arriving from a successful reset. */
 function ResetPasswordSuccessPage() {
@@ -20,7 +20,7 @@ function ResetPasswordSuccessPage() {
             <div className={styles.container}>
 
                 {/* Background UI */}
-                <UIbackground />
+                <Background />
 
                 {/* Card Container */}
                 <div className={styles.card}>

@@ -2,9 +2,9 @@ import styles from './CustomerRegisterPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import right_banner from '../../../../assets/images/customer-register-right-banner.png';
 import { useState } from 'react';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import CustomerRegisterForm from '../../components/CustomerRegisterFrom/CustomerRegisterForm';
 import { customerRegistrationApi } from '../../api/authApi';
+import Background from '../../../../shared/components/ui/background';
 
 function CustomerRegister() {
 
@@ -72,7 +72,7 @@ function CustomerRegister() {
             <div className={styles.container}>
 
                 {/* background mini transparent images */}
-                <UIbackground />
+                <Background />
 
 
                 {/* Header Texts */}

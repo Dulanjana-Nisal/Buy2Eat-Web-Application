@@ -1,10 +1,10 @@
-import UIbackground from '../../components/UIBackground/UIbackground';
 import styles from './SellerRegisterPage.module.css';
 import right_banner from '../../../../assets/images/customer-register-right-banner.png';
 import SellerRegisterForm from '../../components/SellerRegisterForm/SellerRegisterForm';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sellerRegistrationApi } from '../../api/authApi';
+import Background from '../../../../shared/components/ui/background';
 
 function SellerRegisterPage() {
     // useStats hook for UI
@@ -90,7 +90,7 @@ function SellerRegisterPage() {
             <div className={styles.container}>
 
                 {/* background mini transparent images */}
-                <UIbackground />
+                <Background />
 
                 {/* Header Texts */}
                 <div className={styles.headerTexts}>

@@ -1,9 +1,9 @@
 import styles from './GoogleRegisterPage.module.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import UIbackground from '../../components/UIBackground/UIbackground';
 import { googleRegisterApi } from '../../api/authApi';
 import GoogleRegisterForm from '../../components/GoogleRegisterForm/GoogleRegisterForm';
+import Background from '../../../../shared/components/ui/background';
 
 function GoogleRegister() {
     // Navigation hooks
@@ -80,7 +80,7 @@ function GoogleRegister() {
             <div className={styles.container}>
 
                 {/* background mini transparent images */}
-                <UIbackground />
+                <Background />
 
                 {/* Main Form Card */}
                 <div className={styles.mainCard}>
