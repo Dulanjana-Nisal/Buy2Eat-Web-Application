@@ -1,11 +1,15 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { googleAuthApi } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
+import { UseAuth } from '../../../app/providers/AuthProvider';
 
 export const useGoogleAuth = () => {
 
     // react hooks
     const navigate = useNavigate();
+
+    // use custom hooks for storage user data
+    const { setUser } = UseAuth();
 
     const continueWithGoogle = useGoogleLogin({
         flow: 'auth-code',
@@ -29,6 +33,10 @@ export const useGoogleAuth = () => {
                 // if user successfully logged store user data in localstorage
                 if(googleAuth?.success){
                     localStorage.setItem('user', JSON.stringify(googleAuth.user));
+
+                    // store user data in to user state in UseAuth provider
+                    setUser(googleAuth.user);
+
                     console.log(googleAuth, 'User logged!');
                 }
 
