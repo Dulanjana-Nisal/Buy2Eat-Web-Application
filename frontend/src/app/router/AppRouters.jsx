@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import NotFoundPage from '../../shared/pages/NotFoundPage';
 import routerConfig from './routeConfig';
 import PublicRoute from './PublicRoute';
+import LandingPage from '../../features/home/pages/LandingPage';
 
 function AppRouters() {
     return (
@@ -35,6 +36,9 @@ function AppRouters() {
                     )
                 })
             }
+
+            {/* Home page */}
+            <Route path='/' element={<LandingPage />} />
 
             {/* Not fount route */}
             <Route path='*' element={<NotFoundPage />} />
