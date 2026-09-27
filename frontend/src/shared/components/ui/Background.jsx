@@ -1,8 +1,8 @@
-import styles from './UIbackground.module.css';
-import mini_leaf from '../../../../assets/images/mini_leaf_transparent.webp';
-import mini_tomato from '../../../../assets/images/tomato-transparent.webp';
+import styles from './Background.module.css';
+import mini_leaf from '../../../assets/images/mini_leaf_transparent.webp';
+import mini_tomato from '../../../assets/images/tomato-transparent.webp';
 
-function UIbackground() {
+function Background() {
     return (
         <>
             <img src={mini_leaf} alt="" className={styles.mini_leaf_1} />
@@ -13,4 +13,4 @@ function UIbackground() {
     )
 }
 
-export default UIbackground;
+export default Background;

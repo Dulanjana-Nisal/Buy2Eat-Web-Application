@@ -181,14 +181,46 @@
     }
 }
 
-@media (max-width: 450px) {
-    .otpDigitInput {
-        width: 40px;
-        height: 48px;
-        font-size: var(--font-size-sm);
+@media (max-width: 600px) {
+    .container {
+        padding: 24px 16px;
     }
 
-    .formPanel {
-        padding: 30px 20px;
+    .headerTexts {
+        margin-bottom: 24px;
+    }
+
+    .mainTitle {
+        font-size: var(--font-size-3xl);
+        line-height: 1.2;
+    }
+
+    .cursiveText {
+        font-size: var(--font-size-4xl);
+    }
+
+    .subTitle {
+        font-size: var(--font-size-sm);
+        max-width: 23rem;
+        line-height: 1.5;
+        margin: auto;
+    }
+
+    .mainCard {
+        margin-bottom: 24px;
+    }
+
+    .infoPanel {
+        padding: 28px 24px;
+    }
+}
+
+@media (max-width: 380px) {
+    .container {
+        padding: 20px 12px;
+    }
+
+    .infoPanel {
+        padding: 24px 18px;
     }
 }

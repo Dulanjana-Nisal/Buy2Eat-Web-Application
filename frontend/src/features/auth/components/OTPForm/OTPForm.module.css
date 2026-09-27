@@ -298,3 +298,75 @@
     text-decoration: none;
     cursor: pointer;
 }
+
+@media (max-width: 600px) {
+    .formPanel {
+        padding: 30px 24px;
+    }
+
+    .formHeader {
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .formHeader h2{
+        font-size: var(--font-size-md);
+    }
+
+    .emailIconWrap {
+        flex-shrink: 0;
+    }
+
+    .otpInputRow {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: clamp(6px, 2vw, 12px);
+        width: min(100%, 384px);
+        margin-inline: auto;
+    }
+
+    .otpDigitInput {
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        aspect-ratio: 52 / 58;
+    }
+
+    .countdownRow {
+        flex-wrap: wrap;
+        row-gap: 4px;
+        text-align: center;
+    }
+
+    .securityBadgeRow {
+        align-items: flex-start;
+    }
+
+    .submitBtn,
+    .backRegisterBtn {
+        min-height: 48px;
+        height: auto;
+        padding-block: 12px;
+    }
+}
+
+@media (max-width: 380px) {
+    .formPanel {
+        padding: 24px 16px;
+    }
+
+    .emailIconWrap {
+        width: 40px;
+        height: 40px;
+    }
+
+    .emailIconWrap svg {
+        width: 26px;
+        height: 26px;
+    }
+
+    .securityBadgeRow {
+        gap: 8px;
+        padding: 10px;
+    }
+}

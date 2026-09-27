@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import styles from './LoginForm.module.css';
-import small_meal_dish from '../../../../assets/images/small-meal-dish.webp';
-import small_mint_leaf from '../../../../assets/images/mint-leaf.png';
 import login_transparent from '../../../../assets/images/login_transparent.svg';
 import { Link } from 'react-router-dom'
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
@@ -106,8 +104,6 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails }) {
                 </div>
 
                 {/* Images Section */}
-                <img src={small_meal_dish} className={styles.subMealImage} alt="" />
-                <img src={small_mint_leaf} className={styles.subLeafImage} alt="" />
                 <img src={login_transparent} className={styles.login_transparent} alt="" />
             </div>
         </>

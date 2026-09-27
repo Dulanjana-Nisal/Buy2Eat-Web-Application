@@ -285,33 +285,6 @@
     text-decoration: none;
 }
 
-.subMealImage {
-    position: absolute;
-    bottom: -0;
-    left: 0;
-    transform: translate(-35%, 40%);
-    width: 150px;
-    height: 150px;
-    object-fit: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    opacity: 0.85;
-}
-
-.subLeafImage {
-    position: absolute;
-    top: -2%;
-    left: -20%;
-    transform: translate(45%, -45%);
-    height: 150px;
-    object-fit: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    opacity: 0.85;
-}
-
 .login_transparent {
     position: absolute;
     height: 350px;
@@ -319,4 +292,11 @@
     right: -20%;
     opacity: 0.3;
     z-index: -1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    .leftPanel{
+        padding: 3rem 1rem;
+    }
 }
