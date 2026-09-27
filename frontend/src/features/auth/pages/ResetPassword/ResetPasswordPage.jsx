@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { resetPasswordApi, verifyResetPasswordApi } from '../../api/authApi';
 import ResetPasswordForm from '../../components/ResetPasswordForm/ResetPasswordForm';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 // calculate strength of password
 const getPasswordStrength = (password) => {

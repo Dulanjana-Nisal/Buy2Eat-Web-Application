@@ -4,7 +4,7 @@ import customer_card from '../../../../assets/images/customer-card.svg';
 import seller_card from '../../../../assets/images/seller-card.svg';
 import customer_register from '../../../../assets/images/customer-register-background.jpg';
 import seller_register from '../../../../assets/images/seller-register-background.jpg';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 function RegisterPage() {
 

@@ -4,7 +4,7 @@ import right_banner from '../../../../assets/images/customer-register-right-bann
 import { useState } from 'react';
 import CustomerRegisterForm from '../../components/CustomerRegisterFrom/CustomerRegisterForm';
 import { customerRegistrationApi } from '../../api/authApi';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 function CustomerRegister() {
 

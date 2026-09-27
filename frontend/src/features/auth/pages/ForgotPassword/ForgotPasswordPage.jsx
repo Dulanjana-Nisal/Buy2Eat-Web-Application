@@ -3,7 +3,7 @@ import styles from './ForgotPasswordPage.module.css';
 import { useEffect, useState } from 'react';
 import { forgotPasswordApi } from '../../api/authApi';
 import ForgotPasswordForm from '../../components/ForgotPasswordForm/ForgotPasswordForm';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 
 // Main variables for cooldown calculation

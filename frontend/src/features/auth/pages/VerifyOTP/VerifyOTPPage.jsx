@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import right_banner from '../../../../assets/images/customer-register-right-banner.png';
 import OTPForm from '../../components/OTPForm/OTPForm';
 import { resendOTPApi, submitOTPApi } from '../../api/authApi';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 function VerifyOTPPage() {
 

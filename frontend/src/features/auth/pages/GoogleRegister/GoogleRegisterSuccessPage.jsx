@@ -2,7 +2,7 @@ import styles from './GoogleRegisterSuccessPage.module.css';
 import transparentBackground from '../../../../assets/images/forgot-password-success.svg';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 function GoogleRegisterSuccessPage() {
 

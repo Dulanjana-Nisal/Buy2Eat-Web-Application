@@ -4,7 +4,7 @@ import SellerRegisterForm from '../../components/SellerRegisterForm/SellerRegist
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sellerRegistrationApi } from '../../api/authApi';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 function SellerRegisterPage() {
     // useStats hook for UI

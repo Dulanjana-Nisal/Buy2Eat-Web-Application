@@ -4,7 +4,7 @@ import { useState } from 'react';
 import LoginForm from '../../components/LoginForm/LoginForm';
 import { useNavigate } from 'react-router-dom';
 import { userLoginApi } from '../../api/authApi';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 /** Manages login form state and submits user credentials. */
 function LoginPage() {

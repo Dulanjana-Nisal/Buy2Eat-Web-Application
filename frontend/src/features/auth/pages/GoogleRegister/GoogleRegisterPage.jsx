@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { googleRegisterApi } from '../../api/authApi';
 import GoogleRegisterForm from '../../components/GoogleRegisterForm/GoogleRegisterForm';
-import Background from '../../../../shared/components/ui/background';
+import Background from '../../../../shared/components/ui/Background';
 
 function GoogleRegister() {
     // Navigation hooks

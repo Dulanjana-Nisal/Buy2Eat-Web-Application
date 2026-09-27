@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import notFoundArtwork from '../../assets/images/404-background.png';
 import styles from './NotFoundPage.module.css';
-import Background from '../components/ui/background';
+import Background from '../components/ui/Background';
 
 function NotFoundPage() {
     const navigate = useNavigate();
