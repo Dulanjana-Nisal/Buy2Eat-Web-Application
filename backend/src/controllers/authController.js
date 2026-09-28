@@ -61,7 +61,17 @@ const authLogin = asyncHandler(async (req, res) => {
 	if (!email || !password) {
 		return res.status(400).json({
 			success: false,
-			message: 'Please provide email and password',
+			status: 400,
+			code: "EMPTY_INPUT_FIELD",
+			message: 'Please provide email and password!',
+			timestamp: new Date().toISOString(),
+			path: "/api/v1/buy2eat/auth/login",
+			details: [
+				{
+					fields: ["email", "password"],
+					issue: "Email and Password not be undefined or empty or null"
+				}
+			]
 		});
 	}
 
@@ -70,6 +80,7 @@ const authLogin = asyncHandler(async (req, res) => {
 	if (!user) {
 		return res.status(400).json({
 			success: false,
+			status: 400,
 			message: 'User is not registered!',
 		});
 	}

@@ -1,4 +1,5 @@
 {
+  "success": false,
   "status": 400,
   "code": "INVALID_EMAIL_FORMAT",
   "message": "The email address entered is not valid.",
