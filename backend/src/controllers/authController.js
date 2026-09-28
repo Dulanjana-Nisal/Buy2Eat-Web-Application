@@ -15,6 +15,7 @@ const mongoose = require('mongoose');
 const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants/index');
+const AppError = require('../utils/AppError');
 
 // cookie options
 const cookieOptions = {
@@ -60,12 +61,13 @@ const authLogin = asyncHandler(async (req, res, next) => {
 
 	// check email and password is entered
 	if (!email || !password) {
-		const error = new Error("Email and password required!")
-		error.statusCode = StatusCode.BAD_REQUEST
-		error.code = ErrorCode.VALIDATION_FIELD_REQUIRED
-		error.fields = ['email','password'] 
-		error.issue = "email and password field not be empty"
-		return next(error);
+		throw new AppError( 
+			StatusCode.BAD_REQUEST, 
+			ErrorCode.VALIDATION_FIELD_REQUIRED, 
+			"Email and Password required!",
+			["email","password"], 
+			"email and password not be empty"
+		)
 	}
 
 	// check if user exist
