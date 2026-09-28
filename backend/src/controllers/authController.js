@@ -61,40 +61,62 @@ const authLogin = asyncHandler(async (req, res, next) => {
 
 	// check email and password is entered
 	if (!email || !password) {
-		throw new AppError( 
-			StatusCode.BAD_REQUEST, 
-			ErrorCode.VALIDATION_FIELD_REQUIRED, 
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Email and Password required!",
-			["email","password"], 
+			["email", "password"],
 			"email and password not be empty"
 		)
 	}
 
+	// normalized email
+	const normalizedEmail = email.trim().toLowerCase();
+
 	// check if user exist
-	const user = await Users.findOne({ email: email.toLowerCase() });
+	const user = await Users.findOne({ email: normalizedEmail });
 	if (!user) {
-		return res.status(400).json({
-			success: false,
-			status: 400,
-			message: 'User is not registered!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"Email is not registered",
+			["email"],
+			"user not found in database"
+		);
 	}
 
 	// check password have more that 6 characters
 	if (password.length < 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password must have at least 6 characters!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"Password must have at least 6 characters",
+			["password"],
+			"password not have characters more that min length"
+		);
+	}
+
+	// check password is exist on database
+	if (!user.password) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"Password incorrect",
+			["password"],
+			"wrong password or user logged in with google account"
+		);
 	}
 
 	// check password
 	const checkPass = await bcrypt.compare(password, user.password);
 	if (!checkPass) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password is incorrect!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"Password incorrect",
+			["password"],
+			"wrong password or user logged in with google account"
+		);
 	}
 
 	// create jwt tokens and save it into cookie
@@ -102,7 +124,7 @@ const authLogin = asyncHandler(async (req, res, next) => {
 	setAuthCookies(res, accessToken, refreshToken);
 
 	// send response
-	return res.status(200).json({
+	return res.status(StatusCode.OK).json({
 		success: true,
 		message: 'User logged in successfully!',
 		user: {
