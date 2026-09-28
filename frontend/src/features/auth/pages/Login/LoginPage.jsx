@@ -12,6 +12,7 @@ function LoginPage() {
     // useStates hooks
     const [loading, setLoading] = useState(false);
     const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
+    const [errorMsg, setErrorMsg] = useState(null);
 
     // Navigation hook
     const navigate = useNavigate();
@@ -32,7 +33,7 @@ function LoginPage() {
             })
         }
         catch (err) {
-            console.log(err?.response?.data);
+            setErrorMsg(err?.response?.data.message)
         }
         finally {
             setLoading(false);
@@ -76,6 +77,7 @@ function LoginPage() {
                         loginDetails={loginDetails}
                         userLogin={userLogin}
                         setLoginDetails={setLoginDetails}
+                        errorMsg={errorMsg}
                     />
 
                     {/* Right Panel - Image & Widgets */}
