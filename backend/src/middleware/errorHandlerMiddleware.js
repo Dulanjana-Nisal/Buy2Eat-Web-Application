@@ -1,9 +1,9 @@
-const { StatusCode, ErrorCode } = require('../constants');
+const { StatusCode, ErrorCode } = require('../constants/index');
 
 const errorHandlerMiddleware = (err, req, res, next) => {
 
 	// if not return in err, initialized default errs
-	const statusCode = err.statusCode || StatusCode.INTERNAL_SERVER_ERROR;
+	const statusCode = err.statusCode || StatusCode.BAD_REQUEST;
 	const code = err.code || ErrorCode.INTERNAL_SERVER_ERROR;
 	const message = err.message || "Unexpected error happened!";
 
@@ -15,11 +15,11 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 		path: req.originalUrl,
 		details: [
 			{
-				fields: err.details.fields || "fields are missing",
-				issue: err.details.issue || "Something wrong",
+				fields: err.fields || "fields are missing",
+				issue: err.issue || "Something wrong",
 			}
 		]
 	});
 };
 
-module.exports = errorHandlerMiddleware;
+module.exports = errorHandlerMiddleware; 

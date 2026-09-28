@@ -14,6 +14,7 @@ const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
 const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
+const { StatusCode, ErrorCode } = require('../constants/index');
 
 // cookie options
 const cookieOptions = {
@@ -54,25 +55,17 @@ const setAuthCookies = (res, accessToken, refreshToken) => {
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // login auth for all role
-const authLogin = asyncHandler(async (req, res) => {
+const authLogin = asyncHandler(async (req, res, next) => {
 	const { email, password } = req.body;
 
 	// check email and password is entered
 	if (!email || !password) {
-		return res.status(400).json({
-			success: false,
-			status: 400,
-			code: "EMPTY_INPUT_FIELD",
-			message: 'Please provide email and password!',
-			timestamp: new Date().toISOString(),
-			path: "/api/v1/buy2eat/auth/login",
-			details: [
-				{
-					fields: ["email", "password"],
-					issue: "Email and Password not be undefined or empty or null"
-				}
-			]
-		});
+		const error = new Error("Email and password required!")
+		error.statusCode = StatusCode.BAD_REQUEST
+		error.code = ErrorCode.VALIDATION_FIELD_REQUIRED
+		error.fields = ['email','password'] 
+		error.issue = "email and password field not be empty"
+		return next(error);
 	}
 
 	// check if user exist
