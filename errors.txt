@@ -1,0 +1,13 @@
+{
+  "status": 400,
+  "code": "INVALID_EMAIL_FORMAT",
+  "message": "The email address entered is not valid.",
+  "timestamp": "2026-09-28T18:30:00Z",
+  "path": "/api/v1/users",
+  "details": [
+    {
+      "field": "email",
+      "issue": "Must be a valid email format."
+    }
+  ]
+}
