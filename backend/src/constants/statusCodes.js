@@ -2,7 +2,7 @@
  * Global application status codes for consistent backend responses.
  * These codes are machine-readable and used by the frontend for UI logic and translations.
  */
-const HttpStatus = Object.freeze({
+const StatusCode = Object.freeze({
   OK: 200,
   CREATED: 201,
   NO_CONTENT: 204,
@@ -19,4 +19,4 @@ const HttpStatus = Object.freeze({
   GATEWAY_TIMEOUT: 504
 });
 
-module.exports = { HttpStatus };
+module.exports = { StatusCode };

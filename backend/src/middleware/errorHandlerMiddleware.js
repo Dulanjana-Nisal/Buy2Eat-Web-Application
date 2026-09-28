@@ -1,14 +1,16 @@
-const ErrorCode = require('../constants/errorCodes');
+const { StatusCode, ErrorCode } = require('../constants');
 
 const errorHandlerMiddleware = (err, req, res, next) => {
-	const statusCode = err.statusCode || 500;
 
+	// if not return in err, initialized default errs
+	const statusCode = err.statusCode || StatusCode.INTERNAL_SERVER_ERROR;
 	const code = err.code || ErrorCode.INTERNAL_SERVER_ERROR;
+	const message = err.message || "Unexpected error happened!";
 
 	res.status(statusCode).json({
 		success: false,
 		code: code,
-		message: err.message || 'Internal server error',
+		message: message,
 		timestamp: new Date().toISOString(),
 		path: req.originalUrl,
 		details: [
