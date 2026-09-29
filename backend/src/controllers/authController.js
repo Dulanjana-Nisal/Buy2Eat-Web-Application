@@ -1105,7 +1105,7 @@ const userLogout = asyncHandler(async (req, res) => {
 	})
 
 	// send response
-	res.status(200).json({
+	res.status(StatusCode.OK).json({
 		success: true,
 		message: 'User successfully logout...'
 	})
