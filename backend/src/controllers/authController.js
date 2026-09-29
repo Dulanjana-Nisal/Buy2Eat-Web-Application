@@ -1466,7 +1466,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
 				"User not Authorized!",
 				["user"],
-				"cant find decoded value in user model"
+				"cant find user with decoded payload."
 			);
 		}
 
