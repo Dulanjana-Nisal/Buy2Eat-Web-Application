@@ -601,7 +601,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	}
 
 	// if otp is failed to send
-	if (!sendOTP.success) {
+	if (!sendOTP?.success) {
 		throw new AppError(
 			StatusCode.UNPROCESSABLE_ENTITY,
 			ErrorCode.EMAIL_DELIVERY_REJECTED,
