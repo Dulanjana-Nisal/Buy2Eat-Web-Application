@@ -478,8 +478,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		// send response
 		if (!sendOTP?.success) {
 			throw new AppError(
-				StatusCode.BAD_REQUEST,
-				ErrorCode.RESOURCE_ALREADY_EXISTS,
+				StatusCode.UNPROCESSABLE_ENTITY,
+				ErrorCode.EMAIL_DELIVERY_REJECTED,
 				"Send OTP Failed!",
 				["sendOTP"],
 				"failed to send otp in otp helper function"
@@ -531,28 +531,37 @@ const registerCustomers = asyncHandler(async (req, res) => {
 
 	// check all required fields are filled
 	if (!email || !password || !first_name || !last_name || !phone_number) {
-		return res.status(400).json({
-			success: false,
-			message: 'Please provide email, password, first name, last name and phone number',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please provide email, password, first name, last name and phone number!",
+			["email", "password", "first_name", "last_name", "phone_number"],
+			"email, password, first_name, last_name, phone_number values are empty"
+		);
 	}
 
 	// check user is exist
 	const normalizedEmail = email.trim().toLowerCase();
 	const existingUser = await Users.findOne({ email: normalizedEmail });
 	if (existingUser) {
-		return res.status(400).json({
-			success: false,
-			message: 'Email is already registered!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_ALREADY_EXISTS,
+			"Email is already registered!",
+			["existingUser"],
+			"email is already exist on user model"
+		);
 	}
 
 	// check password have more that 6 characters
 	if (password.length < 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password must have at least 6 characters!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
+			"Password must have more that 6 Numbers!",
+			["password"],
+			"password filed have less that 6 numbers"
+		);
 	}
 
 	// hash password using bcrypt
@@ -582,20 +591,27 @@ const registerCustomers = asyncHandler(async (req, res) => {
 
 	// send response
 	if (!sendOTP) {
-		return res.status(400).json({
-			success: false,
-			message: 'Send OTP Failed!'
-		})
+		throw new AppError(
+			StatusCode.UNPROCESSABLE_ENTITY,
+			ErrorCode.EMAIL_DELIVERY_REJECTED,
+			"Send OTP Failed!",
+			["sendOTP"],
+			"failed to send otp in otp helper function"
+		);
 	}
 
 	// send response
 	if (!sendOTP.success) {
-		return res.status(400).json({
-			success: sendOTP.success,
-			message: sendOTP.message,
-		})
+		throw new AppError(
+			StatusCode.UNPROCESSABLE_ENTITY,
+			ErrorCode.EMAIL_DELIVERY_REJECTED,
+			"Send OTP Failed!",
+			["sendOTP"],
+			"failed to send otp in otp helper function"
+		);
 	}
-	return res.status(200).json({
+
+	return res.status(StatusCode.OK).json({
 		success: sendOTP.success,
 		message: sendOTP.message,
 		verification_id: sendOTP.verification_id,
