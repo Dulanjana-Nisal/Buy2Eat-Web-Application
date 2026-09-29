@@ -662,7 +662,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	if (password.length < 6) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
-			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
 			"Password must have more that 6 Numbers!",
 			["password"],
 			"password filed have less that 6 numbers"
