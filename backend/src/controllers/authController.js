@@ -67,7 +67,7 @@ const authLogin = asyncHandler(async (req, res, next) => {
 			"Email and Password required!",
 			["email", "password"],
 			"email and password not be empty"
-		)
+		);
 	}
 
 	// normalized email
@@ -1403,6 +1403,17 @@ const resetPassword = asyncHandler(async (req, res) => {
 const verifyResetPassword = asyncHandler(async (req, res) => {
 	const { token } = req.params;
 
+	// check if token value exist
+	if(!token){
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Token value is empty!",
+			["token"],
+			"token value is empty."
+		);
+	}
+
 	// hashed token
 	const hashResetToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -1413,15 +1424,18 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 			expiredAt: { $gt: new Date() },
 		}
 	)
-
 	if (!resetUser) {
-		return res.status(400).json({
-			success: false,
-			message: 'Invalid token or Token is expired!'
-		})
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			"Invalid token or Token is expired!",
+			["resetUser"],
+			"resetPasswordToken is not match or token is expired in resetPassword model"
+		);
 	}
 
-	return res.status(200).json({
+	// send response
+	return res.status(StatusCode.OK).json({
 		success: true,
 		message: 'Token is ok'
 	})
