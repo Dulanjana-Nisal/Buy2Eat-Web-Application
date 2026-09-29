@@ -339,7 +339,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	setAuthCookies(res, accessToken, refreshToken);
 
 	// send response
-	return res.status(200).json({
+	return res.status(StatusCode.OK).json({
 		success: true,
 		isRegistered: true,
 		message: 'User logged in successfully!',
@@ -494,7 +494,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 		await session.commitTransaction(); // commit transaction
 
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: sendOTP.success,
 			message: sendOTP.message,
 			verification_id: sendOTP.verification_id,
@@ -715,7 +715,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	}
 
 	// send response
-	return res.status(200).json({
+	return res.status(StatusCode.OK).json({
 		success: sendOTP.success,
 		message: sendOTP.message,
 		verification_id: sendOTP.verification_id,
@@ -1130,7 +1130,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 	const normalizedEmail = email.trim().toLowerCase();
 	const user = await Users.findOne({ email: normalizedEmail });
 	if (!user) {
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: true,
 			message: "If an account exists with this email, a password reset link will be sent. Check your email."
 		})
@@ -1404,7 +1404,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 	const { token } = req.params;
 
 	// check if token value exist
-	if(!token){
+	if (!token) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
@@ -1447,10 +1447,13 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 	// check refresh token is exist
 	if (!incomingRefreshToken) {
-		return res.status(401).json({
-			success: false,
-			message: 'Refresh token is missing.',
-		});
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_MISSING_TOKEN,
+			"Refresh token is missing.",
+			["incomingRefreshToken"],
+			"incomingRefreshToken value is empty or undefined."
+		);
 	}
 
 	try {
@@ -1458,17 +1461,20 @@ const refreshToken = asyncHandler(async (req, res) => {
 		const user = await Users.findById(decoded._id);
 
 		if (!user) {
-			return res.status(401).json({
-				success: false,
-				message: 'User not found.',
-			});
+			throw new AppError(
+				StatusCode.UNAUTHORIZED,
+				ErrorCode.AUTH_INVALID_CREDENTIALS,
+				"User not Authorized!",
+				["user"],
+				"cant find decoded value in user model"
+			);
 		}
 
 		// generate new token
 		const { accessToken: newAccessToken, refreshToken: newRefreshToken } = createTokenPair(user);
 		setAuthCookies(res, newAccessToken, newRefreshToken);
 
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: true,
 			message: 'Tokens refreshed successfully!',
 			newAccessToken: newAccessToken,
@@ -1476,10 +1482,13 @@ const refreshToken = asyncHandler(async (req, res) => {
 		});
 
 	} catch (error) {
-		return res.status(401).json({
-			success: false,
-			message: 'Refresh token expired or invalid.',
-		});
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_REVOKED_TOKEN,
+			"Invalid Refresh token or Token was expired!.",
+			[],
+			"error while generate refresh token process."
+		);
 	}
 });
 
