@@ -140,10 +140,15 @@ const googleAuth = asyncHandler(async (req, res) => {
 	const { code } = req.body;
 
 	// check google code is exist
-	if (!code) return res.status(400).json({
-		success: false,
-		message: 'Invalid Google authorization code!'
-	});
+	if (!code) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Google authorization code is required!",
+			["code"],
+			"google authorization code is empty"
+		);
+	}
 
 	// convert authorization code in to google token
 	let tokenResponse;
@@ -173,10 +178,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 	const { id_token } = tokenResponse.data;
 
 	if (!id_token) {
-		return res.status(400).json({
-			success: false,
-			message: 'Google ID token was not received!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Google ID token was not received!",
+			["id_token"],
+			"google id value is missing"
+		);
 	}
 
 	// token verification
@@ -189,10 +197,15 @@ const googleAuth = asyncHandler(async (req, res) => {
 	const { email, email_verified, sub, picture, given_name, family_name, name } = ticket.getPayload();
 
 	// check email is verified
-	if (!email_verified) return res.status(400).json({
-		success: false,
-		message: 'Email is not verified in Google!'
-	});
+	if (!email_verified) {
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_MISSING_TOKEN,
+			"Email is not verified in Google!",
+			["email_verified"],
+			"google authorization code is empty"
+		);
+	}
 
 	// check user already exist
 	const user = await Users.findOne({ email });
@@ -233,7 +246,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 			});
 
 			if (!googleRegisterUser) {
-				throw new Error('Error while google registration!');
+				throw new AppError(
+					StatusCode.CONFLICT,
+					ErrorCode.WRITE_CONFLICT_ERROR,
+					"Error while google registration!",
+					["googleRegisterUser"],
+					"can complete store user data in database"
+				);
 			}
 		}
 
@@ -248,10 +267,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 	// update user
 	if (user.google_id && user.google_id !== sub) {
-		return res.status(400).json({
-			success: false,
-			message: 'Google account linked to another account!'
-		});
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_MISSING_TOKEN,
+			"Google account linked to another account!",
+			["google_id", "sub"],
+			"can find google_id or id is not match with database data"
+		);
 	}
 
 	// link account if not link to another account
@@ -302,10 +324,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 			}
 
 			// send response
-			return res.status(500).json({
-				success: false,
-				message: 'Error while update profile!'
-			});
+			throw new AppError(
+				StatusCode.CONFLICT,
+				ErrorCode.WRITE_CONFLICT_ERROR,
+				"Error while update profile!",
+				["CustomerProfile", "SellerProfile"],
+				"catch error while updating seller and customer profiles"
+			);
 		}
 	}
 
