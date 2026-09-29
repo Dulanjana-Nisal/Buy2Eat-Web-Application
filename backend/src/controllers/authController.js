@@ -358,34 +358,46 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 	// check if registerToken is exist
 	if (!registerToken) {
-		return res.status(400).json({
-			success: false,
-			message: 'Register token is missing!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Google registration failed!",
+			["registerToken"],
+			"registerToken value is empty"
+		);
 	}
 
 	// check if role and phone number is provided
 	if (!role || !phone_number) {
-		return res.status(400).json({
-			success: false,
-			message: 'Please provide role and phone number!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please add your role and phone number!",
+			["role", "phone_number"],
+			"role, phone_number values are empty"
+		);
 	}
 
 	// validating phone number
 	if (phone_number.length < 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Phone number must have more that 6 numbers'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
+			"Phone number must have more that 6 Numbers!",
+			["phone_number"],
+			"phone_number filed have less that 6 numbers"
+		);
 	}
 
 	// check rolls are right
 	if (!['customer', 'seller'].includes(role)) {
-		return res.status(400).json({
-			success: false,
-			message: 'Invalid role selection!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_INVALID_SELECTION,
+			"Please select valid role!",
+			["role"],
+			"invalid role selection"
+		);
 	}
 
 	// create hash token for verification
@@ -402,19 +414,25 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	);
 
 	if (!googleRegisteredUser) {
-		return res.status(400).json({
-			success: false,
-			message: 'Register user not found!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"Register user not found!",
+			["googleRegisteredUser"],
+			"cant find user data in googleRegister model"
+		);
 	}
 
 	// check if user exist again
 	const existUserAgain = await Users.findOne({ email: googleRegisteredUser.email });
 	if (existUserAgain) {
-		return res.status(400).json({
-			success: false,
-			message: 'User already exist!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_ALREADY_EXISTS,
+			"User already exist!",
+			["existUserAgain"],
+			"already have user data in user model"
+		);
 	}
 
 	// ===== Start Transaction =====
@@ -459,10 +477,13 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 		// send response
 		if (!sendOTP?.success) {
-			return res.status(400).json({
-				success: false,
-				message: sendOTP?.message || "Send OTP Failed!"
-			})
+			throw new AppError(
+				StatusCode.BAD_REQUEST,
+				ErrorCode.RESOURCE_ALREADY_EXISTS,
+				"Send OTP Failed!",
+				["sendOTP"],
+				"failed to send otp in otp helper function"
+			);
 		}
 
 		// if all things are success delete google Register user
