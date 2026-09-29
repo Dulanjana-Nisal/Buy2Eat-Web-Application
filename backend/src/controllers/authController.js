@@ -730,19 +730,19 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	const { otp, verification_id } = req.body;
 
 	// check verification_id and otp are entered
-	if (!verification_id || !otp){
+	if (!verification_id || !otp) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Your verification ID and OTP are empty!",
-			["verification_id","otp"],
+			["verification_id", "otp"],
 			"Verification_id and otp is values are empty"
 		);
 	}
 
 	// find otp by verification ID
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id })
-	if (!otpUser){
+	if (!otpUser) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
@@ -753,7 +753,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	}
 
 	// check if otp is exist
-	if (!otpUser.hash_otp){
+	if (!otpUser.hash_otp) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
@@ -802,8 +802,8 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 	if (!updatedOtpUser) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.WRITE_CONFLICT_ERROR,
+			StatusCode.TOO_MANY_REQUESTS,
+			ErrorCode.RATE_LIMIT_EXCEEDED,
 			"Maximum attempts exceeded!. Please try again later.",
 			["updatedOtpUser"],
 			"attempts count is end."
@@ -812,7 +812,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 	// compare otp with user inputs
 	const compOtp = await bcrypt.compare(otp, otpUser.hash_otp)
-	if (!compOtp){
+	if (!compOtp) {
 		throw new AppError(
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
@@ -895,21 +895,36 @@ const verifyOtp = asyncHandler(async (req, res) => {
 const resendOtp = asyncHandler(async (req, res) => {
 	const { verification_id } = req.body;
 
-	if (!verification_id) return res.status(400).json({
-		success: false,
-		message: 'Verification_id is required!'
-	})
+	if (!verification_id) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Verification ID value is empty!",
+			["verification_id"],
+			"verification_id value is empty"
+		);
+	}
 
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
-	if (!otpUser) return res.status(400).json({
-		success: false,
-		message: 'Invalid verification_id'
-	});
+	if (!otpUser) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"Invalid verification ID!",
+			["otpUser"],
+			"otpUser is not found with verification_id on registration otp model"
+		);
+	}
 
-	if (otpUser.session_expiresAt <= new Date()) return res.status(400).json({
-		success: false,
-		message: 'OTP record was delete, pleas re register to get new OTP!'
-	});
+	if (otpUser.session_expiresAt <= new Date()) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			"OTP session is expired!. Please re register again to get new OTP.",
+			["otpUser"],
+			"otp session was expired or otp record ws delete on database."
+		);
+	}
 
 	// set cooldown time 
 	const cooldownPeriod = 60 * 1000;
@@ -960,25 +975,34 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 		// check cooldown time is competed 
 		if (latestOtpUser?.lastResendAt && (now - latestOtpUser.lastResendAt.getTime()) < cooldownPeriod) {
-			return res.status(429).json({
-				success: false,
-				message: 'You can only resend OTP once per minute. Please wait before trying again.',
-			});
+			throw new AppError(
+				StatusCode.TOO_MANY_REQUESTS,
+				ErrorCode.RATE_LIMIT_EXCEEDED,
+				"You can only resend OTP once per minute. Please wait before trying again.",
+				["latestOtpUser"],
+				"cool down time is not over yet (60 seconds)"
+			);
 		}
 
 		// check resend count is exceeded
 		if (latestOtpUser?.resendCount >= 4) {
-			return res.status(429).json({
-				success: false,
-				message: 'You have reached the maximum number of OTP resend attempts. Please try again later.',
-			});
+			throw new AppError(
+				StatusCode.TOO_MANY_REQUESTS,
+				ErrorCode.RATE_LIMIT_EXCEEDED,
+				"You have reached the maximum number of OTP resend attempts. Please try again later.",
+				["latestOtpUser"],
+				"resendCont is over"
+			);
 		}
 
-		// send response
-		return res.status(429).json({
-			success: false,
-			message: 'OTP resend is temporarily unavailable. Please try again in a moment.',
-		});
+		// send Error response
+		throw new AppError(
+			StatusCode.TOO_MANY_REQUESTS,
+			ErrorCode.EXTERNAL_SERVICE_UNAVAILABLE,
+			"OTP resend is temporarily unavailable. Please try again in a moment.",
+			[],
+			"something wrong while resend otp."
+		);
 	}
 
 	try {
@@ -1007,7 +1031,13 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 		// check if failed to get updateNewResentUser
 		if (!updateNewResentUser) {
-			throw new Error("Failed to update database while sending email!")
+			throw new AppError(
+				StatusCode.CONFLICT,
+				ErrorCode.WRITE_CONFLICT_ERROR,
+				"Failed to update database while sending email!. Please try again.",
+				["updateNewResentUser"],
+				"something happened while update data or validate data in registration otp mode;"
+			);
 		};
 
 		// resend otp via email
@@ -1028,7 +1058,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		)
 
 		// send response
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: true,
 			message: 'OTP resend successfully...',
 			expiresAt: updateNewResentUser.expiresAt,
