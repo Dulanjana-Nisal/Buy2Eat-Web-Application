@@ -1291,17 +1291,25 @@ const resetPassword = asyncHandler(async (req, res) => {
 	const { token, newPassword } = req.body
 
 	// check token and newPassword is entered
-	if (!token || !newPassword) return res.status(400).json({
-		success: false,
-		message: "Please provide token and new password!"
-	});
+	if (!token || !newPassword) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please provide token and New password values!",
+			["token", "newPassword"],
+			"token and newPassword values are empty."
+		);
+	}
 
 	// check password have enough characters
 	if (newPassword.length <= 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password should be more than 6 characters!'
-		})
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			"Password must have more that 6 Numbers!",
+			["newPassword"],
+			"newPassword filed have less that 6 numbers"
+		);
 	}
 
 	// === Start Transaction ===
@@ -1325,10 +1333,13 @@ const resetPassword = asyncHandler(async (req, res) => {
 			// Abort transaction
 			await session.abortTransaction();
 
-			return res.status(400).json({
-				success: false,
-				message: "Your reset password link is expired or Invalid token"
-			});
+			throw new AppError(
+				StatusCode.BAD_REQUEST,
+				ErrorCode.VALIDATION_EXPIRED_VALUE,
+				"Your reset password link is expired or Invalid token!",
+				["resetUser"],
+				"resetPasswordToken is not match or token is expired in resetPassword model."
+			);
 		}
 
 		// hash password using bcrypt
@@ -1352,10 +1363,13 @@ const resetPassword = asyncHandler(async (req, res) => {
 			// Abort transaction
 			await session.abortTransaction();
 
-			return res.status(400).json({
-				success: false,
-				message: "User dose not exist"
-			});
+			throw new AppError(
+				StatusCode.BAD_REQUEST,
+				ErrorCode.RESOURCE_NOT_FOUND,
+				"User dose not exist!",
+				["updateUser"],
+				"cant find user with user id in user model"
+			);
 		}
 
 		// delete forgot password data from database
@@ -1368,7 +1382,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 		await session.commitTransaction();
 
 		// send success response
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: true,
 			message: 'Password Reset successfully'
 		})
