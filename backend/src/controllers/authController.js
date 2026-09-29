@@ -730,39 +730,60 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	const { otp, verification_id } = req.body;
 
 	// check verification_id and otp are entered
-	if (!verification_id || !otp) return res.status(400).json({
-		success: false,
-		message: 'Verification_id and otp is required!'
-	})
+	if (!verification_id || !otp){
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Your verification ID and OTP are empty!",
+			["verification_id","otp"],
+			"Verification_id and otp is values are empty"
+		);
+	}
 
 	// find otp by verification ID
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id })
-	if (!otpUser) return res.status(400).json({
-		success: false,
-		message: 'OTP is not exist!'
-	})
+	if (!otpUser){
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"OTP is not exist!",
+			["otpUser"],
+			"cant find otp in registration otp model"
+		);
+	}
 
 	// check if otp is exist
-	if (!otpUser.hash_otp) return res.status(401).json({
-		success: false,
-		message: 'OTP is dose not exist!'
-	})
+	if (!otpUser.hash_otp){
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"OTP is dose not exist!",
+			["otpUser"],
+			"cant find hash_otp in registration otp model"
+		);
+	}
 
 	// check if OTP is expired
 	if (otpUser.expiresAt <= new Date()) {
-		return res.status(400).json({
-			success: false,
-			message: 'OTP is Expired!, Please request a new OTP'
-		})
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			"OTP is Expired!, Please request a new OTP",
+			["otpUser"],
+			"generated otp value is expired."
+		);
 	}
 
 	// validate OTP with correct format
 	const normalizedOtp = String(otp).trim();
 	if (!/^\d*$/.test(normalizedOtp)) {
-		return res.status(400).json({
-			success: false,
-			message: 'OTP in wrong format!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_INVALID_FORMAT,
+			"OTP in wrong format!, Please Enter numbers for OTP.",
+			["normalizedOtp"],
+			"otp validation check failed."
+		);
 	}
 
 	// check is attempt ok
@@ -780,25 +801,36 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	);
 
 	if (!updatedOtpUser) {
-		return res.status(429).json({
-			success: false,
-			message: "Maximum attempts exceeded!"
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.WRITE_CONFLICT_ERROR,
+			"Maximum attempts exceeded!. Please try again later.",
+			["updatedOtpUser"],
+			"attempts count is end."
+		);
 	}
 
 	// compare otp with user inputs
 	const compOtp = await bcrypt.compare(otp, otpUser.hash_otp)
-	if (!compOtp) return res.status(400).json({
-		success: false,
-		message: 'Invalid OTP'
-	})
+	if (!compOtp){
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			"Invalid OTP!. Please try again.",
+			["compOtp"],
+			"otp is not match for database value"
+		);
+	}
 
 	// check role is correct
 	if (!['customer', 'seller'].includes(otpUser.role)) {
-		return res.status(400).json({
-			success: false,
-			message: 'Invalid role selection!'
-		})
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_INVALID_SELECTION,
+			"Please select valid role!",
+			["role"],
+			"invalid role selection"
+		);
 	}
 
 	// == Start Transaction ==
