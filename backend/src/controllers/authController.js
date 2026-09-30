@@ -112,10 +112,10 @@ const authLogin = asyncHandler(async (req, res) => {
 	if (!checkPass) {
 		throw new AppError(
 			StatusCode.UNAUTHORIZED,
-			+			ErrorCode.AUTH_INVALID_CREDENTIALS,
-			+			"Invalid email or password",
-			+["email", "password"],
-			+			"invalid credentials"
+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			"Invalid email or password",
+			["email", "password"],
+			"invalid credentials"
 		);
 	}
 
