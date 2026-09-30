@@ -5,14 +5,13 @@ import { Link } from 'react-router-dom'
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
-function LoginForm({ loading, loginDetails, userLogin, setLoginDetails, errorMsg=false }) {
+function LoginForm({ loading, loginDetails, userLogin, setLoginDetails, errorMsg }) {
 
     // useStates hooks
     const [hidePassword, setHidePassword] = useState(true);
 
     // use custom hooks
     const { continueWithGoogle } = useGoogleAuth();
-    console.log(errorMsg)
 
     return (
         <>
