@@ -1,0 +1,18 @@
+.errorMessages{
+    width: 100%;
+    background-color: var(--color-error-light);
+    border: 1px solid var(--color-error-border);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.errorMessages p{
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    font-weight: var(--font-weight-semibold);
+}
