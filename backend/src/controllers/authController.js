@@ -14,8 +14,8 @@ const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
 const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
-const { StatusCode, ErrorCode } = require('../constants/index');
-const AppError = require('../utils/AppError');
+const { StatusCode, ErrorCode } = require('../constants');
+const AppError = require('../utils/appError');
 
 // cookie options
 const cookieOptions = {
@@ -56,7 +56,7 @@ const setAuthCookies = (res, accessToken, refreshToken) => {
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // login auth for all role
-const authLogin = asyncHandler(async (req, res, next) => {
+const authLogin = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
 
 	// check email and password is entered
@@ -66,7 +66,18 @@ const authLogin = asyncHandler(async (req, res, next) => {
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Email and Password required!",
 			["email", "password"],
-			"email and password not be empty"
+			"This field is required."
+		);
+	}
+
+	// check password have more that 6 characters
+	if (password.length < 6) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			"Password must have at least 6 characters",
+			["password"],
+			"password not have characters more that min length"
 		);
 	}
 
@@ -77,33 +88,22 @@ const authLogin = asyncHandler(async (req, res, next) => {
 	const user = await Users.findOne({ email: normalizedEmail });
 	if (!user) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.RESOURCE_NOT_FOUND,
-			"Email is not registered",
-			["email"],
-			"user not found in database"
-		);
-	}
-
-	// check password have more that 6 characters
-	if (password.length < 6) {
-		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.RESOURCE_NOT_FOUND,
-			"Password must have at least 6 characters",
-			["password"],
-			"password not have characters more that min length"
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			"Invalid email or password",
+			["email", "password"],
+			"invalid credentials"
 		);
 	}
 
 	// check password is exist on database
 	if (!user.password) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.RESOURCE_NOT_FOUND,
-			"Password incorrect",
-			["password"],
-			"wrong password or user logged in with google account"
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			"Invalid email or password",
+			["email", "password"],
+			"invalid credentials"
 		);
 	}
 
@@ -145,7 +145,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Google authorization code is required!",
-			["code"],
+			[],
 			"google authorization code is empty"
 		);
 	}
@@ -182,7 +182,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Google ID token was not received!",
-			["id_token"],
+			[],
 			"google id value is missing"
 		);
 	}
@@ -202,7 +202,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
 			"Email is not verified in Google!",
-			["email_verified"],
+			[],
 			"google authorization code is empty"
 		);
 	}
@@ -250,7 +250,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 					StatusCode.CONFLICT,
 					ErrorCode.WRITE_CONFLICT_ERROR,
 					"Error while google registration!",
-					["googleRegisterUser"],
+					[],
 					"can complete store user data in database"
 				);
 			}
@@ -271,7 +271,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
 			"Google account linked to another account!",
-			["google_id", "sub"],
+			[],
 			"can find google_id or id is not match with database data"
 		);
 	}
@@ -328,7 +328,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 				StatusCode.CONFLICT,
 				ErrorCode.WRITE_CONFLICT_ERROR,
 				"Error while update profile!",
-				["CustomerProfile", "SellerProfile"],
+				[],
 				"catch error while updating seller and customer profiles"
 			);
 		}
@@ -362,19 +362,30 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Google registration failed!",
-			["registerToken"],
+			[],
 			"registerToken value is empty"
 		);
 	}
 
-	// check if role and phone number is provided
-	if (!role || !phone_number) {
+	// check if role
+	if (!role) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Please add your role and phone number!",
-			["role", "phone_number"],
-			"role, phone_number values are empty"
+			"Please select your role!",
+			["role"],
+			"Role field is required."
+		);
+	}
+
+	// check phone_number 
+	if (!phone_number) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please add your phone number!",
+			["phone_number"],
+			"Phone Number field is required."
 		);
 	}
 
@@ -385,7 +396,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
 			"Phone number must have more that 6 Numbers!",
 			["phone_number"],
-			"phone_number filed have less that 6 numbers"
+			"Phone Number must have more that 6 Numbers!"
 		);
 	}
 
@@ -394,9 +405,9 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_SELECTION,
-			"Please select valid role!",
+			"Invalid role selection.",
 			["role"],
-			"invalid role selection"
+			"Please select valid role!"
 		);
 	}
 
@@ -418,7 +429,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
 			"Register user not found!",
-			["googleRegisteredUser"],
+			[],
 			"cant find user data in googleRegister model"
 		);
 	}
@@ -430,7 +441,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
 			"User already exist!",
-			["existUserAgain"],
+			[],
 			"already have user data in user model"
 		);
 	}
@@ -481,7 +492,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 				StatusCode.UNPROCESSABLE_ENTITY,
 				ErrorCode.EMAIL_DELIVERY_REJECTED,
 				"Send OTP Failed!",
-				["sendOTP"],
+				[],
 				"failed to send otp in otp helper function"
 			);
 		}
@@ -536,7 +547,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Please provide email, password, first name, last name and phone number!",
 			["email", "password", "first_name", "last_name", "phone_number"],
-			"email, password, first_name, last_name, phone_number values are empty"
+			"This field is required!"
 		);
 	}
 
@@ -548,7 +559,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
 			"Email is already registered!",
-			["existingUser"],
+			[],
 			"email is already exist on user model"
 		);
 	}
@@ -557,10 +568,10 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	if (password.length < 6) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
-			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
 			"Password must have more that 6 Numbers!",
 			["password"],
-			"password filed have less that 6 numbers"
+			"Password must have more that 6 Numbers!"
 		);
 	}
 
@@ -590,23 +601,12 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	);
 
 	// if otp is failed to send
-	if (!sendOTP) {
+	if (!sendOTP?.success) {
 		throw new AppError(
 			StatusCode.UNPROCESSABLE_ENTITY,
 			ErrorCode.EMAIL_DELIVERY_REJECTED,
 			"Send OTP Failed!",
-			["sendOTP"],
-			"failed to send otp in otp helper function"
-		);
-	}
-
-	// if otp is failed to send
-	if (!sendOTP.success) {
-		throw new AppError(
-			StatusCode.UNPROCESSABLE_ENTITY,
-			ErrorCode.EMAIL_DELIVERY_REJECTED,
-			"Send OTP Failed!",
-			["sendOTP"],
+			[],
 			"failed to send otp in otp helper function"
 		);
 	}
@@ -641,7 +641,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Please provide email, password, first name, last name and phone number!",
 			["email", "password", "first_name", "last_name", "phone_number"],
-			"email, password, first_name, last_name, phone_number values are empty"
+			"This field is required!"
 		);
 	}
 
@@ -653,7 +653,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
 			"Email is already registered!",
-			["existingUser"],
+			[],
 			"email is already exist on user model"
 		);
 	}
@@ -662,10 +662,10 @@ const registerSellers = asyncHandler(async (req, res) => {
 	if (password.length < 6) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
-			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
 			"Password must have more that 6 Numbers!",
 			["password"],
-			"password filed have less that 6 numbers"
+			"Password must have more that 6 Numbers!"
 		);
 	}
 
@@ -693,23 +693,12 @@ const registerSellers = asyncHandler(async (req, res) => {
 	);
 
 	// if otp is failed to send
-	if (!sendOTP) {
+	if (!sendOTP?.success) {
 		throw new AppError(
 			StatusCode.UNPROCESSABLE_ENTITY,
 			ErrorCode.EMAIL_DELIVERY_REJECTED,
 			"Send OTP Failed!",
-			["sendOTP"],
-			"failed to send otp in otp helper function"
-		);
-	}
-
-	// if otp is failed to send
-	if (!sendOTP.success) {
-		throw new AppError(
-			StatusCode.UNPROCESSABLE_ENTITY,
-			ErrorCode.EMAIL_DELIVERY_REJECTED,
-			"Send OTP Failed!",
-			["sendOTP"],
+			[],
 			"failed to send otp in otp helper function"
 		);
 	}
@@ -900,7 +889,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Verification ID value is empty!",
-			["verification_id"],
+			[],
 			"verification_id value is empty"
 		);
 	}
@@ -911,7 +900,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
 			"Invalid verification ID!",
-			["otpUser"],
+			[],
 			"otpUser is not found with verification_id on registration otp model"
 		);
 	}
@@ -921,7 +910,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_EXPIRED_VALUE,
 			"OTP session is expired!. Please re register again to get new OTP.",
-			["otpUser"],
+			[],
 			"otp session was expired or otp record ws delete on database."
 		);
 	}
@@ -979,7 +968,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 				StatusCode.TOO_MANY_REQUESTS,
 				ErrorCode.RATE_LIMIT_EXCEEDED,
 				"You can only resend OTP once per minute. Please wait before trying again.",
-				["latestOtpUser"],
+				[],
 				"cool down time is not over yet (60 seconds)"
 			);
 		}
@@ -990,7 +979,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 				StatusCode.TOO_MANY_REQUESTS,
 				ErrorCode.RATE_LIMIT_EXCEEDED,
 				"You have reached the maximum number of OTP resend attempts. Please try again later.",
-				["latestOtpUser"],
+				[],
 				"resendCont is over"
 			);
 		}
@@ -1035,7 +1024,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 				StatusCode.CONFLICT,
 				ErrorCode.WRITE_CONFLICT_ERROR,
 				"Failed to update database while sending email!. Please try again.",
-				["updateNewResentUser"],
+				[],
 				"something happened while update data or validate data in registration otp mode;"
 			);
 		};
@@ -1122,7 +1111,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Please provide email address!",
 			["email"],
-			"email value is empty"
+			"Please provide email address!"
 		);
 	}
 
@@ -1269,7 +1258,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 				StatusCode.CONFLICT,
 				ErrorCode.WRITE_CONFLICT_ERROR,
 				"Error While update your data. Please try again.",
-				["setDefaultData"],
+				[],
 				"something happened while update reset password model"
 			);
 		}
@@ -1297,7 +1286,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Please provide token and New password values!",
 			["token", "newPassword"],
-			"token and newPassword values are empty."
+			"This field is required!"
 		);
 	}
 
@@ -1306,9 +1295,9 @@ const resetPassword = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
-			"Password must have more that 6 Numbers!",
+			"New Password must have more that 6 Numbers!",
 			["newPassword"],
-			"newPassword filed have less that 6 numbers"
+			"New Password must have more that 6 Numbers!"
 		);
 	}
 
@@ -1337,7 +1326,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 				StatusCode.BAD_REQUEST,
 				ErrorCode.VALIDATION_EXPIRED_VALUE,
 				"Your reset password link is expired or Invalid token!",
-				["resetUser"],
+				[],
 				"resetPasswordToken is not match or token is expired in resetPassword model."
 			);
 		}
@@ -1367,7 +1356,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 				StatusCode.BAD_REQUEST,
 				ErrorCode.RESOURCE_NOT_FOUND,
 				"User dose not exist!",
-				["updateUser"],
+				[],
 				"cant find user with user id in user model"
 			);
 		}
@@ -1388,7 +1377,9 @@ const resetPassword = asyncHandler(async (req, res) => {
 		})
 	}
 	catch (err) {
-		await session.abortTransaction();
+		if (session.inTransaction()) {
+			await session.abortTransaction();
+		}
 		throw err
 	}
 	finally {
@@ -1410,7 +1401,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Token value is empty!",
 			["token"],
-			"token value is empty."
+			"Token value is empty!"
 		);
 	}
 
@@ -1429,7 +1420,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_EXPIRED_VALUE,
 			"Invalid token or Token is expired!",
-			["resetUser"],
+			[],
 			"resetPasswordToken is not match or token is expired in resetPassword model"
 		);
 	}
@@ -1451,7 +1442,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
 			"Refresh token is missing.",
-			["incomingRefreshToken"],
+			[],
 			"incomingRefreshToken value is empty or undefined."
 		);
 	}
@@ -1465,7 +1456,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 				StatusCode.UNAUTHORIZED,
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
 				"User not Authorized!",
-				["user"],
+				[],
 				"cant find user with decoded payload."
 			);
 		}
