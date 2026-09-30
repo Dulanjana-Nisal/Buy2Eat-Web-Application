@@ -14,6 +14,8 @@ const resetPasswordModel = require('../models/resetPasswordModel');
 const mongoose = require('mongoose');
 const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
+const { StatusCode, ErrorCode } = require('../constants');
+const AppError = require('../utils/appError');
 
 // cookie options
 const cookieOptions = {
@@ -59,36 +61,62 @@ const authLogin = asyncHandler(async (req, res) => {
 
 	// check email and password is entered
 	if (!email || !password) {
-		return res.status(400).json({
-			success: false,
-			message: 'Please provide email and password',
-		});
-	}
-
-	// check if user exist
-	const user = await Users.findOne({ email: email.toLowerCase() });
-	if (!user) {
-		return res.status(400).json({
-			success: false,
-			message: 'User is not registered!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Email and Password required!",
+			["email", "password"],
+			"This field is required."
+		);
 	}
 
 	// check password have more that 6 characters
 	if (password.length < 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password must have at least 6 characters!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			"Password must have at least 6 characters",
+			["password"],
+			"password not have characters more that min length"
+		);
+	}
+
+	// normalized email
+	const normalizedEmail = email.trim().toLowerCase();
+
+	// check if user exist
+	const user = await Users.findOne({ email: normalizedEmail });
+	if (!user) {
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			"Invalid email or password",
+			["email", "password"],
+			"invalid credentials"
+		);
+	}
+
+	// check password is exist on database
+	if (!user.password) {
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			"Invalid email or password",
+			["email", "password"],
+			"invalid credentials"
+		);
 	}
 
 	// check password
 	const checkPass = await bcrypt.compare(password, user.password);
 	if (!checkPass) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password is incorrect!',
-		});
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			"Invalid email or password",
+			["email", "password"],
+			"invalid credentials"
+		);
 	}
 
 	// create jwt tokens and save it into cookie
@@ -96,7 +124,7 @@ const authLogin = asyncHandler(async (req, res) => {
 	setAuthCookies(res, accessToken, refreshToken);
 
 	// send response
-	return res.status(200).json({
+	return res.status(StatusCode.OK).json({
 		success: true,
 		message: 'User logged in successfully!',
 		user: {
@@ -112,10 +140,15 @@ const googleAuth = asyncHandler(async (req, res) => {
 	const { code } = req.body;
 
 	// check google code is exist
-	if (!code) return res.status(400).json({
-		success: false,
-		message: 'Invalid Google authorization code!'
-	});
+	if (!code) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Google authorization code is required!",
+			[],
+			"google authorization code is empty"
+		);
+	}
 
 	// convert authorization code in to google token
 	let tokenResponse;
@@ -145,10 +178,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 	const { id_token } = tokenResponse.data;
 
 	if (!id_token) {
-		return res.status(400).json({
-			success: false,
-			message: 'Google ID token was not received!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Google ID token was not received!",
+			[],
+			"google id value is missing"
+		);
 	}
 
 	// token verification
@@ -161,10 +197,15 @@ const googleAuth = asyncHandler(async (req, res) => {
 	const { email, email_verified, sub, picture, given_name, family_name, name } = ticket.getPayload();
 
 	// check email is verified
-	if (!email_verified) return res.status(400).json({
-		success: false,
-		message: 'Email is not verified in Google!'
-	});
+	if (!email_verified) {
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_MISSING_TOKEN,
+			"Email is not verified in Google!",
+			[],
+			"google authorization code is empty"
+		);
+	}
 
 	// check user already exist
 	const user = await Users.findOne({ email });
@@ -205,7 +246,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 			});
 
 			if (!googleRegisterUser) {
-				throw new Error('Error while google registration!');
+				throw new AppError(
+					StatusCode.CONFLICT,
+					ErrorCode.WRITE_CONFLICT_ERROR,
+					"Error while google registration!",
+					[],
+					"can complete store user data in database"
+				);
 			}
 		}
 
@@ -220,10 +267,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 	// update user
 	if (user.google_id && user.google_id !== sub) {
-		return res.status(400).json({
-			success: false,
-			message: 'Google account linked to another account!'
-		});
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_MISSING_TOKEN,
+			"Google account linked to another account!",
+			[],
+			"can find google_id or id is not match with database data"
+		);
 	}
 
 	// link account if not link to another account
@@ -274,10 +324,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 			}
 
 			// send response
-			return res.status(500).json({
-				success: false,
-				message: 'Error while update profile!'
-			});
+			throw new AppError(
+				StatusCode.CONFLICT,
+				ErrorCode.WRITE_CONFLICT_ERROR,
+				"Error while update profile!",
+				[],
+				"catch error while updating seller and customer profiles"
+			);
 		}
 	}
 
@@ -286,7 +339,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	setAuthCookies(res, accessToken, refreshToken);
 
 	// send response
-	return res.status(200).json({
+	return res.status(StatusCode.OK).json({
 		success: true,
 		isRegistered: true,
 		message: 'User logged in successfully!',
@@ -305,34 +358,57 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 	// check if registerToken is exist
 	if (!registerToken) {
-		return res.status(400).json({
-			success: false,
-			message: 'Register token is missing!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Google registration failed!",
+			[],
+			"registerToken value is empty"
+		);
 	}
 
-	// check if role and phone number is provided
-	if (!role || !phone_number) {
-		return res.status(400).json({
-			success: false,
-			message: 'Please provide role and phone number!'
-		});
+	// check if role
+	if (!role) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please select your role!",
+			["role"],
+			"Role field is required."
+		);
+	}
+
+	// check phone_number 
+	if (!phone_number) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please add your phone number!",
+			["phone_number"],
+			"Phone Number field is required."
+		);
 	}
 
 	// validating phone number
 	if (phone_number.length < 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Phone number must have more that 6 numbers'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
+			"Phone number must have more that 6 Numbers!",
+			["phone_number"],
+			"Phone Number must have more that 6 Numbers!"
+		);
 	}
 
 	// check rolls are right
 	if (!['customer', 'seller'].includes(role)) {
-		return res.status(400).json({
-			success: false,
-			message: 'Invalid role selection!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_INVALID_SELECTION,
+			"Invalid role selection.",
+			["role"],
+			"Please select valid role!"
+		);
 	}
 
 	// create hash token for verification
@@ -349,19 +425,25 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	);
 
 	if (!googleRegisteredUser) {
-		return res.status(400).json({
-			success: false,
-			message: 'Register user not found!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"Register user not found!",
+			[],
+			"cant find user data in googleRegister model"
+		);
 	}
 
 	// check if user exist again
 	const existUserAgain = await Users.findOne({ email: googleRegisteredUser.email });
 	if (existUserAgain) {
-		return res.status(400).json({
-			success: false,
-			message: 'User already exist!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_ALREADY_EXISTS,
+			"User already exist!",
+			[],
+			"already have user data in user model"
+		);
 	}
 
 	// ===== Start Transaction =====
@@ -406,10 +488,13 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 		// send response
 		if (!sendOTP?.success) {
-			return res.status(400).json({
-				success: false,
-				message: sendOTP?.message || "Send OTP Failed!"
-			})
+			throw new AppError(
+				StatusCode.UNPROCESSABLE_ENTITY,
+				ErrorCode.EMAIL_DELIVERY_REJECTED,
+				"Send OTP Failed!",
+				[],
+				"failed to send otp in otp helper function"
+			);
 		}
 
 		// if all things are success delete google Register user
@@ -420,7 +505,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 		await session.commitTransaction(); // commit transaction
 
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: sendOTP.success,
 			message: sendOTP.message,
 			verification_id: sendOTP.verification_id,
@@ -457,28 +542,37 @@ const registerCustomers = asyncHandler(async (req, res) => {
 
 	// check all required fields are filled
 	if (!email || !password || !first_name || !last_name || !phone_number) {
-		return res.status(400).json({
-			success: false,
-			message: 'Please provide email, password, first name, last name and phone number',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please provide email, password, first name, last name and phone number!",
+			["email", "password", "first_name", "last_name", "phone_number"],
+			"This field is required!"
+		);
 	}
 
 	// check user is exist
 	const normalizedEmail = email.trim().toLowerCase();
 	const existingUser = await Users.findOne({ email: normalizedEmail });
 	if (existingUser) {
-		return res.status(400).json({
-			success: false,
-			message: 'Email is already registered!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_ALREADY_EXISTS,
+			"Email is already registered!",
+			[],
+			"email is already exist on user model"
+		);
 	}
 
 	// check password have more that 6 characters
 	if (password.length < 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password must have at least 6 characters!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			"Password must have more that 6 Numbers!",
+			["password"],
+			"Password must have more that 6 Numbers!"
+		);
 	}
 
 	// hash password using bcrypt
@@ -506,22 +600,19 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		}
 	);
 
-	// send response
-	if (!sendOTP) {
-		return res.status(400).json({
-			success: false,
-			message: 'Send OTP Failed!'
-		})
+	// if otp is failed to send
+	if (!sendOTP?.success) {
+		throw new AppError(
+			StatusCode.UNPROCESSABLE_ENTITY,
+			ErrorCode.EMAIL_DELIVERY_REJECTED,
+			"Send OTP Failed!",
+			[],
+			"failed to send otp in otp helper function"
+		);
 	}
 
 	// send response
-	if (!sendOTP.success) {
-		return res.status(400).json({
-			success: sendOTP.success,
-			message: sendOTP.message,
-		})
-	}
-	return res.status(200).json({
+	return res.status(StatusCode.OK).json({
 		success: sendOTP.success,
 		message: sendOTP.message,
 		verification_id: sendOTP.verification_id,
@@ -545,28 +636,37 @@ const registerSellers = asyncHandler(async (req, res) => {
 
 	// check required fields are filled
 	if (!email || !password || !first_name || !last_name || !phone_number) {
-		return res.status(400).json({
-			success: false,
-			message: 'Please provide email, password, first name, last name and phone number',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please provide email, password, first name, last name and phone number!",
+			["email", "password", "first_name", "last_name", "phone_number"],
+			"This field is required!"
+		);
 	}
 
 	// check user is already exist
 	const normalizedEmail = email.trim().toLowerCase();
 	const existingUser = await Users.findOne({ email: normalizedEmail });
 	if (existingUser) {
-		return res.status(400).json({
-			success: false,
-			message: 'Email is already registered!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_ALREADY_EXISTS,
+			"Email is already registered!",
+			[],
+			"email is already exist on user model"
+		);
 	}
 
 	// check password have more that 6 characters
 	if (password.length < 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password must have at least 6 characters!',
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			"Password must have more that 6 Numbers!",
+			["password"],
+			"Password must have more that 6 Numbers!"
+		);
 	}
 
 	// hash password
@@ -592,22 +692,19 @@ const registerSellers = asyncHandler(async (req, res) => {
 		}
 	);
 
-	// send response
-	if (!sendOTP) {
-		return res.status(400).json({
-			success: false,
-			message: 'Error while sending OTP!'
-		})
+	// if otp is failed to send
+	if (!sendOTP?.success) {
+		throw new AppError(
+			StatusCode.UNPROCESSABLE_ENTITY,
+			ErrorCode.EMAIL_DELIVERY_REJECTED,
+			"Send OTP Failed!",
+			[],
+			"failed to send otp in otp helper function"
+		);
 	}
 
 	// send response
-	if (!sendOTP.success) {
-		return res.status(400).json({
-			success: sendOTP.success,
-			message: sendOTP.message,
-		})
-	}
-	return res.status(200).json({
+	return res.status(StatusCode.OK).json({
 		success: sendOTP.success,
 		message: sendOTP.message,
 		verification_id: sendOTP.verification_id,
@@ -622,39 +719,60 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	const { otp, verification_id } = req.body;
 
 	// check verification_id and otp are entered
-	if (!verification_id || !otp) return res.status(400).json({
-		success: false,
-		message: 'Verification_id and otp is required!'
-	})
+	if (!verification_id || !otp) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Your verification ID and OTP are empty!",
+			["verification_id", "otp"],
+			"Verification_id and otp is values are empty"
+		);
+	}
 
 	// find otp by verification ID
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id })
-	if (!otpUser) return res.status(400).json({
-		success: false,
-		message: 'OTP is not exist!'
-	})
+	if (!otpUser) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"OTP is not exist!",
+			["otpUser"],
+			"cant find otp in registration otp model"
+		);
+	}
 
 	// check if otp is exist
-	if (!otpUser.hash_otp) return res.status(401).json({
-		success: false,
-		message: 'OTP is dose not exist!'
-	})
+	if (!otpUser.hash_otp) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"OTP is dose not exist!",
+			["otpUser"],
+			"cant find hash_otp in registration otp model"
+		);
+	}
 
 	// check if OTP is expired
 	if (otpUser.expiresAt <= new Date()) {
-		return res.status(400).json({
-			success: false,
-			message: 'OTP is Expired!, Please request a new OTP'
-		})
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			"OTP is Expired!, Please request a new OTP",
+			["otpUser"],
+			"generated otp value is expired."
+		);
 	}
 
 	// validate OTP with correct format
 	const normalizedOtp = String(otp).trim();
 	if (!/^\d*$/.test(normalizedOtp)) {
-		return res.status(400).json({
-			success: false,
-			message: 'OTP in wrong format!'
-		});
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_INVALID_FORMAT,
+			"OTP in wrong format!, Please Enter numbers for OTP.",
+			["normalizedOtp"],
+			"otp validation check failed."
+		);
 	}
 
 	// check is attempt ok
@@ -672,25 +790,36 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	);
 
 	if (!updatedOtpUser) {
-		return res.status(429).json({
-			success: false,
-			message: "Maximum attempts exceeded!"
-		});
+		throw new AppError(
+			StatusCode.TOO_MANY_REQUESTS,
+			ErrorCode.RATE_LIMIT_EXCEEDED,
+			"Maximum attempts exceeded!. Please try again later.",
+			["updatedOtpUser"],
+			"attempts count is end."
+		);
 	}
 
 	// compare otp with user inputs
 	const compOtp = await bcrypt.compare(otp, otpUser.hash_otp)
-	if (!compOtp) return res.status(400).json({
-		success: false,
-		message: 'Invalid OTP'
-	})
+	if (!compOtp) {
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			"Invalid OTP!. Please try again.",
+			["compOtp"],
+			"otp is not match for database value"
+		);
+	}
 
 	// check role is correct
 	if (!['customer', 'seller'].includes(otpUser.role)) {
-		return res.status(400).json({
-			success: false,
-			message: 'Invalid role selection!'
-		})
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_INVALID_SELECTION,
+			"Please select valid role!",
+			["role"],
+			"invalid role selection"
+		);
 	}
 
 	// == Start Transaction ==
@@ -755,21 +884,36 @@ const verifyOtp = asyncHandler(async (req, res) => {
 const resendOtp = asyncHandler(async (req, res) => {
 	const { verification_id } = req.body;
 
-	if (!verification_id) return res.status(400).json({
-		success: false,
-		message: 'Verification_id is required!'
-	})
+	if (!verification_id) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Verification ID value is empty!",
+			[],
+			"verification_id value is empty"
+		);
+	}
 
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
-	if (!otpUser) return res.status(400).json({
-		success: false,
-		message: 'Invalid verification_id'
-	});
+	if (!otpUser) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"Invalid verification ID!",
+			[],
+			"otpUser is not found with verification_id on registration otp model"
+		);
+	}
 
-	if (otpUser.session_expiresAt <= new Date()) return res.status(400).json({
-		success: false,
-		message: 'OTP record was delete, pleas re register to get new OTP!'
-	});
+	if (otpUser.session_expiresAt <= new Date()) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			"OTP session is expired!. Please re register again to get new OTP.",
+			[],
+			"otp session was expired or otp record ws delete on database."
+		);
+	}
 
 	// set cooldown time 
 	const cooldownPeriod = 60 * 1000;
@@ -820,25 +964,34 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 		// check cooldown time is competed 
 		if (latestOtpUser?.lastResendAt && (now - latestOtpUser.lastResendAt.getTime()) < cooldownPeriod) {
-			return res.status(429).json({
-				success: false,
-				message: 'You can only resend OTP once per minute. Please wait before trying again.',
-			});
+			throw new AppError(
+				StatusCode.TOO_MANY_REQUESTS,
+				ErrorCode.RATE_LIMIT_EXCEEDED,
+				"You can only resend OTP once per minute. Please wait before trying again.",
+				[],
+				"cool down time is not over yet (60 seconds)"
+			);
 		}
 
 		// check resend count is exceeded
 		if (latestOtpUser?.resendCount >= 4) {
-			return res.status(429).json({
-				success: false,
-				message: 'You have reached the maximum number of OTP resend attempts. Please try again later.',
-			});
+			throw new AppError(
+				StatusCode.TOO_MANY_REQUESTS,
+				ErrorCode.RATE_LIMIT_EXCEEDED,
+				"You have reached the maximum number of OTP resend attempts. Please try again later.",
+				[],
+				"resendCont is over"
+			);
 		}
 
-		// send response
-		return res.status(429).json({
-			success: false,
-			message: 'OTP resend is temporarily unavailable. Please try again in a moment.',
-		});
+		// send Error response
+		throw new AppError(
+			StatusCode.TOO_MANY_REQUESTS,
+			ErrorCode.EXTERNAL_SERVICE_UNAVAILABLE,
+			"OTP resend is temporarily unavailable. Please try again in a moment.",
+			[],
+			"something wrong while resend otp."
+		);
 	}
 
 	try {
@@ -867,7 +1020,13 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 		// check if failed to get updateNewResentUser
 		if (!updateNewResentUser) {
-			throw new Error("Failed to update database while sending email!")
+			throw new AppError(
+				StatusCode.CONFLICT,
+				ErrorCode.WRITE_CONFLICT_ERROR,
+				"Failed to update database while sending email!. Please try again.",
+				[],
+				"something happened while update data or validate data in registration otp mode;"
+			);
 		};
 
 		// resend otp via email
@@ -888,7 +1047,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 		)
 
 		// send response
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: true,
 			message: 'OTP resend successfully...',
 			expiresAt: updateNewResentUser.expiresAt,
@@ -935,7 +1094,7 @@ const userLogout = asyncHandler(async (req, res) => {
 	})
 
 	// send response
-	res.status(200).json({
+	res.status(StatusCode.OK).json({
 		success: true,
 		message: 'User successfully logout...'
 	})
@@ -946,18 +1105,25 @@ const forgotPassword = asyncHandler(async (req, res) => {
 	const { email } = req.body;
 
 	// check if email is entered
-	if (!email) return res.status(400).json({
-		success: false,
-		message: "Please provide email!"
-	});
+	if (!email) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please provide email address!",
+			["email"],
+			"Please provide email address!"
+		);
+	}
 
 	// check email is exits
 	const normalizedEmail = email.trim().toLowerCase();
 	const user = await Users.findOne({ email: normalizedEmail });
-	if (!user) return res.status(200).json({
-		success: true,
-		message: "If an account exists with this email, a password reset link will be sent."
-	})
+	if (!user) {
+		return res.status(StatusCode.OK).json({
+			success: true,
+			message: "If an account exists with this email, a password reset link will be sent. Check your email."
+		})
+	}
 
 	// generate new reset password token
 	const resetToken = crypto.randomBytes(32).toString('hex');
@@ -1008,10 +1174,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 			}
 			catch (err) {
-				// send response 
-				return res.status(500).json({
-					success: false,
-					message: 'Something wrong while sending Email!'
+				// send Error response 
+				return res.status(StatusCode.OK).json({
+					success: true,
+					message: "If an account exists with this email, a password reset link will be sent. Check your email."
 				})
 			}
 
@@ -1020,9 +1186,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
 				await sendEmailResetPassword(normalizedEmail, resetLink);
 
 				// send response 
-				return res.status(200).json({
+				return res.status(StatusCode.OK).json({
 					success: true,
-					message: 'Reset link is sent to your email'
+					message: "If an account exists with this email, a password reset link will be sent. Check your email."
 				})
 			}
 			catch (err) {
@@ -1033,10 +1199,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
 					resetPasswordToken: hashResetToken
 				});
 
-				// send response 
-				return res.status(500).json({
-					success: false,
-					message: 'Something wrong while sending Email!'
+				// send Error response 
+				return res.status(StatusCode.OK).json({
+					success: true,
+					message: "If an account exists with this email, a password reset link will be sent. Check your email."
 				})
 			}
 		}
@@ -1047,9 +1213,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
 		const oneMinuteInMs = 60 * 1000;
 
 		if (currentTime - lastCreatedTime < oneMinuteInMs) {
-			return res.status(200).json({
+			return res.status(StatusCode.OK).json({
 				success: true,
-				message: "If an account exists with this email, a password reset link will be sent."
+				message: "If an account exists with this email, a password reset link will be sent. Check your email."
 			})
 		}
 	}
@@ -1061,9 +1227,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
 		await sendEmailResetPassword(normalizedEmail, resetLink);
 
 		// send response 
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: true,
-			message: 'Reset link is sent to your email'
+			message: "If an account exists with this email, a password reset link will be sent. Check your email."
 		})
 
 	}
@@ -1082,13 +1248,16 @@ const forgotPassword = asyncHandler(async (req, res) => {
 		);
 
 		if (!setDefaultData) {
-			throw new Error('Error While updating database!');
+			return res.status(StatusCode.OK).json({
+				success: true,
+				message: "If an account exists with this email, a password reset link will be sent. Check your email."
+			})
 		}
 
-		// send response 
-		return res.status(500).json({
-			success: false,
-			message: 'Something wrong while sending Email!'
+		// send Error response 
+		return res.status(StatusCode.OK).json({
+			success: true,
+			message: "If an account exists with this email, a password reset link will be sent. Check your email."
 		})
 	}
 
@@ -1099,17 +1268,25 @@ const resetPassword = asyncHandler(async (req, res) => {
 	const { token, newPassword } = req.body
 
 	// check token and newPassword is entered
-	if (!token || !newPassword) return res.status(400).json({
-		success: false,
-		message: "Please provide token and new password!"
-	});
+	if (!token || !newPassword) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Please provide token and New password values!",
+			["token", "newPassword"],
+			"This field is required!"
+		);
+	}
 
 	// check password have enough characters
 	if (newPassword.length <= 6) {
-		return res.status(400).json({
-			success: false,
-			message: 'Password should be more than 6 characters!'
-		})
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			"New Password must have more that 6 Numbers!",
+			["newPassword"],
+			"New Password must have more that 6 Numbers!"
+		);
 	}
 
 	// === Start Transaction ===
@@ -1133,10 +1310,13 @@ const resetPassword = asyncHandler(async (req, res) => {
 			// Abort transaction
 			await session.abortTransaction();
 
-			return res.status(400).json({
-				success: false,
-				message: "Your reset password link is expired or Invalid token"
-			});
+			throw new AppError(
+				StatusCode.BAD_REQUEST,
+				ErrorCode.VALIDATION_EXPIRED_VALUE,
+				"Your reset password link is expired or Invalid token!",
+				[],
+				"resetPasswordToken is not match or token is expired in resetPassword model."
+			);
 		}
 
 		// hash password using bcrypt
@@ -1160,10 +1340,13 @@ const resetPassword = asyncHandler(async (req, res) => {
 			// Abort transaction
 			await session.abortTransaction();
 
-			return res.status(400).json({
-				success: false,
-				message: "User dose not exist"
-			});
+			throw new AppError(
+				StatusCode.BAD_REQUEST,
+				ErrorCode.RESOURCE_NOT_FOUND,
+				"User dose not exist!",
+				[],
+				"cant find user with user id in user model"
+			);
 		}
 
 		// delete forgot password data from database
@@ -1176,13 +1359,15 @@ const resetPassword = asyncHandler(async (req, res) => {
 		await session.commitTransaction();
 
 		// send success response
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: true,
 			message: 'Password Reset successfully'
 		})
 	}
 	catch (err) {
-		await session.abortTransaction();
+		if (session.inTransaction()) {
+			await session.abortTransaction();
+		}
 		throw err
 	}
 	finally {
@@ -1197,6 +1382,17 @@ const resetPassword = asyncHandler(async (req, res) => {
 const verifyResetPassword = asyncHandler(async (req, res) => {
 	const { token } = req.params;
 
+	// check if token value exist
+	if (!token) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Token value is empty!",
+			["token"],
+			"Token value is empty!"
+		);
+	}
+
 	// hashed token
 	const hashResetToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -1207,15 +1403,18 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 			expiredAt: { $gt: new Date() },
 		}
 	)
-
 	if (!resetUser) {
-		return res.status(400).json({
-			success: false,
-			message: 'Invalid token or Token is expired!'
-		})
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			"Invalid token or Token is expired!",
+			[],
+			"resetPasswordToken is not match or token is expired in resetPassword model"
+		);
 	}
 
-	return res.status(200).json({
+	// send response
+	return res.status(StatusCode.OK).json({
 		success: true,
 		message: 'Token is ok'
 	})
@@ -1227,10 +1426,13 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 	// check refresh token is exist
 	if (!incomingRefreshToken) {
-		return res.status(401).json({
-			success: false,
-			message: 'Refresh token is missing.',
-		});
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_MISSING_TOKEN,
+			"Refresh token is missing.",
+			[],
+			"incomingRefreshToken value is empty or undefined."
+		);
 	}
 
 	try {
@@ -1238,17 +1440,20 @@ const refreshToken = asyncHandler(async (req, res) => {
 		const user = await Users.findById(decoded._id);
 
 		if (!user) {
-			return res.status(401).json({
-				success: false,
-				message: 'User not found.',
-			});
+			throw new AppError(
+				StatusCode.UNAUTHORIZED,
+				ErrorCode.AUTH_INVALID_CREDENTIALS,
+				"User not Authorized!",
+				[],
+				"cant find user with decoded payload."
+			);
 		}
 
 		// generate new token
 		const { accessToken: newAccessToken, refreshToken: newRefreshToken } = createTokenPair(user);
 		setAuthCookies(res, newAccessToken, newRefreshToken);
 
-		return res.status(200).json({
+		return res.status(StatusCode.OK).json({
 			success: true,
 			message: 'Tokens refreshed successfully!',
 			newAccessToken: newAccessToken,
@@ -1256,10 +1461,13 @@ const refreshToken = asyncHandler(async (req, res) => {
 		});
 
 	} catch (error) {
-		return res.status(401).json({
-			success: false,
-			message: 'Refresh token expired or invalid.',
-		});
+		throw new AppError(
+			StatusCode.UNAUTHORIZED,
+			ErrorCode.AUTH_REVOKED_TOKEN,
+			"Invalid Refresh token or Token was expired!.",
+			[],
+			"error while generate refresh token process."
+		);
 	}
 });
 
