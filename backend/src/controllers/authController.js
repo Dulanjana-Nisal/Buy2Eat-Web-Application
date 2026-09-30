@@ -111,11 +111,11 @@ const authLogin = asyncHandler(async (req, res) => {
 	const checkPass = await bcrypt.compare(password, user.password);
 	if (!checkPass) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.RESOURCE_NOT_FOUND,
-			"Password incorrect",
-			["password"],
-			"wrong password or user logged in with google account"
+			StatusCode.UNAUTHORIZED,
+			+			ErrorCode.AUTH_INVALID_CREDENTIALS,
+			+			"Invalid email or password",
+			+["email", "password"],
+			+			"invalid credentials"
 		);
 	}
 
@@ -1175,13 +1175,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
 			}
 			catch (err) {
 				// send Error response 
-				throw new AppError(
-					StatusCode.UNPROCESSABLE_ENTITY,
-					ErrorCode.EMAIL_DELIVERY_REJECTED,
-					"Something wrong while sending Email!.",
-					[],
-					"something happened while sending email process."
-				);
+				return res.status(StatusCode.OK).json({
+					success: true,
+					message: "If an account exists with this email, a password reset link will be sent. Check your email."
+				})
 			}
 
 			try {
@@ -1191,7 +1188,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 				// send response 
 				return res.status(StatusCode.OK).json({
 					success: true,
-					message: 'Reset link is sent to your email'
+					message: "If an account exists with this email, a password reset link will be sent. Check your email."
 				})
 			}
 			catch (err) {
@@ -1203,13 +1200,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
 				});
 
 				// send Error response 
-				throw new AppError(
-					StatusCode.UNPROCESSABLE_ENTITY,
-					ErrorCode.EMAIL_DELIVERY_REJECTED,
-					"Something wrong while sending Email!.",
-					[],
-					"something happened while sending email process."
-				);
+				return res.status(StatusCode.OK).json({
+					success: true,
+					message: "If an account exists with this email, a password reset link will be sent. Check your email."
+				})
 			}
 		}
 
@@ -1235,7 +1229,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 		// send response 
 		return res.status(StatusCode.OK).json({
 			success: true,
-			message: 'Reset link is sent to your email'
+			message: "If an account exists with this email, a password reset link will be sent. Check your email."
 		})
 
 	}
@@ -1254,23 +1248,17 @@ const forgotPassword = asyncHandler(async (req, res) => {
 		);
 
 		if (!setDefaultData) {
-			throw new AppError(
-				StatusCode.CONFLICT,
-				ErrorCode.WRITE_CONFLICT_ERROR,
-				"Error While update your data. Please try again.",
-				[],
-				"something happened while update reset password model"
-			);
+			return res.status(StatusCode.OK).json({
+				success: true,
+				message: "If an account exists with this email, a password reset link will be sent. Check your email."
+			})
 		}
 
 		// send Error response 
-		throw new AppError(
-			StatusCode.UNPROCESSABLE_ENTITY,
-			ErrorCode.EMAIL_DELIVERY_REJECTED,
-			"Something wrong while sending Email!.",
-			[],
-			"something happened while sending email process."
-		);
+		return res.status(StatusCode.OK).json({
+			success: true,
+			message: "If an account exists with this email, a password reset link will be sent. Check your email."
+		})
 	}
 
 });
