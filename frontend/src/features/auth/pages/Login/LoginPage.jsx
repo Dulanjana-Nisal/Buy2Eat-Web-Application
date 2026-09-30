@@ -5,6 +5,7 @@ import LoginForm from '../../components/LoginForm/LoginForm';
 import { useNavigate } from 'react-router-dom';
 import { userLoginApi } from '../../api/authApi';
 import Background from '../../../../shared/components/ui/Background';
+import { ErrorHandler } from '../../../../utils/error/errorHandler';
 
 /** Manages login form state and submits user credentials. */
 function LoginPage() {
@@ -33,7 +34,9 @@ function LoginPage() {
             })
         }
         catch (err) {
-            setErrorMsg(err?.response?.data.message)
+            setErrorMsg(err?.response?.data.message);
+            const errorhandler = ErrorHandler(err);
+            console.log(errorhandler)
         }
         finally {
             setLoading(false);
