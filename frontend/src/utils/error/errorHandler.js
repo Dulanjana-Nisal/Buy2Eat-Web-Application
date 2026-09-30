@@ -26,8 +26,8 @@ export const ErrorHandler = (error) => {
         */
         let fieldErrors = {}
         if (errorData.details && errorData.details != []) {
-            const detailsData = errorData.details[0] ?? null;
-            if (Array.isArray(detailsData['fields'])) {
+            const detailsData = errorData.details[0] ?? [];
+            if (Array.isArray(detailsData['fields']) && detailsData['fields'] != []) {
                 (detailsData['fields']).forEach((element) => {
                     if (detailsData['issue']) {
                         fieldErrors[element] = detailsData['issue'];
