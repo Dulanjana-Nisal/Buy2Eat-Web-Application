@@ -15,7 +15,7 @@ const mongoose = require('mongoose');
 const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants');
-const AppError = require('../utils/appError');
+const AppError = require('../errors/AppError');
 
 // cookie options
 const cookieOptions = {
