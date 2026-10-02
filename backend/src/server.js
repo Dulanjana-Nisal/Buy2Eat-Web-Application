@@ -3,8 +3,11 @@ const express = require('express');
 const morgan = require('morgan');
 const connectDatabase = require('./databases/db');
 const { PORT, CLIENT_URL } = require('./config/env');
-const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 const cookieParser = require("cookie-parser");
+
+// middlewares
+const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
+const requestIDMiddleware = require('./middleware/requestIDMiddleware');
 
 // import routers
 const authRouter = require('./routes/authRouter');
@@ -27,6 +30,7 @@ app.get('/', (_request, response) => {
 });
 
 // routers
+app.use(requestIDMiddleware);
 app.use('/api/v1/buy2eat/auth', authRouter);
 app.use('/api/v1/buy2eat/customers', customerRouter);
 app.use('/api/v1/buy2eat/users', usersRouter);
