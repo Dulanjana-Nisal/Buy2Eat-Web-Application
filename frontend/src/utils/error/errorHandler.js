@@ -10,7 +10,11 @@ export const ErrorHandler = (error) => {
 
             "details": [
                 {
-                "field": ["email","password"],
+                "field": "email",
+                "issue": "input not be empty"
+                },
+                {
+                "field": "password",
                 "issue": "input not be empty"
                 }
             ]  
@@ -24,16 +28,12 @@ export const ErrorHandler = (error) => {
 
             like that
         */
+       
         let fieldErrors = {}
-        if (errorData.details && errorData.details != []) {
-            const detailsData = errorData.details[0] ?? [];
-            if (Array.isArray(detailsData['fields']) && detailsData['fields'] != []) {
-                (detailsData['fields']).forEach((element) => {
-                    if (detailsData['issue']) {
-                        fieldErrors[element] = detailsData['issue'];
-                    }
-                });
-            }
+        if (Array.isArray(errorData.details) && errorData.details != []) {
+            errorData.details.forEach(element => {
+                fieldErrors[element.field || 'unknown_field'] = element.issue || "Some error happened in this field!"
+            });
         }
 
         return {
