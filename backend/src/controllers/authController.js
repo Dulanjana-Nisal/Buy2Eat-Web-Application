@@ -72,7 +72,7 @@ const authLogin = asyncHandler(async (req, res) => {
 	}
 
 	// check password is entered
-	if (!password) {
+	if (!password?.trim()) {
 		const detailsData = {
 			field: 'password',
 			issue: 'Password field is required'
@@ -86,8 +86,7 @@ const authLogin = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Email and Password required!",
-			details,
-			"This field is required."
+			details
 		);
 	}
 
