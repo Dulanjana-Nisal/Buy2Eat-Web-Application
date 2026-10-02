@@ -83,10 +83,8 @@ const authLogin = asyncHandler(async (req, res) => {
 	// if have any errors throw error
 	if (details.length > 0) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Email and Password required!",
-			details
+			{ details: details }
 		);
 	}
 
@@ -94,13 +92,14 @@ const authLogin = asyncHandler(async (req, res) => {
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
-			"Password must have at least 6 characters",
-			[{
-				field: 'password',
-				issue: "password not have characters more that min length"
-			}]
+			{
+				details: [
+					{
+						field: 'password',
+						issue: "Password must have at least 6 characters"
+					}]
+			}
 		);
 	}
 

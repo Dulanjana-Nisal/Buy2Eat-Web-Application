@@ -9,7 +9,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 	const code = err.code || ErrorCode.INTERNAL_SERVER_ERROR;
 	const message = err.message || GetErrorCodes[ErrorCode.INTERNAL_SERVER_ERROR].message;
 
-	const details = err.details || {};
+	const details = err.details || [];
 
 	res.status(status).json({
 		success: false,
@@ -19,6 +19,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 			message: message,
 			timestamp: new Date().toISOString(),
 			path: req.originalUrl,
+			request_id: req.id,
 			details
 		}
 	});
