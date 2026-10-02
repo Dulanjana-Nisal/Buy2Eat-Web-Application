@@ -7,18 +7,15 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 	const code = err.code || ErrorCode.INTERNAL_SERVER_ERROR;
 	const message = err.message || "Unexpected error happened!";
 
+	const details = err.details || [];
+
 	res.status(statusCode).json({
 		success: false,
 		code: code,
 		message: message,
 		timestamp: new Date().toISOString(),
 		path: req.originalUrl,
-		details: [
-			{
-				fields: err.fields || "fields are missing",
-				issue: err.issue || "Something wrong",
-			}
-		]
+		details
 	});
 };
 
