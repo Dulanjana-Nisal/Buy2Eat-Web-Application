@@ -80,7 +80,7 @@ const authLogin = asyncHandler(async (req, res) => {
 		details.push(detailsData);
 	}
 
-	// if email or password is missing throw error
+	// if have any errors throw error
 	if (details.length > 0) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
@@ -90,14 +90,17 @@ const authLogin = asyncHandler(async (req, res) => {
 		);
 	}
 
+
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
 			"Password must have at least 6 characters",
-			["password"],
-			"password not have characters more that min length"
+			[{
+				field: 'password',
+				issue: "password not have characters more that min length"
+			}]
 		);
 	}
 
@@ -111,8 +114,7 @@ const authLogin = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
 			"Invalid email or password",
-			["email", "password"],
-			"invalid credentials"
+			null
 		);
 	}
 
@@ -122,8 +124,7 @@ const authLogin = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
 			"Invalid email or password",
-			["email", "password"],
-			"invalid credentials"
+			null
 		);
 	}
 
@@ -134,8 +135,7 @@ const authLogin = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
 			"Invalid email or password",
-			["email", "password"],
-			"invalid credentials"
+			null
 		);
 	}
 
@@ -165,8 +165,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Google authorization code is required!",
-			[],
-			"google authorization code is empty"
+			null
 		);
 	}
 
@@ -202,8 +201,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Google ID token was not received!",
-			[],
-			"google id value is missing"
+			null
 		);
 	}
 
@@ -222,8 +220,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
 			"Email is not verified in Google!",
-			[],
-			"google authorization code is empty"
+			null
 		);
 	}
 
@@ -270,8 +267,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 					StatusCode.CONFLICT,
 					ErrorCode.WRITE_CONFLICT_ERROR,
 					"Error while google registration!",
-					[],
-					"can complete store user data in database"
+					null
 				);
 			}
 		}
@@ -291,8 +287,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
 			"Google account linked to another account!",
-			[],
-			"can find google_id or id is not match with database data"
+			null
 		);
 	}
 
@@ -348,8 +343,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 				StatusCode.CONFLICT,
 				ErrorCode.WRITE_CONFLICT_ERROR,
 				"Error while update profile!",
-				[],
-				"catch error while updating seller and customer profiles"
+				null
 			);
 		}
 	}
@@ -382,30 +376,38 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Google registration failed!",
-			[],
-			"registerToken value is empty"
+			null
 		);
 	}
 
+	// validation field required error details data
+	const details = []
+
 	// check if role
 	if (!role) {
-		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Please select your role!",
-			["role"],
-			"Role field is required."
-		);
+		const detailsData = {
+			field: 'role',
+			issue: 'Please select your role!'
+		}
+		details.push(detailsData);
 	}
 
 	// check phone_number 
 	if (!phone_number) {
+		const detailsData = {
+			field: 'phone_number',
+			issue: 'Please add your Phone Number!'
+		}
+		details.push(detailsData);
+	}
+
+	// return if have error
+	if (details.length > 0) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Please add your phone number!",
-			["phone_number"],
-			"Phone Number field is required."
+			"Role and Phone number is required!",
+			details
 		);
 	}
 
@@ -415,8 +417,12 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
 			"Phone number must have more that 6 Numbers!",
-			["phone_number"],
-			"Phone Number must have more that 6 Numbers!"
+			[
+				{
+					field: 'phone_number',
+					issue: "Phone number must have more that 6 Numbers!"
+				}
+			]
 		);
 	}
 
@@ -426,8 +432,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_SELECTION,
 			"Invalid role selection.",
-			["role"],
-			"Please select valid role!"
+			null
 		);
 	}
 
@@ -449,8 +454,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
 			"Register user not found!",
-			[],
-			"cant find user data in googleRegister model"
+			null
 		);
 	}
 
@@ -461,8 +465,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
 			"User already exist!",
-			[],
-			"already have user data in user model"
+			null
 		);
 	}
 
@@ -512,8 +515,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 				StatusCode.UNPROCESSABLE_ENTITY,
 				ErrorCode.EMAIL_DELIVERY_REJECTED,
 				"Send OTP Failed!",
-				[],
-				"failed to send otp in otp helper function"
+				null
 			);
 		}
 
@@ -560,14 +562,61 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		favorite_foods = [],
 	} = req.body;
 
+	// variable for store details data
+	const details = []
+
+	// check email fields are filled
+	if (!email) {
+		const detailsData = {
+			field: "email",
+			issue: 'Email field is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check password fields are filled
+	if (!password) {
+		const detailsData = {
+			field: "password",
+			issue: 'password field is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check first_name fields are filled
+	if (!first_name) {
+		const detailsData = {
+			field: "first_name",
+			issue: 'First Name is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check last_name fields are filled
+	if (!last_name) {
+		const detailsData = {
+			field: "last_name",
+			issue: 'Last Name is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check phone_number fields are filled
+	if (!phone_number) {
+		const detailsData = {
+			field: "phone_number",
+			issue: 'Phone Number is required!'
+		}
+		details.push(detailsData);
+	}
+
 	// check all required fields are filled
-	if (!email || !password || !first_name || !last_name || !phone_number) {
+	if (details.length > 0) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Please provide email, password, first name, last name and phone number!",
-			["email", "password", "first_name", "last_name", "phone_number"],
-			"This field is required!"
+			details
 		);
 	}
 
@@ -579,8 +628,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
 			"Email is already registered!",
-			[],
-			"email is already exist on user model"
+			null
 		);
 	}
 
@@ -590,8 +638,12 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
 			"Password must have more that 6 Numbers!",
-			["password"],
-			"Password must have more that 6 Numbers!"
+			[
+				{
+					field: 'password',
+					issue: 'Password must have more that 6 Numbers!'
+				}
+			]
 		);
 	}
 
@@ -626,8 +678,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			StatusCode.UNPROCESSABLE_ENTITY,
 			ErrorCode.EMAIL_DELIVERY_REJECTED,
 			"Send OTP Failed!",
-			[],
-			"failed to send otp in otp helper function"
+			null,
 		);
 	}
 
@@ -654,14 +705,76 @@ const registerSellers = asyncHandler(async (req, res) => {
 		profile_image
 	} = req.body;
 
-	// check required fields are filled
-	if (!email || !password || !first_name || !last_name || !phone_number) {
+	// variable for store details data
+	const details = []
+
+	// check email fields are filled
+	if (!email) {
+		const detailsData = {
+			field: "email",
+			issue: 'Email field is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check password fields are filled
+	if (!password) {
+		const detailsData = {
+			field: "password",
+			issue: 'password field is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check first_name fields are filled
+	if (!first_name) {
+		const detailsData = {
+			field: "first_name",
+			issue: 'First Name is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check last_name fields are filled
+	if (!last_name) {
+		const detailsData = {
+			field: "last_name",
+			issue: 'Last Name is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check phone_number fields are filled
+	if (!phone_number) {
+		const detailsData = {
+			field: "phone_number",
+			issue: 'Phone Number is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// check all required fields are filled
+	if (details.length > 0) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Please provide email, password, first name, last name and phone number!",
-			["email", "password", "first_name", "last_name", "phone_number"],
-			"This field is required!"
+			details
+		);
+	}
+
+	// check password have more that 6 characters
+	if (password.length < 6) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			"Password must have more that 6 Numbers!",
+			[
+				{
+					field: "password",
+					issue: "Password must have more that 6 Numbers!"
+				}
+			]
 		);
 	}
 
@@ -673,19 +786,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
 			"Email is already registered!",
-			[],
-			"email is already exist on user model"
-		);
-	}
-
-	// check password have more that 6 characters
-	if (password.length < 6) {
-		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
-			"Password must have more that 6 Numbers!",
-			["password"],
-			"Password must have more that 6 Numbers!"
+			null,
 		);
 	}
 
@@ -718,8 +819,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 			StatusCode.UNPROCESSABLE_ENTITY,
 			ErrorCode.EMAIL_DELIVERY_REJECTED,
 			"Send OTP Failed!",
-			[],
-			"failed to send otp in otp helper function"
+			null
 		);
 	}
 
@@ -744,8 +844,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Error while verification!, Please resend OTP and try again.",
-			[],
-			"Error while verification!, Please resend OTP and try again."
+			null
 		);
 	}
 
@@ -755,42 +854,12 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Your OTP field is empty!",
-			["otp"],
-			"Your OTP field is empty!"
-		);
-	}
-
-	// find otp by verification ID
-	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id })
-	if (!otpUser) {
-		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.RESOURCE_NOT_FOUND,
-			"OTP is not exist!",
-			["otpUser"],
-			"cant find otp in registration otp model"
-		);
-	}
-
-	// check if otp is exist
-	if (!otpUser.hash_otp) {
-		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.RESOURCE_NOT_FOUND,
-			"OTP is dose not exist!",
-			["otpUser"],
-			"cant find hash_otp in registration otp model"
-		);
-	}
-
-	// check if OTP is expired
-	if (otpUser.expiresAt <= new Date()) {
-		throw new AppError(
-			StatusCode.BAD_REQUEST,
-			ErrorCode.VALIDATION_EXPIRED_VALUE,
-			"OTP is Expired!, Please request a new OTP",
-			["otpUser"],
-			"generated otp value is expired."
+			[
+				{
+					field: "otp",
+					issue: "Your OTP field is empty!"
+				}
+			]
 		);
 	}
 
@@ -801,8 +870,43 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_FORMAT,
 			"OTP in wrong format!, Please Enter numbers for OTP.",
-			["email"],
-			"OTP in wrong format!, Please Enter numbers for OTP."
+			[
+				{
+					field: "otp",
+					issue: "OTP in wrong format!, Please Enter numbers for OTP."
+				}
+			]
+		);
+	}
+
+	// find otp by verification ID
+	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id })
+	if (!otpUser) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"OTP is not exist!",
+			null
+		);
+	}
+
+	// check if otp is exist
+	if (!otpUser.hash_otp) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.RESOURCE_NOT_FOUND,
+			"OTP is dose not exist!",
+			null
+		);
+	}
+
+	// check if OTP is expired
+	if (otpUser.expiresAt <= new Date()) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			"OTP is Expired!, Please request a new OTP",
+			null
 		);
 	}
 
@@ -825,8 +929,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			StatusCode.TOO_MANY_REQUESTS,
 			ErrorCode.RATE_LIMIT_EXCEEDED,
 			"Maximum attempts exceeded!. Please try again later.",
-			["updatedOtpUser"],
-			"attempts count is end."
+			null
 		);
 	}
 
@@ -837,8 +940,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
 			"Invalid OTP!. Please try again.",
-			["compOtp"],
-			"otp is not match for database value"
+			null
 		);
 	}
 
@@ -847,9 +949,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_SELECTION,
-			"Please select valid role!",
-			["role"],
-			"invalid role selection"
+			"Invalid role selection!. Please Try again.",
 		);
 	}
 
@@ -919,9 +1019,8 @@ const resendOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Verification ID value is empty!",
-			[],
-			"verification_id value is empty"
+			"Failed to resend OTP!. Please try again later.",
+			null,
 		);
 	}
 
@@ -930,9 +1029,8 @@ const resendOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
-			"Invalid verification ID!",
-			[],
-			"otpUser is not found with verification_id on registration otp model"
+			"Failed to resend OTP!. Please try again later.",
+			null
 		);
 	}
 
@@ -941,8 +1039,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_EXPIRED_VALUE,
 			"OTP session is expired!. Please re register again to get new OTP.",
-			[],
-			"otp session was expired or otp record ws delete on database."
+			null
 		);
 	}
 
@@ -999,8 +1096,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 				StatusCode.TOO_MANY_REQUESTS,
 				ErrorCode.RATE_LIMIT_EXCEEDED,
 				"You can only resend OTP once per minute. Please wait before trying again.",
-				[],
-				"cool down time is not over yet (60 seconds)"
+				null
 			);
 		}
 
@@ -1010,8 +1106,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 				StatusCode.TOO_MANY_REQUESTS,
 				ErrorCode.RATE_LIMIT_EXCEEDED,
 				"You have reached the maximum number of OTP resend attempts. Please try again later.",
-				[],
-				"resendCont is over"
+				null
 			);
 		}
 
@@ -1020,8 +1115,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 			StatusCode.TOO_MANY_REQUESTS,
 			ErrorCode.EXTERNAL_SERVICE_UNAVAILABLE,
 			"OTP resend is temporarily unavailable. Please try again in a moment.",
-			[],
-			"something wrong while resend otp."
+			null
 		);
 	}
 
@@ -1055,8 +1149,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 				StatusCode.CONFLICT,
 				ErrorCode.WRITE_CONFLICT_ERROR,
 				"Failed to update database while sending email!. Please try again.",
-				[],
-				"something happened while update data or validate data in registration otp mode;"
+				null
 			);
 		};
 
@@ -1141,8 +1234,12 @@ const forgotPassword = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Please provide email address!",
-			["email"],
-			"Please provide email address!"
+			[
+				{
+					field: "email",
+					issue: "Email field is required!"
+				}
+			]
 		);
 	}
 
@@ -1298,14 +1395,34 @@ const forgotPassword = asyncHandler(async (req, res) => {
 const resetPassword = asyncHandler(async (req, res) => {
 	const { token, newPassword } = req.body
 
-	// check token and newPassword is entered
-	if (!token || !newPassword) {
+	// create array for store field errors
+	const details = [];
+
+	// check token is entered
+	if (!token) {
+		const detailsData = {
+			field: "token",
+			issue: 'Please provide token value!'
+		}
+		details.push(detailsData);
+	}
+
+	// check newPassword is entered
+	if (!newPassword) {
+		const detailsData = {
+			field: "newPassword",
+			issue: 'New Password field is required!'
+		}
+		details.push(detailsData);
+	}
+
+	// if any field error exist, return errors
+	if (details.length > 0) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Please provide token and New password values!",
-			["token", "newPassword"],
-			"This field is required!"
+			details
 		);
 	}
 
@@ -1315,8 +1432,12 @@ const resetPassword = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
 			"New Password must have more that 6 Numbers!",
-			["newPassword"],
-			"New Password must have more that 6 Numbers!"
+			[
+				{
+					field: 'newPassword',
+					issue: "New Password must have more that 6 Numbers!"
+				}
+			]
 		);
 	}
 
@@ -1345,8 +1466,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 				StatusCode.BAD_REQUEST,
 				ErrorCode.VALIDATION_EXPIRED_VALUE,
 				"Your reset password link is expired or Invalid token!",
-				[],
-				"resetPasswordToken is not match or token is expired in resetPassword model."
+				null
 			);
 		}
 
@@ -1375,8 +1495,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 				StatusCode.BAD_REQUEST,
 				ErrorCode.RESOURCE_NOT_FOUND,
 				"User dose not exist!",
-				[],
-				"cant find user with user id in user model"
+				null
 			);
 		}
 
@@ -1418,9 +1537,8 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Token value is empty!",
-			["token"],
-			"Token value is empty!"
+			"Wrong reset password URL!. Please try again.",
+			null
 		);
 	}
 
@@ -1438,9 +1556,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_EXPIRED_VALUE,
-			"Invalid token or Token is expired!",
-			[],
-			"resetPasswordToken is not match or token is expired in resetPassword model"
+			"Your reset password URL is expired or wrong URL!. Generate new URL and try again.",
 		);
 	}
 
@@ -1461,8 +1577,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
 			"Refresh token is missing.",
-			[],
-			"incomingRefreshToken value is empty or undefined."
+			null
 		);
 	}
 
@@ -1475,8 +1590,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 				StatusCode.UNAUTHORIZED,
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
 				"User not Authorized!",
-				[],
-				"cant find user with decoded payload."
+				null
 			);
 		}
 
@@ -1496,8 +1610,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_REVOKED_TOKEN,
 			"Invalid Refresh token or Token was expired!.",
-			[],
-			"error while generate refresh token process."
+			null
 		);
 	}
 });
