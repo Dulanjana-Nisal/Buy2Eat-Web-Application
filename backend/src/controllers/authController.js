@@ -839,7 +839,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	const { otp, verification_id } = req.body;
 
 	// check verification_id and otp are entered
-	if (!verification_id || !otp) {
+	if (!verification_id) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
@@ -934,7 +934,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	}
 
 	// compare otp with user inputs
-	const compOtp = await bcrypt.compare(otp, otpUser.hash_otp)
+	const compOtp = await bcrypt.compare(normalizedOtp, otpUser.hash_otp)
 	if (!compOtp) {
 		throw new AppError(
 			StatusCode.UNAUTHORIZED,
