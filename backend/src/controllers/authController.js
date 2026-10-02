@@ -59,13 +59,34 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 const authLogin = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
 
-	// check email and password is entered
-	if (!email || !password) {
+	// get error details 
+	const details = [];
+
+	// check email is entered
+	if (!email?.trim()) {
+		const detailsData = {
+			field: 'email',
+			issue: 'Emails field is required'
+		}
+		details.push(detailsData);
+	}
+
+	// check password is entered
+	if (!password) {
+		const detailsData = {
+			field: 'password',
+			issue: 'Password field is required'
+		}
+		details.push(detailsData);
+	}
+
+	// if email or password is missing throw error
+	if (details.length > 0) {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			"Email and Password required!",
-			["email", "password"],
+			details,
 			"This field is required."
 		);
 	}
@@ -723,9 +744,20 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Your verification ID and OTP are empty!",
-			["verification_id", "otp"],
-			"Verification_id and otp is values are empty"
+			"Error while verification!, Please resend OTP and try again.",
+			[],
+			"Error while verification!, Please resend OTP and try again."
+		);
+	}
+
+	// check otp are entered
+	if (!otp) {
+		throw new AppError(
+			StatusCode.BAD_REQUEST,
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			"Your OTP field is empty!",
+			["otp"],
+			"Your OTP field is empty!"
 		);
 	}
 
@@ -770,8 +802,8 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_FORMAT,
 			"OTP in wrong format!, Please Enter numbers for OTP.",
-			["normalizedOtp"],
-			"otp validation check failed."
+			["email"],
+			"OTP in wrong format!, Please Enter numbers for OTP."
 		);
 	}
 
