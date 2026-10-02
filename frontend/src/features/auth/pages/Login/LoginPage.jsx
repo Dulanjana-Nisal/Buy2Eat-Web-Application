@@ -13,7 +13,8 @@ function LoginPage() {
     // useStates hooks
     const [loading, setLoading] = useState(false);
     const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
-    const [errorMsg, setErrorMsg] = useState(null);
+    // const [inputErrorMsg, setInputErrorMsg] = useState(null);
+    const [formErrorMsg, setFormErrorMsg] = useState(null);
 
     // Navigation hook
     const navigate = useNavigate();
@@ -34,7 +35,7 @@ function LoginPage() {
             })
         }
         catch (err) {
-            setErrorMsg(err?.response?.data.message);
+            setFormErrorMsg(err?.response?.data.message);
             const errorhandler = ErrorHandler(err);
             console.log(errorhandler)
         }
@@ -80,7 +81,7 @@ function LoginPage() {
                         loginDetails={loginDetails}
                         userLogin={userLogin}
                         setLoginDetails={setLoginDetails}
-                        errorMsg={errorMsg}
+                        errorMsg={formErrorMsg}
                     />
 
                     {/* Right Panel - Image & Widgets */}
