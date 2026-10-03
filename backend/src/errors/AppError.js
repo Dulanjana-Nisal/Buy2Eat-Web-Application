@@ -2,7 +2,7 @@ const { ErrorCode } = require("../constants/errorCodes");
 const { GetErrorCodes } = require("./getErrorCodes");
 
 class AppError extends Error{
-    constructor(code, { message, details } = {}){
+    constructor(code, { message, details, cause } = {}){
 
         // create variable for get all errors details from GetErrorCodes using code 
         const def = GetErrorCodes[code] ?? GetErrorCodes[ErrorCode.INTERNAL_SERVER_ERROR];
@@ -13,6 +13,7 @@ class AppError extends Error{
         this.code = GetErrorCodes[code] ? code : ErrorCode.INTERNAL_SERVER_ERROR;
         this.category = def.category;
         this.details = details;
+        this.cause = cause;
         this.isOperational = true;
 
         Error.captureStackTrace(this, this.constructor);
