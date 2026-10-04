@@ -1,3 +1,4 @@
+const { NODE_ENV } = require('../config/env');
 const { StatusCode, ErrorCode } = require('../constants/index');
 const AppError = require('../errors/appError');
 const { GetErrorCodes } = require('../errors/getErrorCodes');
@@ -85,7 +86,8 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 			timestamp: new Date().toISOString(),
 			path: req.originalUrl,
 			request_id: req.id,
-			details
+			details,
+			...(NODE_ENV === 'development' && { stack: error.stack })
 		}
 	});
 };
