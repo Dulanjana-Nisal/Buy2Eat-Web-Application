@@ -4,6 +4,7 @@ config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
 const {
     PORT,
+    NODE_ENV,
     MONGO_URI,
     ACCESS_SECRET,
     REFRESH_SECRET,
@@ -18,6 +19,7 @@ const {
 
 module.exports = {
     PORT,
+    NODE_ENV,
     MONGO_URI,
     ACCESS_SECRET,
     REFRESH_SECRET,
