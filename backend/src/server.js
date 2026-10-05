@@ -6,7 +6,7 @@ const { PORT, CLIENT_URL } = require('./config/env');
 const cookieParser = require("cookie-parser");
 
 // middlewares
-const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
+const errorHandlerMiddleware = require('./errors/errorHandlerMiddleware');
 const requestIDMiddleware = require('./middleware/requestIDMiddleware');
 
 // import routers

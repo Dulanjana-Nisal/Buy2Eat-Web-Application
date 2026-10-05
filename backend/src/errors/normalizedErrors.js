@@ -1,5 +1,5 @@
 const { ErrorCode } = require("../constants");
-const AppError = require("../errors/appError");
+const AppError = require("./appError");
 
 const normalizedError = (error) => {
 	if (error instanceof AppError) return error;

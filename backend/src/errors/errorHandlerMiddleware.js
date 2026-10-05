@@ -1,6 +1,6 @@
 const { NODE_ENV } = require('../config/env');
 const { StatusCode, ErrorCode } = require('../constants/index');
-const { GetErrorCodes } = require('../errors/getErrorCodes');
+const { GetErrorCodes } = require('./getErrorCodes');
 const normalizedError = require('./normalizedErrors');
 
 // main error handler middleware function
