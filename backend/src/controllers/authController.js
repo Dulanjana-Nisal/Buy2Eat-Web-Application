@@ -822,25 +822,26 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	// check verification_id and otp are entered
 	if (!verification_id) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Error while verification!, Please resend OTP and try again.",
-			null
+			{
+				message: "Error while verification!, Please resend OTP and try again."
+			}
 		);
 	}
 
 	// check otp are entered
 	if (!otp) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Your OTP field is empty!",
-			[
-				{
-					field: "otp",
-					issue: "Your OTP field is empty!"
-				}
-			]
+			{
+				message: "Your OTP field is empty!",
+				details: [
+					{
+						field: "otp",
+						issue: "Your OTP field is empty!"
+					}
+				]
+			}
 		);
 	}
 
@@ -848,15 +849,16 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	const normalizedOtp = String(otp).trim();
 	if (!/^\d*$/.test(normalizedOtp)) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_FORMAT,
-			"OTP in wrong format!, Please Enter numbers for OTP.",
-			[
-				{
-					field: "otp",
-					issue: "OTP in wrong format!, Please Enter numbers for OTP."
-				}
-			]
+			{
+				message: "OTP in wrong format!, Please Enter numbers for OTP.",
+				details: [
+					{
+						field: "otp",
+						issue: "OTP in wrong format!, Please Enter numbers for OTP."
+					}
+				]
+			}
 		);
 	}
 
@@ -864,10 +866,10 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id })
 	if (!otpUser) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
-			"OTP is not exist!",
-			null
+			{
+				message: "OTP is not exist!",
+			}
 		);
 	}
 
@@ -876,8 +878,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
-			"OTP is dose not exist!",
-			null
+			{
+				message: "OTP is dose not exist!",
+			}
 		);
 	}
 
@@ -886,8 +889,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_EXPIRED_VALUE,
-			"OTP is Expired!, Please request a new OTP",
-			null
+			{
+				message: "OTP is Expired!, Please request a new OTP"
+			}
 		);
 	}
 
@@ -909,8 +913,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.TOO_MANY_REQUESTS,
 			ErrorCode.RATE_LIMIT_EXCEEDED,
-			"Maximum attempts exceeded!. Please try again later.",
-			null
+			{
+				message: "Maximum attempts exceeded!. Please try again later.",
+			},
 		);
 	}
 
@@ -920,8 +925,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
-			"Invalid OTP!. Please try again.",
-			null
+			{
+				message: "Invalid OTP!. Please try again.",
+			}
 		);
 	}
 
@@ -930,7 +936,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_SELECTION,
-			"Invalid role selection!. Please Try again.",
+			{
+				message: "Invalid role selection!. Please Try again.",
+			}
 		);
 	}
 
