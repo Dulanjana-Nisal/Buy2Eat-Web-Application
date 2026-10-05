@@ -1522,10 +1522,10 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 	// check if token value exist
 	if (!token) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Wrong reset password URL!. Please try again.",
-			null
+			{
+				message: "Wrong reset password URL!. Please try again.",
+			}
 		);
 	}
 
@@ -1541,9 +1541,10 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 	)
 	if (!resetUser) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_EXPIRED_VALUE,
-			"Your reset password URL is expired or wrong URL!. Generate new URL and try again.",
+			{
+				message: "Your reset password URL is expired or wrong URL!. Generate new URL and try again.",
+			}
 		);
 	}
 
