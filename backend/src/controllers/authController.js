@@ -1214,15 +1214,17 @@ const forgotPassword = asyncHandler(async (req, res) => {
 	// check if email is entered
 	if (!email) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Please provide email address!",
-			[
-				{
-					field: "email",
-					issue: "Email field is required!"
-				}
-			]
+			{
+				message: "Please provide email address!",
+				details: [
+					{
+						field: "email",
+						issue: "Email field is required!"
+					}
+				]
+			}
+
 		);
 	}
 
