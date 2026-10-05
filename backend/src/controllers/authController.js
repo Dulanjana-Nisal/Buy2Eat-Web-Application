@@ -158,10 +158,8 @@ const googleAuth = asyncHandler(async (req, res) => {
 	// check google code is exist
 	if (!code) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Google authorization code is required!",
-			null
+			{ message: "Google authorization code is required!" },
 		);
 	}
 
@@ -194,10 +192,8 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 	if (!id_token) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Google ID token was not received!",
-			null
+			{message: "Google ID token was not received!"},
 		);
 	}
 
@@ -213,10 +209,8 @@ const googleAuth = asyncHandler(async (req, res) => {
 	// check email is verified
 	if (!email_verified) {
 		throw new AppError(
-			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
-			"Email is not verified in Google!",
-			null
+			{message: "Email is not verified in Google!"}
 		);
 	}
 
@@ -260,10 +254,8 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 			if (!googleRegisterUser) {
 				throw new AppError(
-					StatusCode.CONFLICT,
 					ErrorCode.WRITE_CONFLICT_ERROR,
-					"Error while google registration!",
-					null
+					{ message: "Error while google registration!" }
 				);
 			}
 		}
@@ -280,10 +272,8 @@ const googleAuth = asyncHandler(async (req, res) => {
 	// update user
 	if (user.google_id && user.google_id !== sub) {
 		throw new AppError(
-			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
-			"Google account linked to another account!",
-			null
+			{ message: "Google account linked to another account!" }
 		);
 	}
 
@@ -336,10 +326,8 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 			// send response
 			throw new AppError(
-				StatusCode.CONFLICT,
 				ErrorCode.WRITE_CONFLICT_ERROR,
-				"Error while update profile!",
-				null
+				{ message: "Error while update profile!" }
 			);
 		}
 	}
