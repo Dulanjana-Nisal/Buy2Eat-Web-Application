@@ -734,10 +734,11 @@ const registerSellers = asyncHandler(async (req, res) => {
 	// check all required fields are filled
 	if (details.length > 0) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Please provide email, password, first name, last name and phone number!",
-			details
+			{
+				message: "Please provide email, password, first name, last name and phone number!",
+				details: details
+			}
 		);
 	}
 
@@ -746,13 +747,15 @@ const registerSellers = asyncHandler(async (req, res) => {
 		throw new AppError(
 			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
-			"Password must have more that 6 Numbers!",
-			[
-				{
-					field: "password",
-					issue: "Password must have more that 6 Numbers!"
-				}
-			]
+			{
+				message: "Password must have more that 6 Numbers!",
+				details: [
+					{
+						field: "password",
+						issue: "Password must have more that 6 Numbers!"
+					}
+				]
+			}
 		);
 	}
 
@@ -761,10 +764,10 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const existingUser = await Users.findOne({ email: normalizedEmail });
 	if (existingUser) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
-			"Email is already registered!",
-			null,
+			{
+				message: "Email is already registered!"
+			}
 		);
 	}
 
@@ -794,10 +797,10 @@ const registerSellers = asyncHandler(async (req, res) => {
 	// if otp is failed to send
 	if (!sendOTP?.success) {
 		throw new AppError(
-			StatusCode.UNPROCESSABLE_ENTITY,
 			ErrorCode.EMAIL_DELIVERY_REJECTED,
-			"Send OTP Failed!",
-			null
+			{
+				message: "Send OTP Failed!"
+			}
 		);
 	}
 
