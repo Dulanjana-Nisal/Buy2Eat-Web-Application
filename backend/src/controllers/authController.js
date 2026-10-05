@@ -111,20 +111,18 @@ const authLogin = asyncHandler(async (req, res) => {
 	const user = await Users.findOne({ email: normalizedEmail });
 	if (!user) {
 		throw new AppError(
-			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
-			"Invalid email or password",
-			null
+			{
+				message: "Invalid email or password",
+			}
 		);
 	}
 
 	// check password is exist on database
 	if (!user.password) {
 		throw new AppError(
-			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
-			"Invalid email or password",
-			null
+			{ message: "Invalid email or password" }
 		);
 	}
 
@@ -132,10 +130,8 @@ const authLogin = asyncHandler(async (req, res) => {
 	const checkPass = await bcrypt.compare(password, user.password);
 	if (!checkPass) {
 		throw new AppError(
-			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
-			"Invalid email or password",
-			null
+			{ message: "Invalid email or password" },
 		);
 	}
 
