@@ -19,7 +19,9 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 
 	const details = error.details || [];
 
-	/* create error response should be... *
+	// create error response should be...
+
+	/**
 	{
 	   "success": false,
 	   "error": {
@@ -42,7 +44,6 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 			path: req.originalUrl,
 			request_id: req.id,
 			details,
-			...(NODE_ENV === 'development' && { stack: error.stack })
 		}
 	});
 };

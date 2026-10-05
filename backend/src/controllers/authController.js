@@ -92,13 +92,14 @@ const authLogin = asyncHandler(async (req, res) => {
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
-			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			ErrorCode.PASSWORD_TOO_WEAK,
 			{
 				details: [
 					{
 						field: 'password',
 						issue: "Password must have at least 6 characters"
-					}]
+					}
+				]
 			}
 		);
 	}
