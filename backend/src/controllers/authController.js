@@ -193,7 +193,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	if (!id_token) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{message: "Google ID token was not received!"},
+			{ message: "Google ID token was not received!" },
 		);
 	}
 
@@ -210,7 +210,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	if (!email_verified) {
 		throw new AppError(
 			ErrorCode.AUTH_MISSING_TOKEN,
-			{message: "Email is not verified in Google!"}
+			{ message: "Email is not verified in Google!" }
 		);
 	}
 
@@ -387,10 +387,10 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	if (details.length > 0) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{ 
+			{
 				message: "Role and Phone number is required!",
 				details: details
-			 },
+			},
 		);
 	}
 
@@ -398,7 +398,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	if (phone_number.length < 6) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
-			{ 
+			{
 				message: "Phone number must have more that 6 Numbers!",
 				details: [
 					{
@@ -589,10 +589,11 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	// check all required fields are filled
 	if (details.length > 0) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Please provide email, password, first name, last name and phone number!",
-			details
+			{
+				message: "Please provide email, password, first name, last name and phone number!",
+				details: details
+			}
 		);
 	}
 
@@ -601,25 +602,26 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const existingUser = await Users.findOne({ email: normalizedEmail });
 	if (existingUser) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
-			"Email is already registered!",
-			null
+			{
+				message: "Email is already registered!"
+			}
 		);
 	}
 
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
-			"Password must have more that 6 Numbers!",
-			[
-				{
-					field: 'password',
-					issue: 'Password must have more that 6 Numbers!'
-				}
-			]
+			{
+				message: "Password must have more that 6 Numbers!",
+				details: [
+					{
+						field: 'password',
+						issue: 'Password must have more that 6 Numbers!'
+					}
+				]
+			}
 		);
 	}
 
@@ -651,10 +653,10 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	// if otp is failed to send
 	if (!sendOTP?.success) {
 		throw new AppError(
-			StatusCode.UNPROCESSABLE_ENTITY,
 			ErrorCode.EMAIL_DELIVERY_REJECTED,
-			"Send OTP Failed!",
-			null,
+			{
+				message: "Send OTP Failed!"
+			}
 		);
 	}
 
