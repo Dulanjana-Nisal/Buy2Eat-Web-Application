@@ -1,5 +1,5 @@
 const { ErrorCode } = require("../constants");
-const AppError = require("./appError");
+const AppError = require("./AppError");
 
 const normalizedError = (error) => {
 	if (error instanceof AppError) return error;
@@ -30,7 +30,7 @@ const normalizedError = (error) => {
 	// JWT
 	if(error.name === "TokenExpiredError") return new AppError(ErrorCode.AUTH_EXPIRED_TOKEN);
 	if(error.name === "JsonWebTokenError") return new AppError(ErrorCode.AUTH_INVALID_TOKEN);
-	if(error.name === "NotBeforeError") return new AppError(ErrorCode.AUTH_RESOURCE_FORBIDDEN);
+	if(error.name === "NotBeforeError") return new AppError(ErrorCode.AUTH_INVALID_TOKEN);
 
 	// Multer
 	if(error.code === "LIMIT_FILE_SIZE") return new AppError(ErrorCode.FILE_TOO_LARGE);

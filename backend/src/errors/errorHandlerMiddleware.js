@@ -1,4 +1,3 @@
-const { NODE_ENV } = require('../config/env');
 const { StatusCode, ErrorCode } = require('../constants/index');
 const { GetErrorCodes } = require('./getErrorCodes');
 const normalizedError = require('./normalizedErrors');
@@ -7,7 +6,7 @@ const normalizedError = require('./normalizedErrors');
 const errorHandlerMiddleware = (err, req, res, next) => {
 
 	// check if request is already exist
-	if (res.headerSent) return next(err);
+	if (res.headersSent) return next(err);
 
 	const error = normalizedError(err);
 

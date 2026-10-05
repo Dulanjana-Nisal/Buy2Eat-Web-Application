@@ -15,7 +15,7 @@ const mongoose = require('mongoose');
 const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants');
-const AppError = require('../errors/appError');
+const AppError = require('../errors/AppError');
 
 // cookie options
 const cookieOptions = {
@@ -397,7 +397,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	// validating phone number
 	if (phone_number.length < 6) {
 		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
+			ErrorCode.VALIDATION_OUT_OF_RANGE,
 			{
 				message: "Phone number must have more that 6 Numbers!",
 				details: [
@@ -413,7 +413,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	// check rolls are right
 	if (!['customer', 'seller'].includes(role)) {
 		throw new AppError(
-			ErrorCode.VALIDATION_INVALID_SELECTION,
+			ErrorCode.VALIDATION_INVALID_FORMAT,
 			{ message: "Invalid role selection." }
 		);
 	}
@@ -490,7 +490,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		// send response
 		if (!sendOTP?.success) {
 			throw new AppError(
-				ErrorCode.EMAIL_DELIVERY_REJECTED,
+				ErrorCode.OTP_SEND_FAILED,
 				{ message: "Send OTP Failed!" }
 			);
 		}
@@ -612,7 +612,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
-			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			ErrorCode.PASSWORD_TOO_WEAK,
 			{
 				message: "Password must have more that 6 Numbers!",
 				details: [
@@ -653,7 +653,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	// if otp is failed to send
 	if (!sendOTP?.success) {
 		throw new AppError(
-			ErrorCode.EMAIL_DELIVERY_REJECTED,
+			ErrorCode.OTP_SEND_FAILED,
 			{
 				message: "Send OTP Failed!"
 			}
@@ -745,7 +745,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
-			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			ErrorCode.PASSWORD_TOO_WEAK,
 			{
 				message: "Password must have more that 6 Numbers!",
 				details: [
@@ -796,7 +796,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	// if otp is failed to send
 	if (!sendOTP?.success) {
 		throw new AppError(
-			ErrorCode.EMAIL_DELIVERY_REJECTED,
+			ErrorCode.OTP_SEND_FAILED,
 			{
 				message: "Send OTP Failed!"
 			}
@@ -885,7 +885,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	// check if OTP is expired
 	if (otpUser.expiresAt <= new Date()) {
 		throw new AppError(
-			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			ErrorCode.OTP_EXPIRED,
 			{
 				message: "OTP is Expired!, Please request a new OTP"
 			}
@@ -929,7 +929,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	// check role is correct
 	if (!['customer', 'seller'].includes(otpUser.role)) {
 		throw new AppError(
-			ErrorCode.VALIDATION_INVALID_SELECTION,
+			ErrorCode.VALIDATION_INVALID_FORMAT,
 			{
 				message: "Invalid role selection!. Please Try again.",
 			}
@@ -1019,7 +1019,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 	if (otpUser.session_expiresAt <= new Date()) {
 		throw new AppError(
-			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			ErrorCode.OTP_EXPIRED,
 			{
 				message: "OTP session is expired!. Please re register again to get new OTP.",
 			}
@@ -1415,7 +1415,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 	// check password have enough characters
 	if (newPassword.length <= 6) {
 		throw new AppError(
-			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
+			ErrorCode.PASSWORD_TOO_WEAK,
 			{
 				message: "New Password must have more that 6 Numbers!",
 				details: [
@@ -1450,7 +1450,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 			await session.abortTransaction();
 
 			throw new AppError(
-				ErrorCode.VALIDATION_EXPIRED_VALUE,
+				ErrorCode.PASSWORD_RESET_TOKEN_INVALID,
 				{
 					message: "Your reset password link is expired or Invalid token!",
 				}
@@ -1541,7 +1541,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 	)
 	if (!resetUser) {
 		throw new AppError(
-			ErrorCode.VALIDATION_EXPIRED_VALUE,
+			ErrorCode.PASSWORD_RESET_TOKEN_INVALID,
 			{
 				message: "Your reset password URL is expired or wrong URL!. Generate new URL and try again.",
 			}
@@ -1594,6 +1594,9 @@ const refreshToken = asyncHandler(async (req, res) => {
 		});
 
 	} catch (error) {
+		// rethrow if it's already an AppError
+		if(error instanceof AppError) throw error; 
+		
 		throw new AppError(
 			ErrorCode.AUTH_REVOKED_TOKEN,
 			{
