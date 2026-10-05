@@ -357,10 +357,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	// check if registerToken is exist
 	if (!registerToken) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Google registration failed!",
-			null
+			{ message: "Google registration failed!" }
 		);
 	}
 
@@ -388,35 +386,35 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	// return if have error
 	if (details.length > 0) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Role and Phone number is required!",
-			details
+			{ 
+				message: "Role and Phone number is required!",
+				details: details
+			 },
 		);
 	}
 
 	// validating phone number
 	if (phone_number.length < 6) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_TOO_SHORT,
-			"Phone number must have more that 6 Numbers!",
-			[
-				{
-					field: 'phone_number',
-					issue: "Phone number must have more that 6 Numbers!"
-				}
-			]
+			{ 
+				message: "Phone number must have more that 6 Numbers!",
+				details: [
+					{
+						field: 'phone_number',
+						issue: "Phone number must have more that 6 Numbers!"
+					}
+				]
+			}
 		);
 	}
 
 	// check rolls are right
 	if (!['customer', 'seller'].includes(role)) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_SELECTION,
-			"Invalid role selection.",
-			null
+			{ message: "Invalid role selection." }
 		);
 	}
 
@@ -435,10 +433,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 	if (!googleRegisteredUser) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
-			"Register user not found!",
-			null
+			{ message: "Register user not found!" }
 		);
 	}
 
@@ -446,10 +442,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	const existUserAgain = await Users.findOne({ email: googleRegisteredUser.email });
 	if (existUserAgain) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
-			"User already exist!",
-			null
+			{ message: "User already exist!" }
 		);
 	}
 
@@ -496,10 +490,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		// send response
 		if (!sendOTP?.success) {
 			throw new AppError(
-				StatusCode.UNPROCESSABLE_ENTITY,
 				ErrorCode.EMAIL_DELIVERY_REJECTED,
-				"Send OTP Failed!",
-				null
+				{ message: "Send OTP Failed!" }
 			);
 		}
 
