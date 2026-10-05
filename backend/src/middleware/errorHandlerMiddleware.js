@@ -18,11 +18,11 @@ const normalizedError = (error) => {
 	
 	// Mongoose bad object id
 	if(error.name === "CastError"){
-		return new AppError(ErrorCode.VALIDATION_INVALID_FORMAT, { message: `Invalid ${err.path}: ${err.value}` });
+		return new AppError(ErrorCode.VALIDATION_INVALID_FORMAT, { message: `Invalid ${error.path}: ${error.value}` });
 	}
 
 	// Mongo db duplicate key
-	if(error.code === 1100){
+	if(error.code === 11000){
 		const field = Object.keys(error.keyValue)[0];
 		return new AppError(ErrorCode.RESOURCE_ALREADY_EXISTS, { message: field ? `${field} already exists` : undefined });
 	}
@@ -33,6 +33,7 @@ const normalizedError = (error) => {
 	// JWT
 	if(error.name === "TokenExpiredError") return new AppError(ErrorCode.AUTH_EXPIRED_TOKEN);
 	if(error.name === "JsonWebTokenError") return new AppError(ErrorCode.AUTH_INVALID_TOKEN);
+	if(error.name === "NotBeforeError") return new AppError(ErrorCode.AUTH_RESOURCE_FORBIDDEN);
 
 	// Multer
 	if(error.code === "LIMIT_FILE_SIZE") return new AppError(ErrorCode.FILE_TOO_LARGE);
@@ -65,17 +66,18 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 
 	// create error response should be...
 
-	// 	{
-	//   "success": false,
-	//   "error": {
-	//     "code": "VALIDATION_FIELD_REQUIRED",
-	//     "category": "VALIDATION_ERROR",
-	//     "message": "Email is required",
-	//     "details": [{ "field": "email", "issue": "Email is required" }],
-	//     "requestId": "b7e1c2a4-...",
-	//     "timestamp": "2026-10-02T10:15:30.000Z"
-	//   }
-	// }
+	/**
+	{
+	   "success": false,
+	   "error": {
+	     "code": "VALIDATION_FIELD_REQUIRED",
+	     "category": "VALIDATION_ERROR",
+	     "message": "Email is required",
+	     "details": [{ "field": "email", "issue": "Email is required" }],
+	     "requestId": "b7e1c2a4-...",
+	     "timestamp": "2026-10-02T10:15:30.000Z"
+	}
+	**/
 
 	res.status(status).json({
 		success: false,
