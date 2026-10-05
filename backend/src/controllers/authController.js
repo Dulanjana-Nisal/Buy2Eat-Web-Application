@@ -745,7 +745,6 @@ const registerSellers = asyncHandler(async (req, res) => {
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
 			{
 				message: "Password must have more that 6 Numbers!",
@@ -876,7 +875,6 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	// check if otp is exist
 	if (!otpUser.hash_otp) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
 			{
 				message: "OTP is dose not exist!",
@@ -887,7 +885,6 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	// check if OTP is expired
 	if (otpUser.expiresAt <= new Date()) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_EXPIRED_VALUE,
 			{
 				message: "OTP is Expired!, Please request a new OTP"
@@ -911,7 +908,6 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 	if (!updatedOtpUser) {
 		throw new AppError(
-			StatusCode.TOO_MANY_REQUESTS,
 			ErrorCode.RATE_LIMIT_EXCEEDED,
 			{
 				message: "Maximum attempts exceeded!. Please try again later.",
@@ -923,7 +919,6 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	const compOtp = await bcrypt.compare(normalizedOtp, otpUser.hash_otp)
 	if (!compOtp) {
 		throw new AppError(
-			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_INVALID_CREDENTIALS,
 			{
 				message: "Invalid OTP!. Please try again.",
@@ -934,7 +929,6 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	// check role is correct
 	if (!['customer', 'seller'].includes(otpUser.role)) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_INVALID_SELECTION,
 			{
 				message: "Invalid role selection!. Please Try again.",
@@ -1006,29 +1000,29 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 	if (!verification_id) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Failed to resend OTP!. Please try again later.",
-			null,
+			{
+				message: "Failed to resend OTP!. Please try again later.",
+			},
 		);
 	}
 
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
 	if (!otpUser) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.RESOURCE_NOT_FOUND,
-			"Failed to resend OTP!. Please try again later.",
-			null
+			{
+				message: "Failed to resend OTP!. Please try again later.",
+			}
 		);
 	}
 
 	if (otpUser.session_expiresAt <= new Date()) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_EXPIRED_VALUE,
-			"OTP session is expired!. Please re register again to get new OTP.",
-			null
+			{
+				message: "OTP session is expired!. Please re register again to get new OTP.",
+			}
 		);
 	}
 
@@ -1082,29 +1076,29 @@ const resendOtp = asyncHandler(async (req, res) => {
 		// check cooldown time is competed 
 		if (latestOtpUser?.lastResendAt && (now - latestOtpUser.lastResendAt.getTime()) < cooldownPeriod) {
 			throw new AppError(
-				StatusCode.TOO_MANY_REQUESTS,
 				ErrorCode.RATE_LIMIT_EXCEEDED,
-				"You can only resend OTP once per minute. Please wait before trying again.",
-				null
+				{
+					message: "You can only resend OTP once per minute. Please wait before trying again.",
+				}
 			);
 		}
 
 		// check resend count is exceeded
 		if (latestOtpUser?.resendCount >= 4) {
 			throw new AppError(
-				StatusCode.TOO_MANY_REQUESTS,
 				ErrorCode.RATE_LIMIT_EXCEEDED,
-				"You have reached the maximum number of OTP resend attempts. Please try again later.",
-				null
+				{
+					message: "You have reached the maximum number of OTP resend attempts. Please try again later.",
+				}
 			);
 		}
 
 		// send Error response
 		throw new AppError(
-			StatusCode.TOO_MANY_REQUESTS,
 			ErrorCode.EXTERNAL_SERVICE_UNAVAILABLE,
-			"OTP resend is temporarily unavailable. Please try again in a moment.",
-			null
+			{
+				message: "OTP resend is temporarily unavailable. Please try again in a moment.",
+			},
 		);
 	}
 
@@ -1135,10 +1129,10 @@ const resendOtp = asyncHandler(async (req, res) => {
 		// check if failed to get updateNewResentUser
 		if (!updateNewResentUser) {
 			throw new AppError(
-				StatusCode.CONFLICT,
 				ErrorCode.WRITE_CONFLICT_ERROR,
-				"Failed to update database while sending email!. Please try again.",
-				null
+				{
+					message: "Failed to update database while sending email!. Please try again.",
+				}
 			);
 		};
 
