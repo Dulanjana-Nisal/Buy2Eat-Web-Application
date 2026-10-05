@@ -1404,25 +1404,27 @@ const resetPassword = asyncHandler(async (req, res) => {
 	// if any field error exist, return errors
 	if (details.length > 0) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			"Please provide token and New password values!",
-			details
+			{
+				message: "Please provide token and New password values!",
+				details: details
+			},
 		);
 	}
 
 	// check password have enough characters
 	if (newPassword.length <= 6) {
 		throw new AppError(
-			StatusCode.BAD_REQUEST,
 			ErrorCode.VALIDATION_PASSWORD_TOO_WEAK,
-			"New Password must have more that 6 Numbers!",
-			[
-				{
-					field: 'newPassword',
-					issue: "New Password must have more that 6 Numbers!"
-				}
-			]
+			{
+				message: "New Password must have more that 6 Numbers!",
+				details: [
+					{
+						field: 'newPassword',
+						issue: "New Password must have more that 6 Numbers!"
+					}
+				]
+			}
 		);
 	}
 
@@ -1448,10 +1450,10 @@ const resetPassword = asyncHandler(async (req, res) => {
 			await session.abortTransaction();
 
 			throw new AppError(
-				StatusCode.BAD_REQUEST,
 				ErrorCode.VALIDATION_EXPIRED_VALUE,
-				"Your reset password link is expired or Invalid token!",
-				null
+				{
+					message: "Your reset password link is expired or Invalid token!",
+				}
 			);
 		}
 
@@ -1477,10 +1479,10 @@ const resetPassword = asyncHandler(async (req, res) => {
 			await session.abortTransaction();
 
 			throw new AppError(
-				StatusCode.BAD_REQUEST,
 				ErrorCode.RESOURCE_NOT_FOUND,
-				"User dose not exist!",
-				null
+				{
+					message: "User does not exist!",
+				}
 			);
 		}
 
