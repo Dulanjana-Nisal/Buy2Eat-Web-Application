@@ -1562,10 +1562,10 @@ const refreshToken = asyncHandler(async (req, res) => {
 	// check refresh token is exist
 	if (!incomingRefreshToken) {
 		throw new AppError(
-			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_MISSING_TOKEN,
-			"Refresh token is missing.",
-			null
+			{
+				message: "Refresh token is missing.",
+			}
 		);
 	}
 
@@ -1575,10 +1575,10 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 		if (!user) {
 			throw new AppError(
-				StatusCode.UNAUTHORIZED,
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
-				"User not Authorized!",
-				null
+				{
+					message: "User not Authorized!",
+				}
 			);
 		}
 
@@ -1595,10 +1595,10 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 	} catch (error) {
 		throw new AppError(
-			StatusCode.UNAUTHORIZED,
 			ErrorCode.AUTH_REVOKED_TOKEN,
-			"Invalid Refresh token or Token was expired!.",
-			null
+			{
+				message: "Invalid Refresh token or Token was expired!.",
+			},
 		);
 	}
 });
