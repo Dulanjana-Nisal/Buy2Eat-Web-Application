@@ -1,48 +1,14 @@
 import styles from './LoginPage.module.css';
 import login_background from '../../../../assets/images/customer-register-right-banner.png';
-import { useState } from 'react';
 import LoginForm from '../../components/LoginForm/LoginForm';
 import { useNavigate } from 'react-router-dom';
-import { userLoginApi } from '../../api/authApi';
 import Background from '../../../../shared/components/ui/Background';
-import { ErrorHandler } from '../../../../utils/error/errorHandler';
 
 /** Manages login form state and submits user credentials. */
 function LoginPage() {
 
-    // useStates hooks
-    const [loading, setLoading] = useState(false);
-    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
-    // const [inputErrorMsg, setInputErrorMsg] = useState(null);
-    const [formErrorMsg, setFormErrorMsg] = useState(null);
-
     // Navigation hook
     const navigate = useNavigate();
-
-    // user login function 
-    const userLogin = async (e) => {
-        e.preventDefault();
-
-        // call backend user login api
-        try {
-            setLoading(true);
-            await userLoginApi(loginDetails);
-
-            // Remove login details
-            setLoginDetails({
-                email: '',
-                password: '',
-            })
-        }
-        catch (err) {
-            setFormErrorMsg(err?.response?.data.message);
-            const errorhandler = ErrorHandler(err);
-            console.log(errorhandler)
-        }
-        finally {
-            setLoading(false);
-        }
-    }
 
     return (
         <>
@@ -76,13 +42,7 @@ function LoginPage() {
                 <div className={styles.container}>
 
                     {/* Left Panel - Login Form */}
-                    <LoginForm
-                        loading={loading}
-                        loginDetails={loginDetails}
-                        userLogin={userLogin}
-                        setLoginDetails={setLoginDetails}
-                        errorMsg={formErrorMsg}
-                    />
+                    <LoginForm />
 
                     {/* Right Panel - Image & Widgets */}
                     <div className={styles.infoPanel}>

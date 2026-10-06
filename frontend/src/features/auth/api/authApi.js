@@ -1,9 +1,15 @@
 import api from "../../../app/config/api";
+import { ErrorHandler } from "../../../utils/error/errorHandler";
 
 // User Login API
 export const userLoginApi = async (loginData) => {
-    const response = await api.post('/auth/login', loginData);
-    return response.data;
+    try{
+        const response = await api.post('/auth/login', loginData);
+        return response.data;
+    }
+    catch(error){
+        throw ErrorHandler(error);
+    }
 }
 
 // Google Auth API

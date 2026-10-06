@@ -4,14 +4,30 @@ import login_transparent from '../../../../assets/images/login_transparent.svg';
 import { Link } from 'react-router-dom'
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
+import { useLogin } from '../../hooks/useLogin';
 
-function LoginForm({ loading, loginDetails, userLogin, setLoginDetails, errorMsg }) {
+function LoginForm() {
 
     // useStates hooks
     const [hidePassword, setHidePassword] = useState(true);
+    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
 
     // use custom hooks
     const { continueWithGoogle } = useGoogleAuth();
+    const { login, loading, displayError } = useLogin();
+
+    // user login function. This function execute when user submit the login form
+    const userLogin = async (e) => {
+        e.preventDefault();
+
+        // call login api
+        try{
+            await login(loginDetails)
+        }
+        catch(error){
+           return error
+        }
+    }
 
     return (
         <>
@@ -92,8 +108,8 @@ function LoginForm({ loading, loginDetails, userLogin, setLoginDetails, errorMsg
 
                         {/* Error message here */}
                         {
-                            errorMsg &&
-                            <ErrorLayout />
+                            displayError &&
+                            <ErrorLayout message={displayError.message ?? "Something wrong!"} />
                         }
 
                         <button type="submit" className={styles.submitButton} disabled={loading}>

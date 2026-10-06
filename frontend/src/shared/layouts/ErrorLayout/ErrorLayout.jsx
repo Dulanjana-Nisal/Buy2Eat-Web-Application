@@ -1,9 +1,9 @@
 import styles from './ErrorLayout.module.css';
 
-function ErrorLayout() {
+function ErrorLayout({message}) {
     return (
         <div className={styles.errorMessages}>
-            <p>Some error message here</p>
+            <p>{message}</p>
         </div>
     )
 }
