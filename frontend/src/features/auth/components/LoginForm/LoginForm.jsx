@@ -1,34 +1,51 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './LoginForm.module.css';
 import login_transparent from '../../../../assets/images/login_transparent.svg';
 import { Link } from 'react-router-dom'
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 import { useLogin } from '../../hooks/useLogin';
+import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
 
 function LoginForm() {
-
-    // useStates hooks
-    const [hidePassword, setHidePassword] = useState(true);
-    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
 
     // use custom hooks
     const { continueWithGoogle } = useGoogleAuth();
     const { login, loading, displayError } = useLogin();
+
+    // useStates hooks
+    const [hidePassword, setHidePassword] = useState(true);
+    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null });
 
     // user login function. This function execute when user submit the login form
     const userLogin = async (e) => {
         e.preventDefault();
 
         // call login api
-        try{
-            await login()
+        try {
+            await login(loginDetails);
         }
-        catch(error){
-           return error
+        catch (error) {
+            return error
         }
     }
-    console.log(displayError)
+
+    // use effect for design errors for login
+    useEffect(() => {
+        function formatFunction() {
+
+            // get error category
+            const errorCat = getErrorCategory(displayError);
+            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null });
+        }
+
+        formatFunction();
+
+    }, [displayError])
+
+    console.log(errorDetails)
+
 
     return (
         <>
@@ -69,9 +86,14 @@ function LoginForm() {
                                 type="email" id="email"
                                 placeholder="you@example.com"
                                 value={loginDetails.email}
+                                className={errorDetails.errorFields?.email && styles.errorInput}
                                 onChange={(e) => setLoginDetails({ ...loginDetails, email: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null } })}
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && <p className={styles.errorText}>{errorDetails.errorFields?.email}</p>
+                        }
                         <div className={styles.inputGroup}>
                             <div className={styles.passwordHeader}>
                                 <label htmlFor="password">Password</label>
@@ -82,8 +104,10 @@ function LoginForm() {
                                     type={hidePassword ? "password" : "text"}
                                     id="password"
                                     value={loginDetails.password}
+                                    className={errorDetails.errorFields?.password && styles.errorInput}
                                     placeholder="Enter your password"
                                     onChange={(e) => setLoginDetails({ ...loginDetails, password: e.target.value })}
+                                    onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, password: null } })}
                                 />
                                 <button type="button" className={styles.eyeIcon} onClick={() => setHidePassword(!hidePassword)}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -102,6 +126,9 @@ function LoginForm() {
                                 }
                             </div>
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) && <p className={styles.errorText}>{errorDetails.errorFields?.password}</p>
+                        }
                         <div className={styles.checkboxGroup}>
                             <input type="checkbox" id="remember" />
                             <label htmlFor="remember">Remember me </label>
@@ -109,8 +136,8 @@ function LoginForm() {
 
                         {/* Error message here */}
                         {
-                            displayError &&
-                            <ErrorLayout message={displayError.message ?? "Something wrong!"} />
+                            (errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
+                            <ErrorLayout message={displayError?.message ?? "Something wrong!"} />
                         }
 
                         <button type="submit" className={styles.submitButton} disabled={loading}>
@@ -120,7 +147,7 @@ function LoginForm() {
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                                 </>
                             }
-                        </button>
+                        </button> 
                     </form>
                     <p className={styles.footerText}>
                         New to Buy2Eat? <Link to="/register">Create an account</Link>

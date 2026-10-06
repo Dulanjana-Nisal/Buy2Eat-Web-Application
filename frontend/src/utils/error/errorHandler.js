@@ -40,6 +40,7 @@ export const ErrorHandler = (error) => {
         const returnError = {
             type: "api",
             status: errorData.status ?? error.response.status, // if status code not defined, add default status code
+            category: errorData.category ?? "UNKNOWN_ERROR",
             code: errorData.code ?? "UNKNOWN_ERROR_CODE",
             message: errorData.message ?? "Something went wrong!. Please try again later.",
             fieldErrors,
@@ -57,6 +58,7 @@ export const ErrorHandler = (error) => {
         return {
             type: "network",
             status: null,
+            category: "NETWORK_ERROR",
             code: "NETWORK_ERROR",
             message: "Unable to connect to the server. Please check your internet connection.",
             fieldErrors: {}
@@ -67,6 +69,7 @@ export const ErrorHandler = (error) => {
     return {
         type: "Unknown",
         status: null,
+        category: "UNKNOWN_ERROR",
         code: "UNKNOWN_ERROR",
         message: "Something went wrong!. Please try again later.",
         fieldErrors: {}
