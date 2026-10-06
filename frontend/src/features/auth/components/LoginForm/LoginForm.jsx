@@ -22,12 +22,13 @@ function LoginForm() {
 
         // call login api
         try{
-            await login(loginDetails)
+            await login()
         }
         catch(error){
            return error
         }
     }
+    console.log(displayError)
 
     return (
         <>

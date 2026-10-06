@@ -28,7 +28,7 @@ export const ErrorHandler = (error) => {
 
             like that
         */
-       
+
         let fieldErrors = {}
         if (Array.isArray(errorData.details) && errorData.details != []) {
             errorData.details.forEach(element => {
@@ -36,13 +36,20 @@ export const ErrorHandler = (error) => {
             });
         }
 
-        return {
+        // variable for return data set
+        const returnError = {
             type: "api",
             status: errorData.status ?? error.response.status, // if status code not defined, add default status code
             code: errorData.code ?? "UNKNOWN_ERROR_CODE",
             message: errorData.message ?? "Something went wrong!. Please try again later.",
             fieldErrors,
         }
+
+        if (returnError.status >= 500) {
+            returnError.requestId = errorData.request_id || 'not generated'
+        }
+
+        return returnError;
     }
 
     // check if have connection error
