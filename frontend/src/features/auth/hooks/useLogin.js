@@ -11,18 +11,18 @@ export const useLogin = () => {
     async function login(credentials) {
         // set load to true
         setLoading(true);
-        try{
+        try {
             const result = await userLoginApi(credentials);
             return result;
         }
-        catch(error){
+        catch (error) {
             setDisplayError(error);
             throw error;
         }
-        finally{
+        finally {
             setLoading(false);
         }
     }
 
-    return { login, loading, displayError } 
+    return { login, loading, displayError }
 }

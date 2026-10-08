@@ -36,13 +36,13 @@ function LoginForm() {
         function formatFunction() {
 
             // reset all error details before install errors
-            setErrorDetails({ category:  null, errorFields: null, errorFrom: null  });
+            setErrorDetails({ category: null, errorFields: null, errorFrom: null });
 
             const errorCat = getErrorCategory(displayError || null);
 
             // get error category
             getErrorCategory(displayError);
-            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null, errorFrom: displayError?.message || null  });
+            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null, errorFrom: displayError?.message || null });
         }
 
         formatFunction();
@@ -90,7 +90,7 @@ function LoginForm() {
                                 value={loginDetails.email}
                                 className={errorDetails.errorFields?.email && styles.errorInput}
                                 onChange={(e) => setLoginDetails({ ...loginDetails, email: e.target.value })}
-                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null } })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                             />
                         </div>
                         {
@@ -109,7 +109,7 @@ function LoginForm() {
                                     className={errorDetails.errorFields?.password && styles.errorInput}
                                     placeholder="Enter your password"
                                     onChange={(e) => setLoginDetails({ ...loginDetails, password: e.target.value })}
-                                    onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, password: null } })}
+                                    onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, password: null }, errorFrom: null })}
                                 />
                                 <button type="button" className={styles.eyeIcon} onClick={() => setHidePassword(!hidePassword)}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -138,8 +138,8 @@ function LoginForm() {
 
                         {/* Error message here */}
                         {
-                            ( errorDetails?.category && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
-                            <ErrorLayout message={errorDetails?.errorFrom  ?? "Something wrong!"} />
+                            (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
+                            <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
                         }
 
                         <button type="submit" className={styles.submitButton} disabled={(loading || googleLoginLoading)}>

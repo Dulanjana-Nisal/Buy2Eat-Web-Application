@@ -1,17 +1,84 @@
 import styles from './CustomerRegisterForm.module.css';
 import left_transparent_banner from '../../../../assets/images/customer-card.svg';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
+import { useCustomerRegister } from '../../hooks/useCustomerRegister';
+import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
+import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
-function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerRegister, loading }) {
+function CustomerRegisterForm({ navigate }) {
 
     // useStats hook for UI
     const [hidePass, setHidePass] = useState(true);
     const [hidePassConform, setHidePassConform] = useState(true);
+    const [registerDetails, setRegisterDetails] = useState({
+        email: "",
+        password: "",
+        confPass: "",
+        first_name: "",
+        last_name: "",
+        phone_number: "",
+        agreement: false,
+    });
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
     // use custom hook
     const { continueWithGoogle } = useGoogleAuth();
+    const { register, displayError, loading } = useCustomerRegister();
+
+    // Customer registration function
+    const customerRegister = async (e) => {
+        e.preventDefault();
+
+        // check password and conform password is same
+        if (registerDetails.password !== registerDetails.confPass) {
+            setErrorDetails({ category: errorCategoryList.INPUT, errorFields: { ...errorDetails.errorFields, confPass: "Passwords are not matched" } });
+            return;
+        }
+
+        // check if agreement is sign
+        if (!registerDetails.agreement) {
+            setErrorDetails({ category: errorCategoryList.ACCOUNT, errorFrom: "Please agree with Terms of services and Privacy Policy" });
+            return;
+        }
+
+        try {
+            const registration = await register(registerDetails);
+
+            // navigate OTP verification page
+            localStorage.setItem('expiredAt', registration.expiresAt);
+            navigate('/verify-otp', {
+                state: {
+                    verification_id: registration.verification_id,
+                    maskEmail: registration.masked_email,
+                    expiresAt: registration.expiresAt,
+                    register_with: registration.register_with || ''
+                }
+            })
+        }
+        catch (err) {
+            return err;
+        }
+    }
+
+    // use effect for design errors for login
+    useEffect(() => {
+        function formatFunction() {
+
+            // reset all error details before install errors
+            setErrorDetails({ category: null, errorFields: null, errorFrom: null });
+
+            const errorCat = getErrorCategory(displayError || null);
+
+            // get error category
+            getErrorCategory(displayError);
+            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null, errorFrom: displayError?.message || null });
+        }
+
+        formatFunction();
+
+    }, [displayError]);
 
     return (
         <>
@@ -48,18 +115,23 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                 <form>
                     <div className={styles.formGrid}>
 
-                        <div className={styles.inputGroup}>
+                        <div className={`${styles.inputGroup} ${styles.nameInputGroup}`}>
                             <span className={styles.inputIcon}>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </span>
                             <input
                                 type="text"
                                 placeholder="First Name"
+                                className={errorDetails.errorFields?.first_name && styles.errorInput}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, first_name: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, first_name: null } })}
                             />
+                            {
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.first_name) && <p className={styles.errorText}>{errorDetails.errorFields?.first_name}</p>
+                            }
                         </div>
 
-                        <div className={styles.inputGroup}>
+                        <div className={`${styles.inputGroup} ${styles.nameInputGroup}`}>
                             <span className={styles.inputIcon}>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </span>
@@ -67,7 +139,12 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                 type="text"
                                 placeholder="Last Name"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, last_name: e.target.value })}
+                                className={errorDetails.errorFields?.last_name && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, last_name: null }, errorFrom: null })}
                             />
+                            {
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.last_name) && <p className={styles.errorText}>{errorDetails.errorFields?.last_name}</p>
+                            }
                         </div>
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -78,8 +155,13 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                 type="email"
                                 placeholder="Email Address"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, email: e.target.value })}
+                                className={errorDetails.errorFields?.email && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && <p className={styles.errorText}>{errorDetails.errorFields?.email}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -89,8 +171,13 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                 type="tel"
                                 placeholder="+94 70 123 4567"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, phone_number: e.target.value })}
+                                className={errorDetails.errorFields?.phone_number && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, phone_number: null }, errorFrom: null })}
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.phone_number) && <p className={styles.errorText}>{errorDetails.errorFields?.phone_number}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -100,6 +187,8 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                 type={hidePass ? "password" : 'text'}
                                 placeholder="Password"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, password: e.target.value })}
+                                className={errorDetails.errorFields?.password && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, password: null }, errorFrom: null })}
                             />
                             {
                                 !hidePass ?
@@ -113,6 +202,9 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                     </button>
                             }
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) && <p className={styles.errorText}>{errorDetails.errorFields?.password}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -122,6 +214,8 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                 type={hidePassConform ? "password" : 'text'}
                                 placeholder="Confirm Password"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, confPass: e.target.value })}
+                                className={errorDetails.errorFields?.confPass && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, confPass: null }, errorFrom: null })}
                             />
                             {
                                 !hidePassConform ?
@@ -135,6 +229,9 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                     </button>
                             }
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.confPass) && <p className={styles.errorText}>{errorDetails.errorFields?.confPass}</p>
+                        }
 
                     </div>
 
@@ -146,6 +243,12 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                         />
                         <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
                     </label>
+
+                    {/* Error message here */}
+                    {
+                        (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
+                        <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
+                    }
 
                     <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading}>
                         {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
