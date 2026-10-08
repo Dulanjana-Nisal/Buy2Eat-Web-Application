@@ -20,7 +20,7 @@ export const errorCategoryList = {
 
 
 export const getErrorCategory = (err) => {
-    switch (err?.category) {
+    switch (err?.category || err?.type) {
 
         // ─────────────────────────────────────────────
         // User input / user-provided data
@@ -47,6 +47,7 @@ export const getErrorCategory = (err) => {
         // ─────────────────────────────────────────────
 
         case "ACCOUNT_ERROR":
+        case "popup_closed":
             return errorCategoryList.ACCOUNT;
 
 

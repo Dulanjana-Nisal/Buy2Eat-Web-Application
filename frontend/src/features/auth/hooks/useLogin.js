@@ -6,7 +6,7 @@ export const useLogin = () => {
 
     // react use states for custom hook
     const [loading, setLoading] = useState(false);
-    const [displayError, setDisplayError] = useState();
+    const [displayError, setDisplayError] = useState(null);
 
     async function login(credentials) {
         // set load to true

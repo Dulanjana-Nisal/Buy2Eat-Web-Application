@@ -10,13 +10,13 @@ import { errorCategoryList, getErrorCategory } from '../../../../utils/error/err
 function LoginForm() {
 
     // use custom hooks
-    const { continueWithGoogle } = useGoogleAuth();
+    const { continueWithGoogle, googleLoginLoading } = useGoogleAuth();
     const { login, loading, displayError } = useLogin();
 
     // useStates hooks
     const [hidePassword, setHidePassword] = useState(true);
     const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
-    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null });
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
     // user login function. This function execute when user submit the login form
     const userLogin = async (e) => {
@@ -27,7 +27,7 @@ function LoginForm() {
             await login(loginDetails);
         }
         catch (error) {
-            return error
+            return error;
         }
     }
 
@@ -35,17 +35,19 @@ function LoginForm() {
     useEffect(() => {
         function formatFunction() {
 
+            // reset all error details before install errors
+            setErrorDetails({ category:  null, errorFields: null, errorFrom: null  });
+
+            const errorCat = getErrorCategory(displayError || null);
+
             // get error category
-            const errorCat = getErrorCategory(displayError);
-            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null });
+            getErrorCategory(displayError);
+            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null, errorFrom: displayError?.message || null  });
         }
 
         formatFunction();
 
-    }, [displayError])
-
-    console.log(errorDetails)
-
+    }, [displayError]);
 
     return (
         <>
@@ -136,12 +138,12 @@ function LoginForm() {
 
                         {/* Error message here */}
                         {
-                            (errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
-                            <ErrorLayout message={displayError?.message ?? "Something wrong!"} />
+                            ( errorDetails?.category && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
+                            <ErrorLayout message={errorDetails?.errorFrom  ?? "Something wrong!"} />
                         }
 
-                        <button type="submit" className={styles.submitButton} disabled={loading}>
-                            {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
+                        <button type="submit" className={styles.submitButton} disabled={(loading || googleLoginLoading)}>
+                            {(loading || googleLoginLoading) ? <span className={styles.spinner} aria-label="Logging in" /> :
                                 <>
                                     Login
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
