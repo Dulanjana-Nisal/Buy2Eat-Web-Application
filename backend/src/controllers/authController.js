@@ -627,7 +627,15 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	if (!accept_agreement || typeof accept_agreement !== Boolean) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{ message: "Please agree with Terms of services and Privacy Policy" }
+			{
+				message: "Please agree with Terms of services and Privacy Policy",
+				details: [
+					{
+						field: 'termsAccepted',
+						issue: 'Please agree with Terms of services and Privacy Policy'
+					}
+				]
+			}
 		);
 	}
 
@@ -782,7 +790,15 @@ const registerSellers = asyncHandler(async (req, res) => {
 	if (!accept_agreement || typeof accept_agreement !== Boolean) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{ message: "Please agree with Terms of services and Privacy Policy" }
+			{
+				message: "Please agree with Terms of services and Privacy Policy",
+				details: [
+					{
+						field: 'termsAccepted',
+						issue: 'Please agree with Terms of services and Privacy Policy'
+					}
+				]
+			}
 		);
 	}
 
@@ -925,7 +941,15 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	if (!otpUser.accept_agreement) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{ message: "You'r not agree with Terms of services and Privacy Policy!" }
+			{
+				message: "You'r not agree with Terms of services and Privacy Policy!",
+				details: [
+					{
+						field: 'termsAccepted',
+						issue: "You'r not agree with Terms of services and Privacy Policy!"
+					}
+				]
+			}
 		)
 	}
 
