@@ -419,7 +419,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	}
 
 	// check if accept agreement
-	if (!accept_agreement || typeof accept_agreement !== Boolean ) {
+	if (!accept_agreement || typeof accept_agreement !== Boolean) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			{ message: "Please agree with Terms of services and Privacy Policy" }
@@ -493,7 +493,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			hashedPassword: undefined,
 			profile_data,
 			session,
-			accept_agreement: accept_agreement,
+			accept_agreement,
 		});
 
 		// send response
@@ -545,6 +545,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		profile_image,
 		favorite_shops = [],
 		favorite_foods = [],
+		accept_agreement,
 	} = req.body;
 
 	// variable for store details data
@@ -634,6 +635,14 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check if accept agreement
+	if (!accept_agreement || typeof accept_agreement !== Boolean) {
+		throw new AppError(
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			{ message: "Please agree with Terms of services and Privacy Policy" }
+		);
+	}
+
 	// hash password using bcrypt
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
@@ -655,7 +664,8 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			normalizedEmail,
 			role: 'customer',
 			hashedPassword,
-			profile_data
+			profile_data,
+			accept_agreement,
 		}
 	);
 
@@ -689,7 +699,8 @@ const registerSellers = asyncHandler(async (req, res) => {
 		first_name,
 		last_name,
 		phone_number,
-		profile_image
+		profile_image,
+		accept_agreement,
 	} = req.body;
 
 	// variable for store details data
@@ -767,6 +778,14 @@ const registerSellers = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check if accept agreement
+	if (!accept_agreement || typeof accept_agreement !== Boolean) {
+		throw new AppError(
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			{ message: "Please agree with Terms of services and Privacy Policy" }
+		);
+	}
+
 	// check user is already exist
 	const normalizedEmail = email.trim().toLowerCase();
 	const existingUser = await Users.findOne({ email: normalizedEmail });
@@ -798,7 +817,8 @@ const registerSellers = asyncHandler(async (req, res) => {
 			normalizedEmail,
 			role: 'seller',
 			hashedPassword,
-			profile_data
+			profile_data,
+			accept_agreement,
 		}
 	);
 
@@ -902,7 +922,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	}
 
 	// check if agreement is ok
-	if(!otpUser.accept_agreement){
+	if (!otpUser.accept_agreement) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			{ message: "You'r not agree with Terms of services and Privacy Policy!" }
@@ -1617,8 +1637,8 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 	} catch (error) {
 		// rethrow if it's already an AppError
-		if(error instanceof AppError) throw error; 
-		
+		if (error instanceof AppError) throw error;
+
 		throw new AppError(
 			ErrorCode.AUTH_REVOKED_TOKEN,
 			{
