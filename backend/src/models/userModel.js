@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Agreement model
+// Agreement Schema
 const Agreement = mongoose.Schema({
     accepted: {
         type: Boolean,
@@ -43,7 +43,7 @@ const UserModel = mongoose.Schema({
         required: [true, 'Role is required!']
     },
     agreement: [Agreement]
-    
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Users', UserModel);

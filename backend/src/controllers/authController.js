@@ -352,7 +352,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 // Google Registration
 const googleRegistration = asyncHandler(async (req, res) => {
-	const { registerToken, role, phone_number } = req.body;
+	const { registerToken, role, phone_number, accept_agreement } = req.body;
 
 	// check if registerToken is exist
 	if (!registerToken) {
@@ -415,6 +415,14 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		throw new AppError(
 			ErrorCode.VALIDATION_INVALID_FORMAT,
 			{ message: "Invalid role selection." }
+		);
+	}
+
+	// check if accept agreement
+	if (!accept_agreement) {
+		throw new AppError(
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			{ message: "Please agree with Terms of services and Privacy Policy" }
 		);
 	}
 
