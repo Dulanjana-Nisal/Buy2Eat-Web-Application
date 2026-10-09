@@ -419,7 +419,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	}
 
 	// check if accept agreement
-	if (!accept_agreement || typeof accept_agreement !== Boolean) {
+	if (!accept_agreement || typeof accept_agreement !== "boolean") {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			{ message: "Please agree with Terms of services and Privacy Policy" }
@@ -624,7 +624,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	}
 
 	// check if accept agreement
-	if (!accept_agreement || typeof accept_agreement !== Boolean) {
+	if (!accept_agreement || typeof accept_agreement !== "boolean") {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			{
@@ -787,7 +787,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	}
 
 	// check if accept agreement
-	if (!accept_agreement || typeof accept_agreement !== Boolean) {
+	if (!accept_agreement || typeof accept_agreement !== "boolean") {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			{
