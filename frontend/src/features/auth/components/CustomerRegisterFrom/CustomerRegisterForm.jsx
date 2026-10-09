@@ -74,7 +74,10 @@ function CustomerRegisterForm({ navigate }) {
 
     }, [displayError]);
 
-    console.log(displayError)
+    const clickTerms = (e) => {
+        setRegisterDetails({ ...registerDetails, accept_agreement: e.target.checked });
+        setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, termsAccepted: null }, errorFrom: null });
+    }
 
     return (
         <>
@@ -235,8 +238,8 @@ function CustomerRegisterForm({ navigate }) {
                         <label className={styles.termsGroup}>
                             <input
                                 type="checkbox"
-                                defaultChecked={registerDetails.agreement}
-                                onClick={(e) => setRegisterDetails({ ...registerDetails, agreement: e.target.checked })}
+                                defaultChecked={registerDetails.accept_agreement}
+                                onClick={(e) => clickTerms(e)}
                             />
                             <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
                         </label>
