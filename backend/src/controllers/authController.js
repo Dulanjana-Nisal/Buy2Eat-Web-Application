@@ -607,18 +607,6 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		);
 	}
 
-	// check user is exist
-	const normalizedEmail = email.trim().toLowerCase();
-	const existingUser = await Users.findOne({ email: normalizedEmail });
-	if (existingUser) {
-		throw new AppError(
-			ErrorCode.RESOURCE_ALREADY_EXISTS,
-			{
-				message: "Email is already registered!"
-			}
-		);
-	}
-
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
@@ -640,6 +628,18 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			{ message: "Please agree with Terms of services and Privacy Policy" }
+		);
+	}
+
+	// check user is exist
+	const normalizedEmail = email.trim().toLowerCase();
+	const existingUser = await Users.findOne({ email: normalizedEmail });
+	if (existingUser) {
+		throw new AppError(
+			ErrorCode.RESOURCE_ALREADY_EXISTS,
+			{
+				message: "Email is already registered!"
+			}
 		);
 	}
 
