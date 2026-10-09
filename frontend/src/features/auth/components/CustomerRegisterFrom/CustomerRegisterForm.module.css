@@ -197,10 +197,18 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 0;
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     z-index: 2;
+}
+
+.termsField {
+    margin-bottom: 30px;
+}
+
+.termsError {
+    margin: 8px 0 0 0;
 }
 
 .termsGroup input[type="checkbox"] {

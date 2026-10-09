@@ -19,7 +19,7 @@ function CustomerRegisterForm({ navigate }) {
         first_name: "",
         last_name: "",
         phone_number: "",
-        agreement: false,
+        accept_agreement: false,
     });
     const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
@@ -34,12 +34,6 @@ function CustomerRegisterForm({ navigate }) {
         // check password and conform password is same
         if (registerDetails.password !== registerDetails.confPass) {
             setErrorDetails({ category: errorCategoryList.INPUT, errorFields: { ...errorDetails.errorFields, confPass: "Passwords are not matched" } });
-            return;
-        }
-
-        // check if agreement is sign
-        if (!registerDetails.agreement) {
-            setErrorDetails({ category: errorCategoryList.ACCOUNT, errorFrom: "Please agree with Terms of services and Privacy Policy" });
             return;
         }
 
@@ -79,6 +73,8 @@ function CustomerRegisterForm({ navigate }) {
         formatFunction();
 
     }, [displayError]);
+
+    console.log(displayError)
 
     return (
         <>
@@ -235,14 +231,20 @@ function CustomerRegisterForm({ navigate }) {
 
                     </div>
 
-                    <label className={styles.termsGroup}>
-                        <input
-                            type="checkbox"
-                            defaultChecked={registerDetails.agreement}
-                            onClick={(e) => setRegisterDetails({ ...registerDetails, agreement: e.target.checked })}
-                        />
-                        <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
-                    </label>
+                    <div className={styles.termsField}>
+                        <label className={styles.termsGroup}>
+                            <input
+                                type="checkbox"
+                                defaultChecked={registerDetails.agreement}
+                                onClick={(e) => setRegisterDetails({ ...registerDetails, agreement: e.target.checked })}
+                            />
+                            <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+                        </label>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.termsAccepted) &&
+                            <p className={`${styles.errorText} ${styles.termsError}`}>{errorDetails.errorFields.termsAccepted}</p>
+                        }
+                    </div>
 
                     {/* Error message here */}
                     {
