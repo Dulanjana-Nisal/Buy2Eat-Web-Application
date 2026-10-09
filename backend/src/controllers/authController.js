@@ -419,7 +419,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	}
 
 	// check if accept agreement
-	if (!accept_agreement) {
+	if (!accept_agreement || typeof accept_agreement !== Boolean ) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			{ message: "Please agree with Terms of services and Privacy Policy" }
@@ -492,7 +492,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			role,
 			hashedPassword: undefined,
 			profile_data,
-			session
+			session,
+			accept_agreement: accept_agreement,
 		});
 
 		// send response
@@ -900,6 +901,14 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check if agreement is ok
+	if(!otpUser.accept_agreement){
+		throw new AppError(
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			{ message: "You'r not agree with Terms of services and Privacy Policy!" }
+		)
+	}
+
 	// check is attempt ok
 	const updatedOtpUser = await registrationOtpModel.findOneAndUpdate(
 		{
@@ -955,6 +964,11 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			email: otpUser.email,
 			password: otpUser.hash_password || undefined,
 			role: otpUser.role,
+			agreement: {
+				accepted: otpUser.accept_agreement,
+				version: "",
+				acceptedAt: new Date()
+			}
 		}], { session });
 
 		// create user profile

@@ -23,6 +23,10 @@ const registrationOtpModel = mongoose.Schema({
             "Please enter a valid email address"
         ]
     },
+    accept_agreement: {
+        type: Boolean,
+        default: false
+    },
     hash_otp: {
         type: String,
         required: [true, "hash_otp is required!"]
