@@ -1,4 +1,4 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID } = require('../config/env');
+const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID, AGREEMENT_VERSION } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
@@ -966,7 +966,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			role: otpUser.role,
 			agreement: {
 				accepted: otpUser.accept_agreement,
-				version: "",
+				version: AGREEMENT_VERSION || "*.*.*",
 				acceptedAt: new Date()
 			}
 		}], { session });
