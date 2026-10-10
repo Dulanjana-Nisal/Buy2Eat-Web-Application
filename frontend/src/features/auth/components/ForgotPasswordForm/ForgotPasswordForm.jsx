@@ -3,6 +3,9 @@ import forgot_password_banner from '../../../../assets/images/forgot-password.sv
 import { Link } from 'react-router-dom';
 
 function ForgotPasswordForm({ userForgotPassword, setUserData, userData, isCooldownActive, cooldownSeconds, loading, navigate }) {
+
+    // custom hook for forgot password
+
     return (
         <>
             {/* Form */}
