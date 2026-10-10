@@ -36,7 +36,6 @@ export const useGoogleAuth = () => {
 
                     // store user data in to user state in UseAuth provider
                     setUser(googleAuth.user);
-
                     console.log(googleAuth, 'User logged!');
                 }
 

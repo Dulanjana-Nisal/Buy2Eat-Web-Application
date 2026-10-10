@@ -42,6 +42,7 @@ function CustomerRegisterForm({ navigate }) {
 
             // navigate OTP verification page
             localStorage.setItem('expiredAt', registration.expiresAt);
+            localStorage.setItem('user', registration.expiresAt);
             navigate('/verify-otp', {
                 state: {
                     verification_id: registration.verification_id,
@@ -74,6 +75,7 @@ function CustomerRegisterForm({ navigate }) {
 
     }, [displayError]);
 
+    // clickTerms function 
     const clickTerms = (e) => {
         setRegisterDetails({ ...registerDetails, accept_agreement: e.target.checked });
         setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, termsAccepted: null }, errorFrom: null });
