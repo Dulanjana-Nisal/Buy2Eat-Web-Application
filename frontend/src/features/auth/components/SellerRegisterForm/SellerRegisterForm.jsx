@@ -47,7 +47,7 @@ function SellerRegisterForm() {
         }
     }
 
-    // use effect for design errors for login
+    // use effect for design errors
     useEffect(() => {
         function formatFunction() {
 
