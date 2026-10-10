@@ -1,10 +1,71 @@
 import styles from './ForgotPasswordForm.module.css';
 import forgot_password_banner from '../../../../assets/images/forgot-password.svg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useResetPassword } from '../../hooks/useResetPassword';
+import { useEffect, useState } from 'react';
+import { useCooldownTimer } from '../../hooks/useCooldownTimer';
+import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
+import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
-function ForgotPasswordForm({ userForgotPassword, setUserData, userData, isCooldownActive, cooldownSeconds, loading, navigate }) {
+function ForgotPasswordForm() {
 
-    // custom hook for forgot password
+    // useState hooks for handle data
+    const [userData, setUserData] = useState({ email: "" });
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
+
+    // Import custom hooks
+    const { forgotPassword, displayError, loading } = useResetPassword();
+    const {
+        isCooldownActive,
+        setCooldownUntil,
+        cooldownSeconds,
+        FORGOT_PASSWORD_COOLDOWN_KEY,
+        FORGOT_PASSWORD_COOLDOWN_MS
+    } = useCooldownTimer();
+
+    // Navigation hooks
+    const navigate = useNavigate();
+
+    // Customer registration function
+    const userForgotPassword = async (e) => {
+        e.preventDefault();
+
+        if (isCooldownActive) return;
+
+        try {
+            const result = await forgotPassword(userData);
+
+            if(result.success){
+                const nextCooldownUntil = Date.now() + FORGOT_PASSWORD_COOLDOWN_MS;
+                localStorage.setItem(FORGOT_PASSWORD_COOLDOWN_KEY, String(nextCooldownUntil));
+                setCooldownUntil(nextCooldownUntil);
+            }
+
+        }
+        catch (err) {
+            return err;
+        }
+    }
+
+    // use effect for design errors
+    useEffect(() => {
+        function formatFunction() {
+
+            // reset all error details before install errors
+            setErrorDetails({ category: null, errorFields: null, errorFrom: null });
+
+            const errorCat = getErrorCategory(displayError || null);
+
+            // get error category
+            getErrorCategory(displayError);
+            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null, errorFrom: displayError?.message || null });
+        }
+
+        formatFunction();
+
+    }, [displayError]);
+
+    console.log(errorDetails);
 
     return (
         <>
@@ -30,10 +91,15 @@ function ForgotPasswordForm({ userForgotPassword, setUserData, userData, isCoold
                             <input
                                 type="email"
                                 placeholder="Your Email Address"
+                                className={errorDetails.errorFields?.email && styles.errorInput}
                                 onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                                 required
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && <p className={styles.errorText}>{errorDetails.errorFields?.email}</p>
+                        }
 
                     </div>
 
@@ -55,6 +121,12 @@ function ForgotPasswordForm({ userForgotPassword, setUserData, userData, isCoold
                         </div>
                     )}
 
+                    {/* Error message here */}
+                    {
+                        (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
+                        <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
+                    }
+
                     <button type="submit" className={styles.submitBtn} disabled={loading || isCooldownActive}>
                         {loading ? <span className={styles.spinner} aria-label="Sending reset link" /> : isCooldownActive ?
                             <span>Please wait</span> :
@@ -63,12 +135,12 @@ function ForgotPasswordForm({ userForgotPassword, setUserData, userData, isCoold
                             </>
                         }
                     </button>
-                    <button type="button" className={styles.backBtn} onClick={() => navigate(-1)}>
+                    <button type="button" className={styles.backBtn} onClick={() => navigate('/login')}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        Back
+                        Back to Login
                     </button>
 
                     <div className={styles.loginPrompt}>
