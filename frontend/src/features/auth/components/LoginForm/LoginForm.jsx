@@ -4,14 +4,14 @@ import login_transparent from '../../../../assets/images/login_transparent.svg';
 import { Link } from 'react-router-dom'
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
-import { useLogin } from '../../hooks/useLogin';
+import { useUserAuth } from '../../hooks/useUserAuth';
 import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
 
 function LoginForm() {
 
     // use custom hooks
     const { continueWithGoogle, googleLoginLoading } = useGoogleAuth();
-    const { login, loading, displayError } = useLogin();
+    const { login, loading, displayError } = useUserAuth();
 
     // useStates hooks
     const [hidePassword, setHidePassword] = useState(true);

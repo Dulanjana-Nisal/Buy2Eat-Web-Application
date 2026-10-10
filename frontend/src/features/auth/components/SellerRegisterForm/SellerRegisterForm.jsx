@@ -3,9 +3,9 @@ import left_transparent_banner from '../../../../assets/images/seller-card.svg';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
-import { useSellerRegister } from '../../hooks/useSellerRegister';
 import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
+import { useUserAuth } from '../../hooks/useUserAuth';
 
 function SellerRegisterForm() {
 
@@ -25,7 +25,7 @@ function SellerRegisterForm() {
 
     // use custom hook
     const { continueWithGoogle, googleLoginLoading } = useGoogleAuth();
-    const { register, loading, displayError } = useSellerRegister();
+    const { registerSeller, loading, displayError } = useUserAuth();
 
 
     // Customer registration function
@@ -40,7 +40,7 @@ function SellerRegisterForm() {
 
         // call seller register api
         try {
-            await register(registerDetails);
+            await registerSeller(registerDetails);
         }
         catch (err) {
             return err;

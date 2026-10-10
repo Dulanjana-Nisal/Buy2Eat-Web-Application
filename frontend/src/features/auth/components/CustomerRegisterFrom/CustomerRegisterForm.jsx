@@ -3,9 +3,9 @@ import left_transparent_banner from '../../../../assets/images/customer-card.svg
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
-import { useCustomerRegister } from '../../hooks/useCustomerRegister';
 import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
+import { useUserAuth } from '../../hooks/useUserAuth';
 
 function CustomerRegisterForm() {
 
@@ -25,7 +25,7 @@ function CustomerRegisterForm() {
 
     // use custom hook
     const { continueWithGoogle, googleLoginLoading } = useGoogleAuth();
-    const { register, displayError, loading } = useCustomerRegister();
+    const { registerCustomer, displayError, loading } = useUserAuth();
 
     // Customer registration function
     const customerRegister = async (e) => {
@@ -38,7 +38,7 @@ function CustomerRegisterForm() {
         }
 
         try {
-            await register(registerDetails);
+            await registerCustomer(registerDetails);
         }
         catch (err) {
             return err;
