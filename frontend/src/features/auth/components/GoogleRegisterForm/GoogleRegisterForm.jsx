@@ -2,10 +2,100 @@ import styles from './GoogleRegisterForm.module.css';
 import left_transparent_banner from '../../../../assets/images/google-register.svg';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useGoogleAuth } from '../../hooks/useGoogleAuth';
+import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
+import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
-function GoogleRegisterForm({ setRegisterDetails, registerDetails, customerRegister, loading }) {
+function GoogleRegisterForm({ navigate, location }) {
+
+    // use states
     const [showRoleDetails, setShowRoleDetails] = useState(false);
+    const [registerDetails, setRegisterDetails] = useState({
+        role: "",
+        phone_number: "",
+        accept_agreement: false,
+    });
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
+    // load custom hooks
+    const { continueWithGoogle, registerWithGoogle, googleLoginError, googleLoginLoading } = useGoogleAuth();
+
+
+    // Customer registration function
+    const customerRegister = async (e) => {
+        e.preventDefault();
+
+        // get register token from location state
+        const register_token = location.state?.register_token;
+
+        try {
+            // all google register api
+            const registration = await registerWithGoogle(
+                {
+                    registerToken: register_token,
+                    role: registerDetails.role,
+                    phone_number: registerDetails.phone_number,
+                    accept_agreement: registerDetails.accept_agreement,
+                }
+            );
+
+            // navigate OTP verification page
+            if (registration.success) {
+                localStorage.setItem('expiredAt', registration.expiresAt)
+                navigate('/verify-otp', {
+                    state: {
+                        verification_id: registration.verification_id,
+                        maskEmail: registration.masked_email,
+                        expiresAt: registration.expiresAt,
+                        role: registerDetails.role,
+                    }
+                })
+            }
+        }
+        catch (err) {
+            return err;
+        }
+    }
+
+    // use effect for design errors
+    useEffect(() => {
+        function formatFunction() {
+
+            // reset all error details before install errors
+            setErrorDetails({ category: null, errorFields: null, errorFrom: null });
+
+            const errorCat = getErrorCategory(googleLoginError || null);
+
+            // get error category
+            getErrorCategory(googleLoginError);
+            setErrorDetails({ category: errorCat || null, errorFields: googleLoginError?.fieldErrors || null, errorFrom: googleLoginError?.message || null });
+        }
+
+        formatFunction();
+
+    }, [googleLoginError]);
+
+    // clickTerms function 
+    const clickTerms = (e) => {
+        setRegisterDetails({ ...registerDetails, accept_agreement: e.target.checked });
+        setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, termsAccepted: null }, errorFrom: null });
+    }
+
+    // reconnectAccount function for Reconnect account
+    const reconnectAccount = async (e) => {
+        e.preventDefault();
+
+        // clear all navigation data
+        navigate(`/register/${registerDetails.role ?? ""}`, {
+            replace: true,
+            state: null,
+        });
+
+        // call google api
+        continueWithGoogle();
+    }
+
+    // use effect for display roles details.
     useEffect(() => {
         if (!showRoleDetails) return undefined;
 
@@ -56,7 +146,9 @@ function GoogleRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                         name="accountType"
                                         value={role}
                                         checked={registerDetails.role === role}
+                                        className={errorDetails.errorFields?.role && styles.errorInput}
                                         onChange={(e) => setRegisterDetails({ ...registerDetails, role: e.target.value })}
+                                        onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, role: null }, errorFrom: null })}
                                     />
                                     <span className={styles.radioMark} aria-hidden="true">
                                         <span />
@@ -64,6 +156,9 @@ function GoogleRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                     <span>{role === 'seller' ? 'Seller' : 'Customer'}</span>
                                 </label>
                             ))}
+                            {
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.role) && <p className={styles.errorTextRole}>{errorDetails.errorFields?.role}</p>
+                            }
                         </fieldset>
 
                         <div className={`${styles.roleWarning} ${styles.fullWidth}`} role="note">
@@ -92,23 +187,58 @@ function GoogleRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                             <input
                                 type="tel"
                                 placeholder="Enter Your Phone Number"
+                                className={errorDetails.errorFields?.phone_number && styles.errorInput}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, phone_number: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, phone_number: null }, errorFrom: null })}
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.phone_number) && <p className={styles.errorText}>{errorDetails.errorFields?.phone_number}</p>
+                        }
 
                     </div>
 
-                    <label className={styles.termsGroup}>
-                        <input
-                            type="checkbox"
-                            defaultChecked={registerDetails.agreement}
-                            onClick={(e) => setRegisterDetails({ ...registerDetails, agreement: e.target.checked })}
-                        />
-                        <span>I agree to the <a href="#" target='_blank'>Terms of Service</a> and <a href="#" target='_blank'>Privacy Policy</a></span>
-                    </label>
+                    <div className={styles.termsField}>
+                        <label className={styles.termsGroup}>
+                            <input
+                                type="checkbox"
+                                defaultChecked={registerDetails.accept_agreement}
+                                onClick={(e) => clickTerms(e)}
+                            />
+                            <span>I agree to the <a href="#" target='_blank'>Terms of Service</a> and <a href="#" target='_blank'>Privacy Policy</a></span>
+                        </label>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.termsAccepted) &&
+                            <p className={`${styles.errorText} ${styles.termsError}`}>{errorDetails.errorFields.termsAccepted}</p>
+                        }
+                    </div>
 
-                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading}>
-                        {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
+                    {/* Error message here */}
+                    {
+                        (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
+                        <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
+                    }
+
+                    {
+                        (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category === errorCategoryList.AUTH && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
+                        <button className={styles.socialButton} onClick={(e) => reconnectAccount(e)} disabled={googleLoginLoading}>
+                            {googleLoginLoading ? <span className={styles.spinner} aria-label="Logging in" /> :
+                                <>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                                    </svg>
+
+                                    Reconnect Google
+                                </>
+                            }
+                        </button>
+                    }
+
+                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={googleLoginLoading} >
+                        {googleLoginLoading ? <span className={styles.spinner} aria-label="Logging in" /> :
                             <>
                                 Complete Registration
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>

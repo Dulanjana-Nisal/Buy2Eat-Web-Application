@@ -16,7 +16,6 @@ export const useGoogleAuth = () => {
 
     const continueWithGoogle = useGoogleLogin({
         flow: 'auth-code',
-
         onSuccess: async (codeResponse) => {
             try {
                 setGoogleLoginLoading(true);
