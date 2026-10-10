@@ -42,7 +42,7 @@ const UserModel = mongoose.Schema({
         enum: ['admin', 'customer', 'seller'],
         required: [true, 'Role is required!']
     },
-    agreement: [Agreement]
+    agreement: Agreement
 
 }, { timestamps: true });
 
