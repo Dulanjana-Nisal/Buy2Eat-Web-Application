@@ -422,7 +422,15 @@ const googleRegistration = asyncHandler(async (req, res) => {
 	if (!accept_agreement || typeof accept_agreement !== "boolean") {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{ message: "Please agree with Terms of services and Privacy Policy" }
+			{
+				message: "Please agree with Terms of services and Privacy Policy",
+				details: [
+					{
+						field: 'termsAccepted',
+						issue: 'Please agree with Terms of services and Privacy Policy'
+					}
+				]
+			}
 		);
 	}
 
