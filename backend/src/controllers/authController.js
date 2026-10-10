@@ -1392,10 +1392,12 @@ const forgotPassword = asyncHandler(async (req, res) => {
 		const oneMinuteInMs = 60 * 1000;
 
 		if (currentTime - lastCreatedTime < oneMinuteInMs) {
-			return res.status(StatusCode.OK).json({
-				success: true,
-				message: "If an account exists with this email, a password reset link will be sent. Check your email."
-			})
+			throw new AppError(
+				ErrorCode.RATE_LIMIT_EXCEEDED,
+				{
+					message: "You can only resend OTP once per minute. Please wait before trying again.",
+				}
+			);
 		}
 	}
 
