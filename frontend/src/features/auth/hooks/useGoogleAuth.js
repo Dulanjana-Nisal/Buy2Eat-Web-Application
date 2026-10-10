@@ -1,5 +1,5 @@
 import { useGoogleLogin } from '@react-oauth/google';
-import { googleAuthApi } from '../api/authApi';
+import { googleAuthApi, googleRegisterApi } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import { UseAuth } from '../../../app/providers/AuthProvider';
 import { useState } from 'react';
@@ -58,6 +58,26 @@ export const useGoogleAuth = () => {
         }
     })
 
+    //registration function
+    const registerWithGoogle = async (credentials) => {
+
+        // set loading as true
+        setGoogleLoginLoading(true);
+
+        // all google register api
+        try {
+            const result = await googleRegisterApi(credentials);
+            return result;
+        }
+        catch (err) {
+            setGoogleLoginError(err);
+            throw err;
+        }
+        finally {
+            setGoogleLoginLoading(false);
+        }
+    }
+
     // return the trigger function
-    return { continueWithGoogle, googleLoginError, googleLoginLoading };
+    return { continueWithGoogle, registerWithGoogle, googleLoginError, googleLoginLoading };
 }
