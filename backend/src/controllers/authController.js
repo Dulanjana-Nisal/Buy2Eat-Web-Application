@@ -449,8 +449,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 	if (!googleRegisteredUser) {
 		throw new AppError(
-			ErrorCode.RESOURCE_NOT_FOUND,
-			{ message: "Register user not found!" }
+			ErrorCode.AUTH_EXPIRED_TOKEN,
+			{ message: "Your session timed out. Reconnect Google to save your info." }
 		);
 	}
 
