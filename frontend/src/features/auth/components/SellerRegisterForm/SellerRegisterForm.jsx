@@ -1,24 +1,82 @@
 import styles from './SellerRegisterForm.module.css';
 import left_transparent_banner from '../../../../assets/images/seller-card.svg';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
+import { useSellerRegister } from '../../hooks/useSellerRegister';
+import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
+import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
-function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegister, loading }) {
+function SellerRegisterForm() {
 
     // useStats hook for UI
     const [hidePass, setHidePass] = useState(true);
     const [hidePassConform, setHidePassConform] = useState(true);
+    const [registerDetails, setRegisterDetails] = useState({
+        email: "",
+        password: "",
+        confPass: "",
+        first_name: "",
+        last_name: "",
+        phone_number: "",
+        agreement: false,
+    });
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
     // use custom hook
-    const { continueWithGoogle } = useGoogleAuth();
+    const { continueWithGoogle, googleLoginLoading } = useGoogleAuth();
+    const { register, loading, displayError } = useSellerRegister();
+
+
+    // Customer registration function
+    const customerRegister = async (e) => {
+        e.preventDefault();
+
+        // check password and conform password is same
+        if (registerDetails.password !== registerDetails.confPass) {
+            setErrorDetails({ category: errorCategoryList.INPUT, errorFields: { ...errorDetails.errorFields, confPass: "Passwords are not matched" } });
+            return;
+        }
+
+        // call seller register api
+        try {
+            await register(registerDetails);
+        }
+        catch (err) {
+            return err;
+        }
+    }
+
+    // use effect for design errors for login
+    useEffect(() => {
+        function formatFunction() {
+
+            // reset all error details before install errors
+            setErrorDetails({ category: null, errorFields: null, errorFrom: null });
+
+            const errorCat = getErrorCategory(displayError || null);
+
+            // get error category
+            getErrorCategory(displayError);
+            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null, errorFrom: displayError?.message || null });
+        }
+
+        formatFunction();
+
+    }, [displayError]);
+
+    // clickTerms function 
+    const clickTerms = (e) => {
+        setRegisterDetails({ ...registerDetails, accept_agreement: e.target.checked });
+        setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, termsAccepted: null }, errorFrom: null });
+    }
 
     return (
         <>
             <div className={styles.formPanel}>
                 <div className={styles.formHeader}>
                     <div className={styles.userIconWrap}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-8 0 40 24" stroke-width="1.4" stroke="currentColor" class="size-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-8 0 40 24" stroke-width="1.6" stroke="currentColor" class="size-1">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
                         </svg>
                     </div>
@@ -47,18 +105,23 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                 <form>
                     <div className={styles.formGrid}>
 
-                        <div className={styles.inputGroup}>
+                        <div className={`${styles.inputGroup} ${styles.nameInputGroup}`}>
                             <span className={styles.inputIcon}>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </span>
                             <input
                                 type="text"
                                 placeholder="First Name"
+                                className={errorDetails.errorFields?.first_name && styles.errorInput}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, first_name: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, first_name: null } })}
                             />
+                            {
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.first_name) && <p className={styles.errorText}>{errorDetails.errorFields?.first_name}</p>
+                            }
                         </div>
 
-                        <div className={styles.inputGroup}>
+                        <div className={`${styles.inputGroup} ${styles.nameInputGroup}`}>
                             <span className={styles.inputIcon}>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </span>
@@ -66,7 +129,12 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                 type="text"
                                 placeholder="Last Name"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, last_name: e.target.value })}
+                                className={errorDetails.errorFields?.last_name && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, last_name: null }, errorFrom: null })}
                             />
+                            {
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.last_name) && <p className={styles.errorText}>{errorDetails.errorFields?.last_name}</p>
+                            }
                         </div>
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -77,8 +145,13 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                 type="email"
                                 placeholder="Email Address"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, email: e.target.value })}
+                                className={errorDetails.errorFields?.email && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && <p className={styles.errorText}>{errorDetails.errorFields?.email}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -88,8 +161,13 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                 type="tel"
                                 placeholder="+94 70 123 4567"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, phone_number: e.target.value })}
+                                className={errorDetails.errorFields?.phone_number && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, phone_number: null }, errorFrom: null })}
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.phone_number) && <p className={styles.errorText}>{errorDetails.errorFields?.phone_number}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -99,6 +177,8 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                 type={hidePass ? "password" : 'text'}
                                 placeholder="Password"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, password: e.target.value })}
+                                className={errorDetails.errorFields?.password && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, password: null }, errorFrom: null })}
                             />
                             {
                                 !hidePass ?
@@ -112,6 +192,9 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                     </button>
                             }
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) && <p className={styles.errorText}>{errorDetails.errorFields?.password}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -121,6 +204,8 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                 type={hidePassConform ? "password" : 'text'}
                                 placeholder="Confirm Password"
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, confPass: e.target.value })}
+                                className={errorDetails.errorFields?.confPass && styles.errorInput}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, confPass: null }, errorFrom: null })}
                             />
                             {
                                 !hidePassConform ?
@@ -134,20 +219,34 @@ function SellerRegisterForm({ setRegisterDetails, registerDetails, customerRegis
                                     </button>
                             }
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.confPass) && <p className={styles.errorText}>{errorDetails.errorFields?.confPass}</p>
+                        }
 
                     </div>
+                    <div className={styles.termsField}>
+                        <label className={styles.termsGroup}>
+                            <input
+                                type="checkbox"
+                                defaultChecked={registerDetails.accept_agreement}
+                                onClick={(e) => clickTerms(e)}
+                            />
+                            <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+                        </label>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.termsAccepted) &&
+                            <p className={`${styles.errorText} ${styles.termsError}`}>{errorDetails.errorFields.termsAccepted}</p>
+                        }
+                    </div>
 
-                    <label className={styles.termsGroup}>
-                        <input
-                            type="checkbox"
-                            defaultChecked={registerDetails.agreement}
-                            onClick={(e) => setRegisterDetails({ ...registerDetails, agreement: e.target.checked })}
-                        />
-                        <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
-                    </label>
+                    {/* Error message here */}
+                    {
+                        (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
+                        <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
+                    }
 
-                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading}>
-                        {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
+                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading || googleLoginLoading}>
+                        {(loading || googleLoginLoading) ? <span className={styles.spinner} aria-label="Logging in" /> :
                             <>
                                 Create Account
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>

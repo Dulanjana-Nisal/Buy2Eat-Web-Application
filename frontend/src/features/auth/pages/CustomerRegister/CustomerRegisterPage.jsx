@@ -42,9 +42,7 @@ function CustomerRegister() {
                 <div className={styles.mainCard}>
 
                     {/* Left Side: Form */}
-                    <CustomerRegisterForm
-                        navigate={navigate}
-                    />
+                    <CustomerRegisterForm />
 
                     {/* Right Side: Features / Info */}
                     <div className={styles.infoPanel}>

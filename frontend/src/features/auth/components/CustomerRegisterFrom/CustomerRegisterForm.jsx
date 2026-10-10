@@ -7,7 +7,7 @@ import { useCustomerRegister } from '../../hooks/useCustomerRegister';
 import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
-function CustomerRegisterForm({ navigate }) {
+function CustomerRegisterForm() {
 
     // useStats hook for UI
     const [hidePass, setHidePass] = useState(true);
@@ -24,7 +24,7 @@ function CustomerRegisterForm({ navigate }) {
     const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
     // use custom hook
-    const { continueWithGoogle } = useGoogleAuth();
+    const { continueWithGoogle, googleLoginLoading } = useGoogleAuth();
     const { register, displayError, loading } = useCustomerRegister();
 
     // Customer registration function
@@ -38,19 +38,7 @@ function CustomerRegisterForm({ navigate }) {
         }
 
         try {
-            const registration = await register(registerDetails);
-
-            // navigate OTP verification page
-            localStorage.setItem('expiredAt', registration.expiresAt);
-            localStorage.setItem('user', registration.expiresAt);
-            navigate('/verify-otp', {
-                state: {
-                    verification_id: registration.verification_id,
-                    maskEmail: registration.masked_email,
-                    expiresAt: registration.expiresAt,
-                    register_with: registration.register_with || ''
-                }
-            })
+            await register(registerDetails);
         }
         catch (err) {
             return err;
@@ -257,8 +245,8 @@ function CustomerRegisterForm({ navigate }) {
                         <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
                     }
 
-                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading}>
-                        {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
+                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading || googleLoginLoading}>
+                        {(loading || googleLoginLoading) ? <span className={styles.spinner} aria-label="Logging in" /> :
                             <>
                                 Create Account
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
