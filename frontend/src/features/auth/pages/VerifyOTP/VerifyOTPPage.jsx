@@ -3,7 +3,6 @@ import styles from './VerifyOTPPage.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import right_banner from '../../../../assets/images/customer-register-right-banner.png';
 import OTPForm from '../../components/OTPForm/OTPForm';
-import { resendOTPApi, submitOTPApi } from '../../api/authApi';
 import Background from '../../../../shared/components/ui/Background';
 
 function VerifyOTPPage() {
@@ -13,10 +12,6 @@ function VerifyOTPPage() {
     const location = useLocation();
 
     // use states hooks
-    const [loading, setLoading] = useState(false);
-    const [loadResend, setLoadResend] = useState(false);
-    const [verificationStatus, setVerificationStatus] = useState(null);
-    const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [secondsLeft, setSecondsLeft] = useState(60);
     const [expire, setExpire] = useState(localStorage.getItem('expiredAt') || location.state?.expiresAt);
 
@@ -46,90 +41,17 @@ function VerifyOTPPage() {
 
         }, 1000)
 
-        return () => clearInterval(timer)
+        return () => clearInterval(timer);
     }, [expire])
 
     // use effect get state data from navigate
     useEffect(() => {
-        const verificationId = location.state?.verification_id
+        const verificationId = location.state?.verification_id;
 
         if (!verificationId) {
-            navigate("/register", { replace: true })
+            navigate("/register", { replace: true });
         }
-    }, [location.state?.verification_id, navigate])
-
-    // block return back page if register with google
-    useEffect(() => {
-        if (location.state?.register_with !== 'email') {
-            window.history.pushState(null, "", window.location.href);
-
-            const handlePopState = () => {
-                window.history.pushState(null, "", window.location.href);
-            };
-
-            window.addEventListener("popstate", handlePopState);
-
-            return () => {
-                window.removeEventListener("popstate", handlePopState);
-            };
-        }
-    }, [location.state?.register_with]);
-
-    // submit OTP
-    const submitOtp = async (e) => {
-        e.preventDefault();
-
-        // convert array to string value
-        const otpValue = otp.join("");
-
-        setLoading(true)
-
-        try {
-            const otpVerification = await submitOTPApi({
-                verification_id: location.state?.verification_id,
-                otp: otpValue,
-            })
-
-            if (otpVerification.success) {
-                setVerificationStatus('success');
-
-                // delete all navigation data
-                navigate('/register/success', {
-                    replace: true,
-                    state: {
-                        isRegistered: otpVerification.success,
-                        role: otpVerification.user?.role || location.state?.role || 'user'
-                    }
-                })
-            } else {
-                setVerificationStatus('failure');
-            }
-        }
-        catch (err) {
-            setVerificationStatus('failure');
-            console.log(err.response?.data)
-        }
-        finally {
-            setLoading(false)
-        }
-    }
-
-    // Resend OTP
-    const resendOtp = async () => {
-        setLoadResend(true)
-        try {
-            const resentOtpData = await resendOTPApi({ verification_id: location.state?.verification_id });
-            setSecondsLeft(60)
-            setExpire(resentOtpData.expiresAt);
-            localStorage.setItem('expiredAt', resentOtpData.expiresAt);
-        }
-        catch (err) {
-            console.log(err.response?.data);
-        }
-        finally {
-            setLoadResend(false);
-        }
-    }
+    }, [location.state?.verification_id, navigate]);
 
     return (
         <>
@@ -154,16 +76,12 @@ function VerifyOTPPage() {
 
                     {/* Left Side: Form */}
                     <OTPForm
-                        otp={otp}
-                        setOtp={setOtp}
                         secondsLeft={secondsLeft}
-                        loadResend={loadResend}
-                        resendOtp={resendOtp}
-                        verificationStatus={verificationStatus}
-                        submitOtp={submitOtp}
-                        loading={loading}
+                        setSecondsLeft={setSecondsLeft}
+                        setExpire={setExpire}
                         registerWith={location.state?.register_with || ""}
                         maskedEmail={location.state?.maskEmail}
+                        location={location}
                     />
 
                     {/* Right Side: Features / Info */}

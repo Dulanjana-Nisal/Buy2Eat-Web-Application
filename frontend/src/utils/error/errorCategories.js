@@ -27,7 +27,6 @@ export const getErrorCategory = (err) => {
         // ─────────────────────────────────────────────
 
         case "VALIDATION_ERROR":
-        case "OTP_ERROR":
         case "UPLOAD_ERROR":
             return errorCategoryList.INPUT;
 
@@ -39,6 +38,7 @@ export const getErrorCategory = (err) => {
         case "AUTHENTICATION_ERROR":
         case "SESSION_ERROR":
         case "AUTHORIZATION_ERROR":
+        case "OTP_ERROR":
             return errorCategoryList.AUTH;
 
 
