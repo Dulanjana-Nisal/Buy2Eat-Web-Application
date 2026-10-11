@@ -832,7 +832,6 @@ const registerSellers = asyncHandler(async (req, res) => {
 		last_name: last_name,
 		profile_image: profile_image,
 		phone_number: phone_number,
-		register_with: 'email'
 	}
 
 	// send OTP to user
@@ -862,7 +861,8 @@ const registerSellers = asyncHandler(async (req, res) => {
 		message: sendOTP.message,
 		verification_id: sendOTP.verification_id,
 		masked_email: sendOTP.masked_email,
-		expiresAt: sendOTP.expiresAt
+		expiresAt: sendOTP.expiresAt,
+		register_with: 'email'
 	});
 
 });
