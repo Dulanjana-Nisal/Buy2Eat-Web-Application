@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { forgotPasswordApi } from "../api/authApi";
+import { forgotPasswordApi, resetPasswordApi, verifyResetPasswordApi } from "../api/authApi";
 import { useNavigate } from "react-router-dom";
 
 export const useResetPassword = () => {
@@ -7,6 +7,7 @@ export const useResetPassword = () => {
     // react hooks for custom hook
     const [loading, setLoading] = useState(false);
     const [displayError, setDisplayError] = useState(null);
+    const [verifying, setVerifying] = useState(false);
 
     // Navigation hooks
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ export const useResetPassword = () => {
             navigate("/forgot-password/success", {
                 state: { fromForgotPassword: true }
             });
-            
+
             // store conformation data in session storage
             sessionStorage.setItem("fromForgotPassword", "true");
 
@@ -35,14 +36,60 @@ export const useResetPassword = () => {
             setDisplayError(error);
             return error;
         }
-        finally{
+        finally {
+            setLoading(false);
+        }
+    }
+
+    // Verify reset password link
+    const verifyResetPassword = async (credentials) => {
+        setVerifying(true)
+        try {
+            await verifyResetPasswordApi(credentials);
+        }
+        catch (err) {
+            setVerifying(false);
+            if (err) {
+                navigate('/forgot-password', { replace: true });
+            }
+            return(err);
+        }
+        finally {
+            setVerifying(false);
+        }
+    }
+
+    // Reset password function for reset password
+    const resetPassword = async (credentials) => {
+
+        setLoading(true);
+        try {
+            const resetPasswordResponse = await resetPasswordApi(credentials);
+
+            if (resetPasswordResponse.success) {
+                // store conformation data in session storage
+                sessionStorage.setItem("fromForgotPassword", "true");
+
+                // navigate success page 
+                navigate("/reset-password/success", {
+                    state: { fromResetPassword: true }
+                });
+            }
+        }
+        catch (err) {
+            return err;
+        }
+        finally {
             setLoading(false);
         }
     }
 
     return {
         forgotPassword,
+        verifyResetPassword,
+        resetPassword,
         displayError,
         loading,
+        verifying,
     }
 }

@@ -1,13 +1,34 @@
 import { useState } from 'react';
 import styles from './ResetPasswordForm.module.css';
 import reset_password from '../../../../assets/images/reset-password.svg';
+import { useResetPassword } from '../../hooks/useResetPassword';
 
 /** Renders the password-reset fields, strength meter, and submit action. */
-function ResetPasswordForm({ resetPassword, resetData, setResetData, passwordStrength, loading }) {
+function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
 
     // useStates hooks
     const [hidePassword, setHidePassword] = useState(true);
     const [hideConfPassword, setHideConfPassword] = useState(true);
+
+    // import custom hooks
+    const { resetPassword, loading } = useResetPassword();
+
+    // user reset password function 
+    const resetCurrentPassword = async (e) => {
+        e.preventDefault();
+
+        // check password and conf password is matched
+        if (resetData.password !== resetData.confPassword) {
+            return console.error('Passwords are not matched!');
+        }
+
+        try {
+            await resetPassword({ token: resetData.token, newPassword: resetData.password });
+        }
+        catch (err) {
+            return err;
+        }
+    }
 
     return (
         <>
@@ -25,7 +46,7 @@ function ResetPasswordForm({ resetPassword, resetData, setResetData, passwordStr
                             <p>Add new strong and secure password to reset</p>
                         </div>
                     </div>
-                    <form className={styles.form} onSubmit={resetPassword}>
+                    <form className={styles.form} onSubmit={resetCurrentPassword}>
                         <div className={styles.inputGroup}>
                             <label htmlFor="password">New Password</label>
                             <div className={styles.passwordInputContainer}>
@@ -106,7 +127,7 @@ function ResetPasswordForm({ resetPassword, resetData, setResetData, passwordStr
                                 }
                             </div>
                         </div>
-                        <button type="submit" className={styles.submitButton} onClick={(e) => resetPassword(e)} disabled={loading}>
+                        <button type="submit" className={styles.submitButton} onClick={(e) => resetCurrentPassword(e)} disabled={loading}>
                             {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
                                 <>
                                     Reset Password
