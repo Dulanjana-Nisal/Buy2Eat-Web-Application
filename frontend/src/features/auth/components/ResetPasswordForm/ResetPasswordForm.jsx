@@ -6,6 +6,12 @@ import { errorCategoryList, getErrorCategory } from '../../../../utils/error/err
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 import { useNavigate } from 'react-router-dom';
 
+// Inputs IDs for error handling
+const inputErrors = {
+    NEW_PASSWORD: "NEW_PASSWORD_ERROR",
+    CONF_PASSWORD: "CONF_PASSWORD_ERROR",
+}
+
 /** Renders the password-reset fields, strength meter, and submit action. */
 function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
 
@@ -56,8 +62,6 @@ function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
 
     }, [displayError]);
 
-    console.log(displayError)
-
     return (
         <>
             <div className={styles.leftPanel}>
@@ -82,7 +86,8 @@ function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
                                     type={hidePassword ? "password" : "text"}
                                     id="password"
                                     value={resetData.password}
-                                    className={errorDetails.errorFields?.newPassword && styles.errorInput}
+                                    aria-invalid={errorDetails.errorFields?.newPassword ? "true" : "false"}
+                                    aria-describedby={errorDetails.errorFields?.newPassword ? inputErrors.NEW_PASSWORD : undefined}
                                     placeholder="Enter new password"
                                     onChange={(e) => setResetData({ ...resetData, password: e.target.value })}
                                     onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, newPassword: null }, errorFrom: null })}
@@ -103,7 +108,8 @@ function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
                                 )}
                             </div>
                             {
-                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.newPassword) && <p className={styles.errorText}>{errorDetails.errorFields?.newPassword}</p>
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.newPassword) &&
+                                <p id={inputErrors.NEW_PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.newPassword}</p>
                             }
 
                             <div className={styles.strengthMeter} aria-live="polite">
@@ -141,7 +147,8 @@ function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
                                     type={hideConfPassword ? "password" : "text"}
                                     id="confPassword"
                                     value={resetData.confPassword}
-                                    className={errorDetails.errorFields?.confPass && styles.errorInput}
+                                    aria-invalid={errorDetails.errorFields?.confPass ? "true" : "false"}
+                                    aria-describedby={errorDetails.errorFields?.confPass ? inputErrors.CONF_PASSWORD : undefined}
                                     placeholder="Conform new password"
                                     onChange={(e) => setResetData({ ...resetData, confPassword: e.target.value })}
                                     onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, confPass: null }, errorFrom: null })}
@@ -163,7 +170,8 @@ function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
                                 }
                             </div>
                             {
-                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.confPass) && <p className={styles.errorText}>{errorDetails.errorFields?.confPass}</p>
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.confPass) &&
+                                <p id={inputErrors.CONF_PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.confPass}</p>
                             }
                         </div>
                         {/* Error message here */}
