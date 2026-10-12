@@ -6,16 +6,23 @@ import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
+// Inputs IDs for error handling
+const inputErrors = {
+    ROLE: "ROLE_ERROR",
+    PHONE_NUMBER: "PHONE_NUMBER_ERROR",
+    CHECKBOX: "CHECKBOX_ERROR",
+}
+
 function GoogleRegisterForm({ navigate, location }) {
 
     // use states
     const [showRoleDetails, setShowRoleDetails] = useState(false);
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
     const [registerDetails, setRegisterDetails] = useState({
         role: "",
         phone_number: "",
         accept_agreement: false,
     });
-    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
     // load custom hooks
     const { continueWithGoogle, registerWithGoogle, googleLoginError, googleLoginLoading } = useGoogleAuth();
@@ -145,8 +152,9 @@ function GoogleRegisterForm({ navigate, location }) {
                                         type="radio"
                                         name="accountType"
                                         value={role}
+                                        aria-invalid={errorDetails.errorFields?.role ? "true" : "false"}
+                                        aria-describedby={errorDetails.errorFields?.role ? inputErrors.ROLE : undefined}
                                         checked={registerDetails.role === role}
-                                        className={errorDetails.errorFields?.role && styles.errorInput}
                                         onChange={(e) => setRegisterDetails({ ...registerDetails, role: e.target.value })}
                                         onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, role: null }, errorFrom: null })}
                                     />
@@ -157,7 +165,8 @@ function GoogleRegisterForm({ navigate, location }) {
                                 </label>
                             ))}
                             {
-                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.role) && <p className={styles.errorTextRole}>{errorDetails.errorFields?.role}</p>
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.role) &&
+                                <p id={inputErrors.ROLE} className={styles.errorTextRole}>{errorDetails.errorFields?.role}</p>
                             }
                         </fieldset>
 
@@ -187,13 +196,15 @@ function GoogleRegisterForm({ navigate, location }) {
                             <input
                                 type="tel"
                                 placeholder="Enter Your Phone Number"
-                                className={errorDetails.errorFields?.phone_number && styles.errorInput}
+                                aria-invalid={errorDetails.errorFields?.phone_number ? "true" : "false"}
+                                aria-describedby={errorDetails.errorFields?.phone_number ? inputErrors.PHONE_NUMBER : undefined}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, phone_number: e.target.value })}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, phone_number: null }, errorFrom: null })}
                             />
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.phone_number) && <p className={styles.errorText}>{errorDetails.errorFields?.phone_number}</p>
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.phone_number) &&
+                            <p id={inputErrors.PHONE_NUMBER} className={styles.errorText}>{errorDetails.errorFields?.phone_number}</p>
                         }
 
                     </div>
@@ -203,13 +214,15 @@ function GoogleRegisterForm({ navigate, location }) {
                             <input
                                 type="checkbox"
                                 defaultChecked={registerDetails.accept_agreement}
+                                aria-invalid={errorDetails.errorFields?.termsAccepted ? "true" : "false"}
+                                aria-describedby={errorDetails.errorFields?.termsAccepted ? inputErrors.CHECKBOX : undefined}
                                 onClick={(e) => clickTerms(e)}
                             />
                             <span>I agree to the <a href="#" target='_blank'>Terms of Service</a> and <a href="#" target='_blank'>Privacy Policy</a></span>
                         </label>
                         {
                             (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.termsAccepted) &&
-                            <p className={`${styles.errorText} ${styles.termsError}`}>{errorDetails.errorFields.termsAccepted}</p>
+                            <p id={inputErrors.CHECKBOX} className={`${styles.errorText} ${styles.termsError}`}>{errorDetails.errorFields.termsAccepted}</p>
                         }
                     </div>
 
