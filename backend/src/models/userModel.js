@@ -1,5 +1,21 @@
 const mongoose = require('mongoose');
 
+// Agreement Schema
+const Agreement = mongoose.Schema({
+    accepted: {
+        type: Boolean,
+        default: false
+    },
+    version: {
+        type: String,
+        required: [true, 'version is required!']
+    },
+    acceptedAt: {
+        type: Date,
+        required: [true, 'Accepted date and time is required!']
+    }
+}, { _id: false, id: false });
+
 // UserModel Schema
 const UserModel = mongoose.Schema({
     email: {
@@ -25,7 +41,9 @@ const UserModel = mongoose.Schema({
         type: String,
         enum: ['admin', 'customer', 'seller'],
         required: [true, 'Role is required!']
-    }
-}, { timestamps: true })
+    },
+    agreement: Agreement
 
-module.exports = mongoose.model('Users', UserModel)
+}, { timestamps: true });
+
+module.exports = mongoose.model('Users', UserModel);

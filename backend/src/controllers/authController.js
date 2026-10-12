@@ -1,4 +1,4 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID } = require('../config/env');
+const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID, AGREEMENT_VERSION } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
@@ -352,7 +352,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 // Google Registration
 const googleRegistration = asyncHandler(async (req, res) => {
-	const { registerToken, role, phone_number } = req.body;
+	const { registerToken, role, phone_number, accept_agreement } = req.body;
 
 	// check if registerToken is exist
 	if (!registerToken) {
@@ -418,6 +418,22 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check if accept agreement
+	if (!accept_agreement || typeof accept_agreement !== "boolean") {
+		throw new AppError(
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			{
+				message: "Please agree with Terms of services and Privacy Policy",
+				details: [
+					{
+						field: 'termsAccepted',
+						issue: 'Please agree with Terms of services and Privacy Policy'
+					}
+				]
+			}
+		);
+	}
+
 	// create hash token for verification
 	const tokenHash = crypto.createHash('sha256').update(registerToken).digest('hex');
 
@@ -433,8 +449,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 
 	if (!googleRegisteredUser) {
 		throw new AppError(
-			ErrorCode.RESOURCE_NOT_FOUND,
-			{ message: "Register user not found!" }
+			ErrorCode.AUTH_EXPIRED_TOKEN,
+			{ message: "Your session timed out. Reconnect Google to save your info." }
 		);
 	}
 
@@ -445,6 +461,21 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			ErrorCode.RESOURCE_ALREADY_EXISTS,
 			{ message: "User already exist!" }
 		);
+	}
+
+	// check agreement version existed
+	if (!AGREEMENT_VERSION) {
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{ message: "We can't complete your registration right now. Please try again later." }
+		);
+	}
+
+	// set agreement data
+	const agreementData = {
+		accepted: accept_agreement,
+		version: AGREEMENT_VERSION,
+		acceptedAt: new Date(),
 	}
 
 	// ===== Start Transaction =====
@@ -484,7 +515,8 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			role,
 			hashedPassword: undefined,
 			profile_data,
-			session
+			session,
+			accept_agreement: agreementData,
 		});
 
 		// send response
@@ -536,6 +568,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		profile_image,
 		favorite_shops = [],
 		favorite_foods = [],
+		accept_agreement,
 	} = req.body;
 
 	// variable for store details data
@@ -597,18 +630,6 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		);
 	}
 
-	// check user is exist
-	const normalizedEmail = email.trim().toLowerCase();
-	const existingUser = await Users.findOne({ email: normalizedEmail });
-	if (existingUser) {
-		throw new AppError(
-			ErrorCode.RESOURCE_ALREADY_EXISTS,
-			{
-				message: "Email is already registered!"
-			}
-		);
-	}
-
 	// check password have more that 6 characters
 	if (password.length < 6) {
 		throw new AppError(
@@ -623,6 +644,49 @@ const registerCustomers = asyncHandler(async (req, res) => {
 				]
 			}
 		);
+	}
+
+	// check if accept agreement
+	if (!accept_agreement || typeof accept_agreement !== "boolean") {
+		throw new AppError(
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			{
+				message: "Please agree with Terms of services and Privacy Policy",
+				details: [
+					{
+						field: 'termsAccepted',
+						issue: 'Please agree with Terms of services and Privacy Policy'
+					}
+				]
+			}
+		);
+	}
+
+	// check user is exist
+	const normalizedEmail = email.trim().toLowerCase();
+	const existingUser = await Users.findOne({ email: normalizedEmail });
+	if (existingUser) {
+		throw new AppError(
+			ErrorCode.RESOURCE_ALREADY_EXISTS,
+			{
+				message: "Email is already registered!"
+			}
+		);
+	}
+
+	// check agreement version existed
+	if (!AGREEMENT_VERSION) {
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{ message: "We can't complete your registration right now. Please try again later." }
+		);
+	}
+
+	// set agreement data
+	const agreementData = {
+		accepted: accept_agreement,
+		version: AGREEMENT_VERSION,
+		acceptedAt: new Date(),
 	}
 
 	// hash password using bcrypt
@@ -646,7 +710,8 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			normalizedEmail,
 			role: 'customer',
 			hashedPassword,
-			profile_data
+			profile_data,
+			accept_agreement: agreementData,
 		}
 	);
 
@@ -680,7 +745,8 @@ const registerSellers = asyncHandler(async (req, res) => {
 		first_name,
 		last_name,
 		phone_number,
-		profile_image
+		profile_image,
+		accept_agreement,
 	} = req.body;
 
 	// variable for store details data
@@ -758,6 +824,22 @@ const registerSellers = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check if accept agreement
+	if (!accept_agreement || typeof accept_agreement !== "boolean") {
+		throw new AppError(
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			{
+				message: "Please agree with Terms of services and Privacy Policy",
+				details: [
+					{
+						field: 'termsAccepted',
+						issue: 'Please agree with Terms of services and Privacy Policy'
+					}
+				]
+			}
+		);
+	}
+
 	// check user is already exist
 	const normalizedEmail = email.trim().toLowerCase();
 	const existingUser = await Users.findOne({ email: normalizedEmail });
@@ -770,6 +852,21 @@ const registerSellers = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check agreement version existed
+	if (!AGREEMENT_VERSION) {
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{ message: "We can't complete your registration right now. Please try again later." }
+		);
+	}
+
+	// set agreement data
+	const agreementData = {
+		accepted: accept_agreement,
+		version: AGREEMENT_VERSION,
+		acceptedAt: new Date(),
+	}
+
 	// hash password
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
@@ -780,7 +877,6 @@ const registerSellers = asyncHandler(async (req, res) => {
 		last_name: last_name,
 		profile_image: profile_image,
 		phone_number: phone_number,
-		register_with: 'email'
 	}
 
 	// send OTP to user
@@ -789,7 +885,8 @@ const registerSellers = asyncHandler(async (req, res) => {
 			normalizedEmail,
 			role: 'seller',
 			hashedPassword,
-			profile_data
+			profile_data,
+			accept_agreement: agreementData,
 		}
 	);
 
@@ -809,7 +906,8 @@ const registerSellers = asyncHandler(async (req, res) => {
 		message: sendOTP.message,
 		verification_id: sendOTP.verification_id,
 		masked_email: sendOTP.masked_email,
-		expiresAt: sendOTP.expiresAt
+		expiresAt: sendOTP.expiresAt,
+		register_with: 'email'
 	});
 
 });
@@ -892,6 +990,32 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check if agreement is ok
+	if (!otpUser.accept_agreement) {
+		throw new AppError(
+			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			{
+				message: "You'r not agree with Terms of services and Privacy Policy!",
+				details: [
+					{
+						field: 'termsAccepted',
+						issue: "You'r not agree with Terms of services and Privacy Policy!"
+					}
+				]
+			}
+		)
+	}
+
+	// check if agreement version is existed
+	if (!AGREEMENT_VERSION) {
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{
+				message: "We can't complete your registration right now. Please try again later.",
+			}
+		);
+	}
+
 	// check is attempt ok
 	const updatedOtpUser = await registrationOtpModel.findOneAndUpdate(
 		{
@@ -947,6 +1071,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			email: otpUser.email,
 			password: otpUser.hash_password || undefined,
 			role: otpUser.role,
+			agreement: otpUser.accept_agreement
 		}], { session });
 
 		// create user profile
@@ -1326,10 +1451,12 @@ const forgotPassword = asyncHandler(async (req, res) => {
 		const oneMinuteInMs = 60 * 1000;
 
 		if (currentTime - lastCreatedTime < oneMinuteInMs) {
-			return res.status(StatusCode.OK).json({
-				success: true,
-				message: "If an account exists with this email, a password reset link will be sent. Check your email."
-			})
+			throw new AppError(
+				ErrorCode.RATE_LIMIT_EXCEEDED,
+				{
+					message: "You can only resend OTP once per minute. Please wait before trying again.",
+				}
+			);
 		}
 	}
 
@@ -1595,8 +1722,8 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 	} catch (error) {
 		// rethrow if it's already an AppError
-		if(error instanceof AppError) throw error; 
-		
+		if (error instanceof AppError) throw error;
+
 		throw new AppError(
 			ErrorCode.AUTH_REVOKED_TOKEN,
 			{

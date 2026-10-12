@@ -10,6 +10,7 @@ const OTPHelper = async ({
     role,
     hashedPassword,
     profile_data,
+    accept_agreement,
     session = null
 }) => {
 
@@ -57,6 +58,7 @@ const OTPHelper = async ({
         session_expiresAt: new Date(nowDate.getTime() + 30 * 60 * 1000), // session expires in 30 min
         role: role,
         hash_password: hashedPassword,
+        accept_agreement: accept_agreement,
         profile_data: profile_data,
     }
 
