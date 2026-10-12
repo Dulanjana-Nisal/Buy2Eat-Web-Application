@@ -1,10 +1,21 @@
 import styles from './ErrorLayout.module.css';
 
-function ErrorLayout({message}) {
+function ErrorLayout({displayError}) {
+
+    // check errors exist
+    if(!displayError){
+        return;
+    }
+
     return (
-        <div className={styles.errorMessages}>
-            <p>{message}</p>
-        </div>
+        <>
+            { 
+             Object.keys(displayError?.fieldErrors).length == 0 &&
+                <div className={styles.errorMessages}>
+                    <p>{displayError?.message || "Something went wrong!. Please try again later."}</p>
+                </div>
+            }
+        </>
     )
 }
 

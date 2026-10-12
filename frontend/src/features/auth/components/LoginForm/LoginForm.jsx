@@ -142,7 +142,7 @@ function LoginForm() {
                             </div>
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) && 
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) &&
                             <p id={inputErrors.PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.password}</p>
                         }
                         <div className={styles.checkboxGroup}>
@@ -152,8 +152,8 @@ function LoginForm() {
 
                         {/* Error message here */}
                         {
-                            (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
-                            <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
+                            errorDetails?.errorFrom &&
+                            <ErrorLayout displayError={displayError} />
                         }
 
                         <button type="submit" className={styles.submitButton} disabled={(loading || googleLoginLoading)}>
