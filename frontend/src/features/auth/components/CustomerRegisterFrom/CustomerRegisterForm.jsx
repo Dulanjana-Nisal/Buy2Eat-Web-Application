@@ -165,7 +165,6 @@ function CustomerRegisterForm() {
                                 aria-invalid={ errorDetails.errorFields?.email ? true : false }
                                 aria-describedby={ errorDetails.errorFields?.email ? inputErrors.EMAIL : undefined }
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, email: e.target.value })}
-                                className={errorDetails.errorFields?.email && styles.errorInput}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                             />
                         </div>
@@ -181,10 +180,9 @@ function CustomerRegisterForm() {
                             <input
                                 type="tel"
                                 placeholder="+94 70 123 4567"
-                                aria-invalid={ errorDetails.errorFields?.email ? true : false }
-                                aria-describedby={ errorDetails.errorFields?.email ? inputErrors.PHONE_NUMBER : undefined }
+                                aria-invalid={ errorDetails.errorFields?.phone_number ? true : false }
+                                aria-describedby={ errorDetails.errorFields?.phone_number ? inputErrors.PHONE_NUMBER : undefined }
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, phone_number: e.target.value })}
-                                className={errorDetails.errorFields?.phone_number && styles.errorInput}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, phone_number: null }, errorFrom: null })}
                             />
                         </div>
