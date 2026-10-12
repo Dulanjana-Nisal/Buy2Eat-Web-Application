@@ -1006,6 +1006,16 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		)
 	}
 
+	// check if agreement version is existed
+	if (!AGREEMENT_VERSION) {
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{
+				message: "We can't complete your registration right now. Please try again later.",
+			}
+		);
+	}
+
 	// check is attempt ok
 	const updatedOtpUser = await registrationOtpModel.findOneAndUpdate(
 		{
@@ -1046,16 +1056,6 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			ErrorCode.VALIDATION_INVALID_FORMAT,
 			{
 				message: "Invalid role selection!. Please Try again.",
-			}
-		);
-	}
-
-	// check if agreement version is existed
-	if (!AGREEMENT_VERSION) {
-		throw new AppError(
-			ErrorCode.INTERNAL_SERVER_ERROR,
-			{
-				message: "We can't complete your registration right now. Please try again later.",
 			}
 		);
 	}
