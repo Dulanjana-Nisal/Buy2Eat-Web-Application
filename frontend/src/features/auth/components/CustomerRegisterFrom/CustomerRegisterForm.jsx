@@ -7,6 +7,17 @@ import { errorCategoryList, getErrorCategory } from '../../../../utils/error/err
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
 
+// Inputs IDs for error handling
+const inputErrors = {
+    FIRST_NAME: "FIRST_NAME_ERROR",
+    LAST_NAME: "LAST_NAME_ERROR",
+    PHONE_NUMBER: "PHONE_NUMBER_ERROR",
+    PASSWORD: "PASSWORD_ERROR",
+    CONF_PASSWORD: "CONF_PASSWORD_ERROR",
+    EMAIL: "EMAIL_ERROR",
+    CHECKBOX: "CHECKBOX_ERROR",
+}
+
 function CustomerRegisterForm() {
 
     // useStats hook for UI
@@ -115,12 +126,14 @@ function CustomerRegisterForm() {
                             <input
                                 type="text"
                                 placeholder="First Name"
-                                className={errorDetails.errorFields?.first_name && styles.errorInput}
+                                aria-invalid={ errorDetails.errorFields?.first_name ? true : false }
+                                aria-describedby={ errorDetails.errorFields?.first_name ? inputErrors.FIRST_NAME : undefined }
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, first_name: e.target.value })}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, first_name: null } })}
                             />
                             {
-                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.first_name) && <p className={styles.errorText}>{errorDetails.errorFields?.first_name}</p>
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.first_name) && 
+                                <p id={inputErrors.FIRST_NAME} className={styles.errorText}>{errorDetails.errorFields?.first_name}</p>
                             }
                         </div>
 
@@ -131,12 +144,14 @@ function CustomerRegisterForm() {
                             <input
                                 type="text"
                                 placeholder="Last Name"
+                                aria-invalid={ errorDetails.errorFields?.last_name ? true : false }
+                                aria-describedby={ errorDetails.errorFields?.last_name ? inputErrors.LAST_NAME : undefined }
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, last_name: e.target.value })}
-                                className={errorDetails.errorFields?.last_name && styles.errorInput}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, last_name: null }, errorFrom: null })}
                             />
                             {
-                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.last_name) && <p className={styles.errorText}>{errorDetails.errorFields?.last_name}</p>
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.last_name) && 
+                                <p id={inputErrors.LAST_NAME} className={styles.errorText}>{errorDetails.errorFields?.last_name}</p>
                             }
                         </div>
 
@@ -147,13 +162,16 @@ function CustomerRegisterForm() {
                             <input
                                 type="email"
                                 placeholder="Email Address"
+                                aria-invalid={ errorDetails.errorFields?.email ? true : false }
+                                aria-describedby={ errorDetails.errorFields?.email ? inputErrors.EMAIL : undefined }
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, email: e.target.value })}
                                 className={errorDetails.errorFields?.email && styles.errorInput}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                             />
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && <p className={styles.errorText}>{errorDetails.errorFields?.email}</p>
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && 
+                            <p id={inputErrors.EMAIL} className={styles.errorText}>{errorDetails.errorFields?.email}</p>
                         }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -163,13 +181,16 @@ function CustomerRegisterForm() {
                             <input
                                 type="tel"
                                 placeholder="+94 70 123 4567"
+                                aria-invalid={ errorDetails.errorFields?.email ? true : false }
+                                aria-describedby={ errorDetails.errorFields?.email ? inputErrors.PHONE_NUMBER : undefined }
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, phone_number: e.target.value })}
                                 className={errorDetails.errorFields?.phone_number && styles.errorInput}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, phone_number: null }, errorFrom: null })}
                             />
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.phone_number) && <p className={styles.errorText}>{errorDetails.errorFields?.phone_number}</p>
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.phone_number) &&
+                            <p id={inputErrors.PHONE_NUMBER} className={styles.errorText}>{errorDetails.errorFields?.phone_number}</p>
                         }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -179,8 +200,9 @@ function CustomerRegisterForm() {
                             <input
                                 type={hidePass ? "password" : 'text'}
                                 placeholder="Password"
+                                aria-invalid={ errorDetails.errorFields?.password ? true : false }
+                                aria-describedby={ errorDetails.errorFields?.password ? inputErrors.PASSWORD : undefined }
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, password: e.target.value })}
-                                className={errorDetails.errorFields?.password && styles.errorInput}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, password: null }, errorFrom: null })}
                             />
                             {
@@ -196,7 +218,8 @@ function CustomerRegisterForm() {
                             }
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) && <p className={styles.errorText}>{errorDetails.errorFields?.password}</p>
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) && 
+                            <p id={inputErrors.PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.password}</p>
                         }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -206,8 +229,9 @@ function CustomerRegisterForm() {
                             <input
                                 type={hidePassConform ? "password" : 'text'}
                                 placeholder="Confirm Password"
+                                aria-invalid={ errorDetails.errorFields?.confPass ? true : false }
+                                aria-describedby={ errorDetails.errorFields?.confPass ? inputErrors.CONF_PASSWORD : undefined }
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, confPass: e.target.value })}
-                                className={errorDetails.errorFields?.confPass && styles.errorInput}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, confPass: null }, errorFrom: null })}
                             />
                             {
@@ -223,7 +247,8 @@ function CustomerRegisterForm() {
                             }
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.confPass) && <p className={styles.errorText}>{errorDetails.errorFields?.confPass}</p>
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.confPass) && 
+                            <p id={inputErrors.CONF_PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.confPass}</p>
                         }
 
                     </div>
@@ -233,13 +258,15 @@ function CustomerRegisterForm() {
                             <input
                                 type="checkbox"
                                 defaultChecked={registerDetails.accept_agreement}
+                                aria-invalid={ errorDetails.errorFields?.termsAccepted ? true : false }
+                                aria-describedby={ errorDetails.errorFields?.termsAccepted ? inputErrors.CHECKBOX : undefined }
                                 onClick={(e) => clickTerms(e)}
                             />
                             <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
                         </label>
                         {
                             (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.termsAccepted) &&
-                            <p className={`${styles.errorText} ${styles.termsError}`}>{errorDetails.errorFields.termsAccepted}</p>
+                            <p id={inputErrors.CHECKBOX} className={`${styles.errorText} ${styles.termsError}`}>{errorDetails.errorFields.termsAccepted}</p>
                         }
                     </div>
 
