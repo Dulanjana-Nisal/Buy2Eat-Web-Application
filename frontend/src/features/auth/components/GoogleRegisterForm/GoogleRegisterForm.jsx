@@ -234,7 +234,7 @@ function GoogleRegisterForm({ navigate, location }) {
 
                     {
                         (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category === errorCategoryList.AUTH && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
-                        <button className={styles.socialButton} onClick={(e) => reconnectAccount(e)} disabled={googleLoginLoading}>
+                        <button type="button" className={styles.socialButton} onClick={(e) => reconnectAccount(e)} disabled={googleLoginLoading}>
                             {googleLoginLoading ? <span className={styles.spinner} aria-label="Logging in" /> :
                                 <>
                                     <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
