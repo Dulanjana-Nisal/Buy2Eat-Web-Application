@@ -50,7 +50,8 @@ function ResetPasswordPage() {
 
         verification();
 
-    }, [token, verifyResetPassword]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [token]);
 
     // container for display verifying status
     if (verifying) {

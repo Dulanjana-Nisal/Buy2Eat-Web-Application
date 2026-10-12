@@ -43,15 +43,19 @@ export const useResetPassword = () => {
 
     // Verify reset password link
     const verifyResetPassword = async (credentials) => {
-        setVerifying(true)
+
+        // set verify to true
+        setVerifying(true);
+
         try {
+            // make api call
             await verifyResetPasswordApi(credentials);
         }
         catch (err) {
-            setVerifying(false);
             if (err) {
                 navigate('/forgot-password', { replace: true });
             }
+            setDisplayError(err);
             return(err);
         }
         finally {
@@ -62,8 +66,11 @@ export const useResetPassword = () => {
     // Reset password function for reset password
     const resetPassword = async (credentials) => {
 
+        // set loading tru
         setLoading(true);
+
         try {
+            // make api call
             const resetPasswordResponse = await resetPasswordApi(credentials);
 
             if (resetPasswordResponse.success) {
@@ -75,8 +82,11 @@ export const useResetPassword = () => {
                     state: { fromResetPassword: true }
                 });
             }
+
+            return resetPasswordResponse;
         }
         catch (err) {
+            setDisplayError(err)
             return err;
         }
         finally {
