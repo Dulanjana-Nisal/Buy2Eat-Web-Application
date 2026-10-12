@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './OTPForm.module.css';
 import left_transparent_banner from '../../../../assets/images/otp-background.svg';
 import { useOtpAuth } from '../../hooks/useOtpAuth';
@@ -178,6 +178,9 @@ function OTPForm({ secondsLeft, setSecondsLeft, setExpire, registerWith, maskedE
                             </button>
                         </>
                     }
+                    <div className={styles.loginPrompt}>
+                        Already have an account? <Link to="/login">Login here </Link>
+                    </div>
                 </form>
 
                 <img src={left_transparent_banner} alt="left-transparent" className={styles.leftTransparentBanner} />
