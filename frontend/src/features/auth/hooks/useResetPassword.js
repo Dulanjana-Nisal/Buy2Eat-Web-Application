@@ -56,7 +56,7 @@ export const useResetPassword = () => {
                 navigate('/forgot-password', { replace: true });
             }
             setDisplayError(err);
-            return(err);
+            return (err);
         }
         finally {
             setVerifying(false);
