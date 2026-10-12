@@ -172,7 +172,7 @@
     border-color: var(--color-border-strong);
 }
 
-.inputGroup .errorInput {
+.inputGroup input[aria-invalid="true"] {
     border: 1px solid var(--color-error-border);
     background-color: var(--color-error-light);
     color: var(--color-error);

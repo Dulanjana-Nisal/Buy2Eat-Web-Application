@@ -7,6 +7,12 @@ import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
 
+// Inputs IDs for error handling
+const inputErrors = {
+    EMAIL: "ROLE_ERROR",
+    PASSWORD: "PHONE_NUMBER_ERROR",
+}
+
 function LoginForm() {
 
     // use custom hooks
@@ -92,13 +98,15 @@ function LoginForm() {
                                 type="email" id="email"
                                 placeholder="you@example.com"
                                 value={loginDetails.email}
-                                className={errorDetails.errorFields?.email && styles.errorInput}
+                                aria-invalid={errorDetails.errorFields?.email ? "true" : "false"}
+                                aria-describedby={errorDetails.errorFields?.email ? inputErrors.EMAIL : undefined}
                                 onChange={(e) => setLoginDetails({ ...loginDetails, email: e.target.value })}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                             />
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && <p className={styles.errorText}>{errorDetails.errorFields?.email}</p>
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) &&
+                            <p id={inputErrors.EMAIL} className={styles.errorText}>{errorDetails.errorFields?.email}</p>
                         }
                         <div className={styles.inputGroup}>
                             <div className={styles.passwordHeader}>
@@ -110,7 +118,8 @@ function LoginForm() {
                                     type={hidePassword ? "password" : "text"}
                                     id="password"
                                     value={loginDetails.password}
-                                    className={errorDetails.errorFields?.password && styles.errorInput}
+                                    aria-invalid={errorDetails.errorFields?.password ? "true" : "false"}
+                                    aria-describedby={errorDetails.errorFields?.password ? inputErrors.PASSWORD : undefined}
                                     placeholder="Enter your password"
                                     onChange={(e) => setLoginDetails({ ...loginDetails, password: e.target.value })}
                                     onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, password: null }, errorFrom: null })}
@@ -133,7 +142,8 @@ function LoginForm() {
                             </div>
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) && <p className={styles.errorText}>{errorDetails.errorFields?.password}</p>
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) && 
+                            <p id={inputErrors.PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.password}</p>
                         }
                         <div className={styles.checkboxGroup}>
                             <input type="checkbox" id="remember" />
