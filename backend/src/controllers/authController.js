@@ -463,6 +463,21 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check agreement version existed
+	if (!AGREEMENT_VERSION) {
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{ message: "We can't complete your registration right now. Please try again later." }
+		);
+	}
+
+	// set agreement data
+	const agreementData = {
+		accepted: accept_agreement,
+		version: AGREEMENT_VERSION,
+		acceptedAt: new Date(),
+	}
+
 	// ===== Start Transaction =====
 	const session = await mongoose.startSession();
 
@@ -501,7 +516,7 @@ const googleRegistration = asyncHandler(async (req, res) => {
 			hashedPassword: undefined,
 			profile_data,
 			session,
-			accept_agreement,
+			accept_agreement: agreementData,
 		});
 
 		// send response
@@ -659,6 +674,21 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check agreement version existed
+	if (!AGREEMENT_VERSION) {
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{ message: "We can't complete your registration right now. Please try again later." }
+		);
+	}
+
+	// set agreement data
+	const agreementData = {
+		accepted: accept_agreement,
+		version: AGREEMENT_VERSION,
+		acceptedAt: new Date(),
+	}
+
 	// hash password using bcrypt
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
@@ -681,7 +711,7 @@ const registerCustomers = asyncHandler(async (req, res) => {
 			role: 'customer',
 			hashedPassword,
 			profile_data,
-			accept_agreement,
+			accept_agreement: agreementData,
 		}
 	);
 
@@ -822,6 +852,21 @@ const registerSellers = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check agreement version existed
+	if (!AGREEMENT_VERSION) {
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{ message: "We can't complete your registration right now. Please try again later." }
+		);
+	}
+
+	// set agreement data
+	const agreementData = {
+		accepted: accept_agreement,
+		version: AGREEMENT_VERSION,
+		acceptedAt: new Date(),
+	}
+
 	// hash password
 	const salt = await bcrypt.genSalt(10)
 	const hashedPassword = await bcrypt.hash(password, salt);
@@ -841,7 +886,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 			role: 'seller',
 			hashedPassword,
 			profile_data,
-			accept_agreement,
+			accept_agreement: agreementData,
 		}
 	);
 
@@ -1006,11 +1051,11 @@ const verifyOtp = asyncHandler(async (req, res) => {
 	}
 
 	// check if agreement version is existed
-	if(!AGREEMENT_VERSION){
+	if (!AGREEMENT_VERSION) {
 		throw new AppError(
 			ErrorCode.INTERNAL_SERVER_ERROR,
 			{
-				message: "Terms and Condition version value not detected!",
+				message: "We can't complete your registration right now. Please try again later.",
 			}
 		);
 	}
@@ -1026,11 +1071,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			email: otpUser.email,
 			password: otpUser.hash_password || undefined,
 			role: otpUser.role,
-			agreement: {
-				accepted: otpUser.accept_agreement,
-				version: AGREEMENT_VERSION,
-				acceptedAt: new Date()
-			}
+			agreement: otpUser.accept_agreement
 		}], { session });
 
 		// create user profile

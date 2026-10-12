@@ -24,8 +24,8 @@ const registrationOtpModel = mongoose.Schema({
         ]
     },
     accept_agreement: {
-        type: Boolean,
-        default: false
+        type: Object,
+        required: [true, 'accept_agreement data is required!']
     },
     hash_otp: {
         type: String,
