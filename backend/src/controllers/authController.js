@@ -1005,6 +1005,16 @@ const verifyOtp = asyncHandler(async (req, res) => {
 		);
 	}
 
+	// check if agreement version is existed
+	if(!AGREEMENT_VERSION){
+		throw new AppError(
+			ErrorCode.INTERNAL_SERVER_ERROR,
+			{
+				message: "Terms and Condition version value not detected!",
+			}
+		);
+	}
+
 	// == Start Transaction ==
 	const session = await mongoose.startSession();
 
@@ -1018,7 +1028,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			role: otpUser.role,
 			agreement: {
 				accepted: otpUser.accept_agreement,
-				version: AGREEMENT_VERSION || "*.*.*",
+				version: AGREEMENT_VERSION,
 				acceptedAt: new Date()
 			}
 		}], { session });
