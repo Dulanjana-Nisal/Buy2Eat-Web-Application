@@ -2,7 +2,7 @@ export const ErrorHandler = (error) => {
     // check if error repose is alive
     if (error.response) {
         // get error response from api
-        const errorData = error.response.data.error ?? {};
+        const errorData = error.response.data?.error ?? {};
 
         // assign values for fieldErrors
         /*
