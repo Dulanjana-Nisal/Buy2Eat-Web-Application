@@ -7,6 +7,11 @@ import { useCooldownTimer } from '../../hooks/useCooldownTimer';
 import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
+// Inputs IDs for error handling
+const inputErrors = {
+    EMAIL: "EMAIL",
+}
+
 function ForgotPasswordForm() {
 
     // useState hooks for handle data
@@ -89,14 +94,16 @@ function ForgotPasswordForm() {
                             <input
                                 type="email"
                                 placeholder="Your Email Address"
-                                className={errorDetails.errorFields?.email && styles.errorInput}
+                                aria-invalid={errorDetails.errorFields?.email ? "true" : "false"}
+                                aria-describedby={errorDetails.errorFields?.email ? inputErrors.EMAIL : undefined}
                                 onChange={(e) => setUserData({ ...userData, email: e.target.value })}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                                 required
                             />
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && <p className={styles.errorText}>{errorDetails.errorFields?.email}</p>
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && 
+                            <p id={inputErrors.EMAIL} className={styles.errorText}>{errorDetails.errorFields?.email}</p>
                         }
 
                     </div>

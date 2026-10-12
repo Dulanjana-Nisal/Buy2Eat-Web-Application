@@ -9,8 +9,8 @@ import { errorCategoryList, getErrorCategory } from '../../../../utils/error/err
 
 // Inputs IDs for error handling
 const inputErrors = {
-    EMAIL: "ROLE_ERROR",
-    PASSWORD: "PHONE_NUMBER_ERROR",
+    EMAIL: "EMAIL_ERROR",
+    PASSWORD: "PASSWORD_ERROR",
 }
 
 function LoginForm() {
