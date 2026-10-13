@@ -128,8 +128,8 @@ function ForgotPasswordForm() {
 
                     {/* Error message here */}
                     {
-                        (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
-                        <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
+                        errorDetails?.errorFrom &&
+                        <ErrorLayout displayError={displayError} />
                     }
 
                     <button type="submit" className={styles.submitBtn} disabled={loading || isCooldownActive}>
