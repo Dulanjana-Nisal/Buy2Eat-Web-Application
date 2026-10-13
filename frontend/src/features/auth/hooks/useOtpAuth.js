@@ -50,7 +50,7 @@ export const useOtpAuth = () => {
         catch (err) {
             setOtpErrors(err)
             setVerificationStatus('failure');
-            return err;
+            throw err;
         }
         finally {
             setLoading(false)
@@ -67,7 +67,7 @@ export const useOtpAuth = () => {
         }
         catch (err) {
             setOtpErrors(err);
-            return err;
+            throw err;
         }
         finally {
             setLoadResend(false);
