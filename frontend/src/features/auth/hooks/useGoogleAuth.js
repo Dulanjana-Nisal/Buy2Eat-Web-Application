@@ -49,11 +49,11 @@ export const useGoogleAuth = () => {
         },
         onError: (errorResponse) => {
             setGoogleLoginError(errorResponse);
-            throw errorResponse;
+            return;
         },
         onNonOAuthError: (error) => {
             setGoogleLoginError(error);
-            throw error
+            return;
         }
     })
 
