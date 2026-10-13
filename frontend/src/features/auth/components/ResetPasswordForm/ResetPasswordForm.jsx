@@ -180,7 +180,7 @@ function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
                             <ErrorLayout displayError={displayError} />
                         }
                         
-                        <button type="submit" className={styles.submitButton} onClick={(e) => resetCurrentPassword(e)} disabled={loading}>
+                        <button type="submit" className={styles.submitButton} disabled={loading}>
                             {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
                                 <>
                                     Reset Password
