@@ -42,8 +42,11 @@ function OTPForm({ secondsLeft, setSecondsLeft, setExpire, registerWith, maskedE
 
         try {
             const resentOtpData = await resendOtp({ verification_id: location.state?.verification_id });
-            setSecondsLeft(60);
-            setExpire(resentOtpData.expiresAt);
+
+            if(resentOtpData.success){
+                setSecondsLeft(60);
+                setExpire(resentOtpData.expiresAt);
+            }
         }
         catch (err) {
             return err;
