@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { resendOTPApi, submitOTPApi } from "../api/authApi";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { UseAuth } from "../../../app/providers/AuthProvider";
 
 export const useOtpAuth = () => {
@@ -16,6 +16,7 @@ export const useOtpAuth = () => {
 
     // navigation state hooks
     const navigate = useNavigate();
+    const location = useLocation();
 
     // submit OTP
     const submitOtp = async (credentials) => {
