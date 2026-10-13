@@ -34,7 +34,7 @@ export const useResetPassword = () => {
         }
         catch (error) {
             setDisplayError(error);
-            return error;
+            throw error;
         }
         finally {
             setLoading(false);
@@ -56,7 +56,7 @@ export const useResetPassword = () => {
                 navigate('/forgot-password', { replace: true });
             }
             setDisplayError(err);
-            return (err);
+            throw (err);
         }
         finally {
             setVerifying(false);
@@ -87,7 +87,7 @@ export const useResetPassword = () => {
         }
         catch (err) {
             setDisplayError(err)
-            return err;
+            throw err;
         }
         finally {
             setLoading(false);
