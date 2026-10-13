@@ -176,9 +176,10 @@ function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
                         </div>
                         {/* Error message here */}
                         {
-                            (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
-                            <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
+                            errorDetails?.errorFrom &&
+                            <ErrorLayout displayError={displayError} />
                         }
+                        
                         <button type="submit" className={styles.submitButton} onClick={(e) => resetCurrentPassword(e)} disabled={loading}>
                             {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
                                 <>
