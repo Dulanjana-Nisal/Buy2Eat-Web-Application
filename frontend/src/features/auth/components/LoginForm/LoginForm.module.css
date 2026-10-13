@@ -134,13 +134,14 @@
 .form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    /* gap: 20px; */
 }
 
 .inputGroup {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin-bottom: 25px;
 }
 
 .inputGroup label {
@@ -149,7 +150,7 @@
     color: var(--color-text-secondary);
 }
 
-.inputGroup input{
+.inputGroup input {
     width: 100%;
     padding: 12px 16px;
     background-color: var(--color-surface-active);
@@ -163,12 +164,27 @@
     font-weight: var(--font-weight-semibold);
 }
 
-.inputGroup input::placeholder{
+.inputGroup input::placeholder {
     color: var(--color-text-muted);
 }
 
 .inputGroup input:focus {
     border-color: var(--color-border-strong);
+}
+
+.inputGroup input[aria-invalid="true"] {
+    border: 1px solid var(--color-error-border);
+    background-color: var(--color-error-light);
+    color: var(--color-error);
+}
+
+.errorText {
+    font-size: var(--font-size-xs);
+    text-align: start;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-error);
+    margin-top: -18px;
+    margin-bottom: 20px;
 }
 
 .passwordHeader {
@@ -204,7 +220,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: -5px;
+    margin-bottom: 20px;
 }
 
 .checkboxGroup label {
@@ -233,10 +249,11 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
+    margin-top: 0px;
     transition: background-color var(--transition-normal);
 }
 
-.submitButton svg{
+.submitButton svg {
     transition: transform 0.2s ease;
 }
 
@@ -244,7 +261,7 @@
     background-color: var(--color-primary-hover);
 }
 
-.submitButton:hover svg{
+.submitButton:hover svg {
     transform: translateX(4px);
 }
 
@@ -296,7 +313,7 @@
 
 /* Responsive adjustments */
 @media (max-width: 500px) {
-    .leftPanel{
+    .leftPanel {
         padding: 3rem 1rem;
     }
 }

@@ -335,6 +335,7 @@
         opacity: 0;
         transform: translateY(8px) scale(0.98);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -377,6 +378,26 @@
     color: var(--color-text-placeholder);
 }
 
+.inputGroup input[aria-invalid="true"] {
+    border: 1px solid var(--color-error-border);
+    background-color: var(--color-error-light);
+    color: var(--color-error);
+}
+
+.errorText,
+.errorTextRole {
+    font-size: var(--font-size-xs);
+    text-align: start;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-error);
+    margin-top: -10px;
+}
+
+.errorTextRole {
+    margin-top: 0px;
+    margin-bottom: -8px;
+}
+
 .eyeIcon {
     position: absolute;
     right: 16px;
@@ -391,10 +412,18 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 0;
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     z-index: 2;
+}
+
+.termsField {
+    margin-bottom: 30px;
+}
+
+.termsError {
+    margin: 8px 0 0 0;
 }
 
 .termsGroup input[type="checkbox"] {
@@ -440,6 +469,35 @@
 
 .submitBtn:hover svg {
     transform: translateX(4px);
+}
+
+.socialButton {
+    width: 100%;
+    font-family: var(--font-family);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+    background: var(--color-bg-subtle);
+    color: var(--color-text-secondary);
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: 8px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background-color var(--transition-normal);
+}
+
+.socialButton:hover {
+    background-color: var(--color-border);
+    color: var(--color-text-primary);
+}
+
+.socialButton:active {
+    background-color: var(--color-active);
 }
 
 .spinner {

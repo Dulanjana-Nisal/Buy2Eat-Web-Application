@@ -1,14 +1,16 @@
-import LoginPage from '../../features/auth/pages/Login/LoginPage';
-import RegisterPage from '../../features/auth/pages/Register/RegisterPage';
-import GoogleRegister from '../../features/auth/pages/GoogleRegister/GoogleRegisterPage';
-import CustomerRegister from '../../features/auth/pages/CustomerRegister/CustomerRegisterPage';
-import SellerRegisterPage from '../../features/auth/pages/SellerRegister/SellerRegisterPage';
-import VerifyOTPPage from '../../features/auth/pages/VerifyOTP/VerifyOTPPage';
-import ForgotPassword from '../../features/auth/pages/ForgotPassword/ForgotPasswordPage';
-import GoogleRegisterSuccessPage from '../../features/auth/pages/GoogleRegister/GoogleRegisterSuccessPage';
-import ForgotPasswordSuccessPage from '../../features/auth/pages/ForgotPassword/ForgotPasswordSuccessPage';
-import ResetPasswordSuccessPage from '../../features/auth/pages/ResetPassword/ResetPasswordSuccessPage';
-import ResetPasswordPage from '../../features/auth/pages/ResetPassword/ResetPasswordPage';
+import {
+    LoginPage,
+    RegisterPage,
+    GoogleRegister,
+    CustomerRegister,
+    SellerRegisterPage,
+    VerifyOTPPage,
+    ForgotPassword,
+    GoogleRegisterSuccessPage,
+    ForgotPasswordSuccessPage,
+    ResetPasswordSuccessPage,
+    ResetPasswordPage,
+} from '../../features/auth';
 
 export const AuthRouters = [
     {

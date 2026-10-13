@@ -5,7 +5,7 @@
     flex-direction: column;
     background: radial-gradient(circle at 50% 35%, rgba(255, 106, 61, 0.055), transparent 32%), var(--color-bg);
     overflow-x: hidden;
-	font-family: var(--font-family);
+    font-family: var(--font-family);
 }
 
 
@@ -124,7 +124,7 @@
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-bold);
     cursor: pointer;
-    box-shadow:var(--shadow-md);
+    box-shadow: var(--shadow-md);
     transition: var(--transition-normal);
 }
 
@@ -146,10 +146,6 @@
     stroke-width: 2;
     flex-shrink: 0;
     transition: var(--transition-normal);
-}
-
-.primaryAction:hover svg {
-    transform: translateX(-3px);
 }
 
 
@@ -176,7 +172,7 @@
 
 .secondaryAction:hover {
     transform: translateY(-2px);
-	box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-xl);
 }
 
 /* =========================================================
@@ -367,6 +363,7 @@
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
+
     .primaryAction,
     .secondaryAction,
     .primaryAction svg {

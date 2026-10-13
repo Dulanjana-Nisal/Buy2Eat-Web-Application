@@ -1,56 +1,75 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './OTPForm.module.css';
 import left_transparent_banner from '../../../../assets/images/otp-background.svg';
+import { useOtpAuth } from '../../hooks/useOtpAuth';
+import { useHandleOtp } from '../../hooks/useHandelOtp';
+import { useEffect, useState } from 'react';
+import { getErrorCategory } from '../../../../utils/error/errorCategories';
+import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
-function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verificationStatus, submitOtp, loading, registerWith, maskedEmail }) {
+function OTPForm({ secondsLeft, setSecondsLeft, setExpire, registerWith, maskedEmail, location }) {
+
+    // use state hooks
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
+
+    // import custom hooks
+    const { submitOtp, resendOtp, loadResend, loading, verificationStatus, otpErrors } = useOtpAuth();
+    const { otp, handleOtpChange, handleOtpKeyDown, handleOtpPaste } = useHandleOtp();
 
     // navigation hook
     const navigate = useNavigate();
 
-    // handel otp input values
-    const handleOtpChange = (value, index) => {
-        const digits = value.replace(/\D/g, '').slice(0, otp.length - index)
-        if (!digits) {
-            if (value) return
-            const nextOtp = [...otp]
-            nextOtp[index] = ''
-            setOtp(nextOtp)
-            return
+    // submit OTP
+    const submitOtpHandler = async (e) => {
+        e.preventDefault();
+
+        // convert array to string value
+        const otpValue = otp.join("");
+
+        try {
+            await submitOtp({
+                verification_id: location.state?.verification_id,
+                otp: otpValue,
+            });
         }
-
-        const nextOtp = [...otp]
-        digits.split('').forEach((digit, offset) => {
-            nextOtp[index + offset] = digit
-        })
-        setOtp(nextOtp)
-
-        const nextIndex = Math.min(index + digits.length, otp.length - 1)
-        document.getElementById(`otp-input-${nextIndex}`)?.focus()
-    }
-
-    // handel otp keys
-    const handleOtpKeyDown = (event, index) => {
-        if (event.key === 'Backspace' && !otp[index] && index > 0) {
-            const prevInput = document.getElementById(`otp-input-${index - 1}`)
-            if (prevInput) prevInput.focus()
+        catch (err) {
+            return err;
         }
     }
 
-    // handle otp past
-    const handleOtpPaste = (event, index) => {
-        const pastedDigits = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, otp.length - index)
-        if (!pastedDigits) return
+    // Resend OTP
+    const resendOtpHandler = async () => {
 
-        event.preventDefault()
-        const nextOtp = [...otp]
-        pastedDigits.split('').forEach((digit, offset) => {
-            nextOtp[index + offset] = digit
-        })
-        setOtp(nextOtp)
+        try {
+            const resentOtpData = await resendOtp({ verification_id: location.state?.verification_id });
 
-        const nextIndex = Math.min(index + pastedDigits.length, otp.length - 1)
-        document.getElementById(`otp-input-${nextIndex}`)?.focus()
+            if(resentOtpData.success){
+                setSecondsLeft(60);
+                setExpire(resentOtpData.expiresAt);
+            }
+        }
+        catch (err) {
+            return err;
+        }
     }
+
+    // use effect for design errors
+    useEffect(() => {
+        function formatFunction() {
+
+            // reset all error details before install errors
+            setErrorDetails({ category: null, errorFields: null, errorFrom: null });
+
+            const errorCat = getErrorCategory(otpErrors || null);
+
+            // get error category
+            getErrorCategory(otpErrors);
+            setErrorDetails({ category: errorCat || null, errorFields: otpErrors?.fieldErrors || null, errorFrom: otpErrors?.message || null });
+        }
+
+        formatFunction();
+
+    }, [otpErrors]);
 
     return (
         <>
@@ -68,7 +87,7 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                     </div>
                 </div>
 
-                <form onSubmit={submitOtp}>
+                <form onSubmit={(e) => submitOtpHandler(e)}>
                     <div className={styles.otpContainer}>
                         <div className={styles.otpInputRow}>
                             {otp.map((digit, index) => (
@@ -85,6 +104,7 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                                     autoComplete={index === 0 ? 'one-time-code' : 'off'}
                                     onChange={(event) => handleOtpChange(event.target.value, index)}
                                     onKeyDown={(event) => handleOtpKeyDown(event, index)}
+                                    onClick={() => setErrorDetails({ ...errorDetails, errorFrom: null })}
                                 />
                             ))}
                         </div>
@@ -96,7 +116,7 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                                     <button
                                         type="button"
                                         className={`${styles.resendButton} ${loadResend ? styles.resendButtonLoading : ''}`}
-                                        onClick={() => resendOtp()}
+                                        onClick={() => resendOtpHandler()}
                                         disabled={loadResend}
                                     >
                                         {loadResend ? (
@@ -123,6 +143,12 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                             <span>For your security, this code will expire in 5 minutes.</span>
                         </div>
                     </div>
+
+                    {/* Error message here */}
+                    {
+                        errorDetails?.errorFrom &&
+                        <ErrorLayout displayError={otpErrors} />
+                    }
 
                     <button
                         type="submit"
@@ -155,6 +181,9 @@ function OTPForm({ otp, setOtp, secondsLeft, loadResend, resendOtp, verification
                             </button>
                         </>
                     }
+                    <div className={styles.loginPrompt}>
+                        Already have an account? <Link to="/login">Login here </Link>
+                    </div>
                 </form>
 
                 <img src={left_transparent_banner} alt="left-transparent" className={styles.leftTransparentBanner} />

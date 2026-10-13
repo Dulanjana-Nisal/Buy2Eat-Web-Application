@@ -1,90 +1,14 @@
 import styles from './SellerRegisterPage.module.css';
 import right_banner from '../../../../assets/images/customer-register-right-banner.png';
 import SellerRegisterForm from '../../components/SellerRegisterForm/SellerRegisterForm';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sellerRegistrationApi } from '../../api/authApi';
 import Background from '../../../../shared/components/ui/Background';
 
 function SellerRegisterPage() {
-    // useStats hook for UI
-    const [loading, setLoading] = useState(false);
 
     // Navigation hooks
     const navigate = useNavigate();
 
-    // useState hooks for handle data
-    const [registerDetails, setRegisterDetails] = useState({
-        email: "",
-        password: "",
-        confPass: "",
-        first_name: "",
-        last_name: "",
-        phone_number: "",
-        agreement: false,
-    })
-
-    // Customer registration function
-    const customerRegister = async (e) => {
-        e.preventDefault();
-
-        setLoading(true)
-
-        // check email is not empty
-        if ((registerDetails.email).length < 2) {
-            setLoading(false)
-            return console.error('Email is required please fill that filed!')
-        }
-
-        // check password and conform password is same
-        if (registerDetails.password !== registerDetails.confPass) {
-            setLoading(false)
-            return console.error('Passwords are not matched!')
-        }
-
-        // check password length
-        if ((registerDetails.password).length < 6) {
-            setLoading(false)
-            return console.error('Passwords must have more that 6 characters!')
-        }
-
-        // check Phone number length
-        if ((registerDetails.phone_number).length <= 6) {
-            setLoading(false)
-            return console.error('Phone number have more that 6 numbers!')
-        }
-
-        // check if agreement is sign
-        if (!registerDetails.agreement) {
-            setLoading(false)
-            return console.error("Please agree with Terms of services and Privacy Policy")
-        }
-
-        try {
-
-            // call seller register api
-            const registration = await sellerRegistrationApi(registerDetails);
-
-            // navigate OTP verification page
-            if (registration.success) {
-                localStorage.setItem('expiredAt', registration.expiresAt)
-                navigate('/verify-otp', {
-                    state: {
-                        verification_id: registration.verification_id,
-                        maskEmail: registration.masked_email,
-                        expiresAt: registration.expiresAt,
-                        register_with: registration.register_with || ''
-                    }
-                })
-            }
-        }
-        catch (err) {
-            console.log(err?.response?.data)
-        }
-        finally {
-            setLoading(false)
-        }
-    }
     return (
         <>
             <div className={styles.container}>
@@ -99,7 +23,7 @@ function SellerRegisterPage() {
                     <nav className={styles.topNav}>
                         <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
                             <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                     </nav>
@@ -118,12 +42,7 @@ function SellerRegisterPage() {
                 <div className={styles.mainCard}>
 
                     {/* Left Side: Form */}
-                    <SellerRegisterForm
-                        setRegisterDetails={setRegisterDetails}
-                        registerDetails={registerDetails}
-                        customerRegister={customerRegister}
-                        loading={loading}
-                    />
+                    <SellerRegisterForm />
 
                     {/* Right Side: Features / Info */}
                     <div className={styles.infoPanel}>

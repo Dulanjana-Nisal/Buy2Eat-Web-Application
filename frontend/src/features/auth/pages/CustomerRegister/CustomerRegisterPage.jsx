@@ -1,71 +1,13 @@
 import styles from './CustomerRegisterPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import right_banner from '../../../../assets/images/customer-register-right-banner.png';
-import { useState } from 'react';
 import CustomerRegisterForm from '../../components/CustomerRegisterFrom/CustomerRegisterForm';
-import { customerRegistrationApi } from '../../api/authApi';
 import Background from '../../../../shared/components/ui/Background';
 
 function CustomerRegister() {
 
-    // useStats hook for UI
-    const [loading, setLoading] = useState(false);
-
     // Navigation hooks
     const navigate = useNavigate();
-
-    // useState hooks for handle data
-    const [registerDetails, setRegisterDetails] = useState({
-        email: "",
-        password: "",
-        confPass: "",
-        first_name: "",
-        last_name: "",
-        phone_number: "",
-        agreement: false,
-    })
-
-    // Customer registration function
-    const customerRegister = async (e) => {
-        e.preventDefault();
-
-        setLoading(true)
-
-        // check password and conform password is same
-        if (registerDetails.password !== registerDetails.confPass) {
-            setLoading(false)
-            return console.error('Passwords are not matched!')
-        }
-
-        // check if agreement is sign
-        if (!registerDetails.agreement) {
-            setLoading(false)
-            return console.error("Please agree with Terms of services and Privacy Policy")
-        }
-
-        try {
-            const registration = await customerRegistrationApi(registerDetails);
-
-            // navigate OTP verification page
-            if (registration.success) {
-                localStorage.setItem('expiredAt', registration.expiresAt)
-                navigate('/verify-otp', {
-                    state: {
-                        verification_id: registration.verification_id,
-                        maskEmail: registration.masked_email,
-                        expiresAt: registration.expiresAt,
-                        register_with: registration.register_with || ''
-                    }
-                })
-            }
-        }
-        catch (err) {
-            console.log(err?.response?.data)
-        }
-        finally {
-            setLoading(false)
-        }
-    }
 
     return (
         <>
@@ -81,11 +23,11 @@ function CustomerRegister() {
                     <nav className={styles.topNav}>
                         <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
                             <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                     </nav>
-                    
+
                     {/* Header Texts content */}
                     <h1 className={styles.mainTitle}>
                         Create Your <span className={styles.cursiveText}>Customer</span> Account
@@ -100,12 +42,7 @@ function CustomerRegister() {
                 <div className={styles.mainCard}>
 
                     {/* Left Side: Form */}
-                    <CustomerRegisterForm
-                        setRegisterDetails={setRegisterDetails}
-                        registerDetails={registerDetails}
-                        customerRegister={customerRegister}
-                        loading={loading}
-                    />
+                    <CustomerRegisterForm />
 
                     {/* Right Side: Features / Info */}
                     <div className={styles.infoPanel}>

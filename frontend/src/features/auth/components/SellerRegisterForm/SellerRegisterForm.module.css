@@ -103,6 +103,7 @@
 .formGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    align-items: start;
     gap: 20px;
     margin-bottom: 20px;
 }
@@ -116,6 +117,22 @@
     display: flex;
     align-items: center;
     z-index: 2;
+}
+
+.inputGroup.nameInputGroup {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.inputGroup.nameInputGroup p {
+    margin-top: 8px;
+}
+
+.nameInputGroup .inputIcon {
+    top: 0;
+    display: flex;
+    align-items: center;
+    height: var(--input-height-lg);
 }
 
 .inputIcon {
@@ -147,6 +164,25 @@
     color: var(--color-text-placeholder);
 }
 
+.inputGroup input[aria-invalid="true"] {
+    border: 1px solid var(--color-error-border);
+    background-color: var(--color-error-light);
+    color: var(--color-error);
+}
+
+.errorText {
+    width: 100%;
+    font-size: var(--font-size-xs);
+    text-align: start;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-error);
+    margin-top: -12px;
+}
+
+.nameInputGroup .errorText {
+    margin-top: 4px;
+}
+
 .eyeIcon {
     position: absolute;
     right: 16px;
@@ -161,10 +197,18 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 0;
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     z-index: 2;
+}
+
+.termsField {
+    margin-bottom: 30px;
+}
+
+.termsError {
+    margin: 8px 0 0 0;
 }
 
 .termsGroup input[type="checkbox"] {

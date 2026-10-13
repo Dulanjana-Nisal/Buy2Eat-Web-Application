@@ -1,0 +1,78 @@
+export const ErrorHandler = (error) => {
+    // check if error repose is alive
+    if (error.response) {
+        // get error response from api
+        const errorData = error.response.data?.error ?? {};
+
+        // assign values for fieldErrors
+        /*
+            * this kind a api response 
+
+            "details": [
+                {
+                "field": "email",
+                "issue": "input not be empty"
+                },
+                {
+                "field": "password",
+                "issue": "input not be empty"
+                }
+            ]  
+
+            * should tern in to 
+
+            fieldErrors : {
+                email: 'input not be empty',
+                password: 'input not be empty'
+            }
+
+            like that
+        */
+
+        let fieldErrors = {}
+        if (Array.isArray(errorData.details) && errorData.details != []) {
+            errorData.details.forEach(element => {
+                fieldErrors[element.field || 'unknown_field'] = element.issue || "Some error happened in this field!"
+            });
+        }
+
+        // variable for return data set
+        const returnError = {
+            type: "api",
+            status: errorData.status ?? error.response.status, // if status code not defined, add default status code
+            category: errorData.category ?? "UNKNOWN_ERROR",
+            code: errorData.code ?? "UNKNOWN_ERROR_CODE",
+            message: errorData.message ?? "Something went wrong!. Please try again later.",
+            fieldErrors,
+        }
+
+        if (returnError.status >= 500) {
+            returnError.requestId = errorData.request_id || 'not generated'
+        }
+
+        return returnError;
+    }
+
+    // check if have connection error
+    if (error.request) {
+        return {
+            type: "network",
+            status: null,
+            category: "NETWORK_ERROR",
+            code: "NETWORK_ERROR",
+            message: "Unable to connect to the server. Please check your internet connection.",
+            fieldErrors: {}
+        }
+    }
+
+    // if something else
+    return {
+        type: "Unknown",
+        status: null,
+        category: "UNKNOWN_ERROR",
+        code: "UNKNOWN_ERROR",
+        message: "Something went wrong!. Please try again later.",
+        fieldErrors: {}
+    }
+
+}

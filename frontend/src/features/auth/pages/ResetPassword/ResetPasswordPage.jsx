@@ -1,10 +1,10 @@
 import styles from './ResetPasswordPage.module.css';
 import login_background from '../../../../assets/images/customer-register-right-banner.png';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { resetPasswordApi, verifyResetPasswordApi } from '../../api/authApi';
+import { useParams } from 'react-router-dom';
 import ResetPasswordForm from '../../components/ResetPasswordForm/ResetPasswordForm';
 import Background from '../../../../shared/components/ui/Background';
+import { useResetPassword } from '../../hooks/useResetPassword';
 
 // calculate strength of password
 const getPasswordStrength = (password) => {
@@ -32,76 +32,26 @@ function ResetPasswordPage() {
 
     // useStates hooks
     const [resetData, setResetData] = useState({ token: token, password: "", confPassword: "" });
-    const [loading, setLoading] = useState(false);
-    const [verifying, setVerifying] = useState(false);
     const passwordStrength = getPasswordStrength(resetData.password);
 
-    // Navigation hook
-    const navigate = useNavigate();
+    // import custom hooks
+    const { verifyResetPassword, verifying } = useResetPassword();
 
-    /* 
-    * check reset link is send by forgot password page
-    * check reset link with calling verify reset password api
-    * set verification status
-    * return back to forgot password page if failed to verify
-    */
+    // use effect for verify reset password
     useEffect(() => {
-        const verifyResetPassword = async () => {
-            setVerifying(true)
+        const verification = async () => {
             try {
-                await verifyResetPasswordApi(token);
+                await verifyResetPassword(token);
             }
             catch (err) {
-                const response = err.response?.data.success;
-                setVerifying(false);
-
-                if (!response) {
-                    navigate('/forgot-password', { replace: true });
-                }
-            }
-            finally {
-                setVerifying(false);
+                return err;
             }
         }
 
-        verifyResetPassword();
-    }, [navigate, token]);
+        verification();
 
-    // user reset password function 
-    const resetPassword = async (e) => {
-        e.preventDefault();
-        
-        // check password and conf password is matched
-        if (resetData.password !== resetData.confPassword) {
-            return console.error('Passwords are not matched!')
-        }
-
-        // check password characters more that 6
-        if((resetData.password).length < 6){
-            return console.error('Password must have more that 6 characters');
-        }
-        
-        setLoading(true);
-        try {
-            const resetPasswordResponse = await resetPasswordApi({ token: resetData.token, newPassword: resetData.password });
-
-            if (resetPasswordResponse.success) {
-                // store conformation data in session storage
-                sessionStorage.setItem("fromForgotPassword", "true");
-
-                // navigate success page 
-                navigate("/reset-password/success", {
-                    state: { fromResetPassword: true }
-                });
-            }
-        }
-        catch (err) {
-            console.error(err.response?.data || err)
-        }
-        finally {
-            setLoading(false);
-        }
-    }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [token]);
 
     // container for display verifying status
     if (verifying) {
@@ -129,7 +79,7 @@ function ResetPasswordPage() {
                     <p className={styles.verificationNote}>Please keep this window open</p>
                 </section>
             </main>
-        )
+        );
     }
 
     return (
@@ -155,11 +105,9 @@ function ResetPasswordPage() {
 
                     {/* Left Panel - Reset Form */}
                     <ResetPasswordForm
-                        resetPassword={resetPassword}
                         resetData={resetData}
                         setResetData={setResetData}
                         passwordStrength={passwordStrength}
-                        loading={loading}
                     />
 
                     {/* Right Panel - Image & Widgets */}

@@ -229,7 +229,8 @@
 }
 
 .submitBtn:disabled {
-    cursor: default;
+    cursor: not-allowed;
+    background-color: var(--color-primary-hover);
 }
 
 .submitBtn:disabled:hover svg {
@@ -309,7 +310,7 @@
         margin-bottom: 24px;
     }
 
-    .formHeader h2{
+    .formHeader h2 {
         font-size: var(--font-size-md);
     }
 

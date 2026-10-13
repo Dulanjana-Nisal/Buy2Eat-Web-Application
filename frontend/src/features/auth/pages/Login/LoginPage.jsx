@@ -1,43 +1,14 @@
 import styles from './LoginPage.module.css';
 import login_background from '../../../../assets/images/customer-register-right-banner.png';
-import { useState } from 'react';
 import LoginForm from '../../components/LoginForm/LoginForm';
 import { useNavigate } from 'react-router-dom';
-import { userLoginApi } from '../../api/authApi';
 import Background from '../../../../shared/components/ui/Background';
 
 /** Manages login form state and submits user credentials. */
 function LoginPage() {
 
-    // useStates hooks
-    const [loading, setLoading] = useState(false);
-    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
-
     // Navigation hook
     const navigate = useNavigate();
-
-    // user login function 
-    const userLogin = async (e) => {
-        e.preventDefault();
-
-        // call backend user login api
-        try {
-            setLoading(true);
-            await userLoginApi(loginDetails);
-
-            // Remove login details
-            setLoginDetails({
-                email: '',
-                password: '',
-            })
-        }
-        catch (err) {
-            console.log(err?.response?.data);
-        }
-        finally {
-            setLoading(false);
-        }
-    }
 
     return (
         <>
@@ -52,7 +23,7 @@ function LoginPage() {
                     <nav className={styles.topNav}>
                         <button className={styles.backButton} type='button' onClick={() => navigate(-1)}>
                             <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                     </nav>
@@ -71,12 +42,7 @@ function LoginPage() {
                 <div className={styles.container}>
 
                     {/* Left Panel - Login Form */}
-                    <LoginForm
-                        loading={loading}
-                        loginDetails={loginDetails}
-                        userLogin={userLogin}
-                        setLoginDetails={setLoginDetails}
-                    />
+                    <LoginForm />
 
                     {/* Right Panel - Image & Widgets */}
                     <div className={styles.infoPanel}>

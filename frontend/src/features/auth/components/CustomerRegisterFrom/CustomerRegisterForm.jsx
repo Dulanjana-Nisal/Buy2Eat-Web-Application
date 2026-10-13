@@ -1,17 +1,84 @@
 import styles from './CustomerRegisterForm.module.css';
 import left_transparent_banner from '../../../../assets/images/customer-card.svg';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
+import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
+import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
+import { useUserAuth } from '../../hooks/useUserAuth';
 
-function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerRegister, loading }) {
+// Inputs IDs for error handling
+const inputErrors = {
+    FIRST_NAME: "FIRST_NAME_ERROR",
+    LAST_NAME: "LAST_NAME_ERROR",
+    PHONE_NUMBER: "PHONE_NUMBER_ERROR",
+    PASSWORD: "PASSWORD_ERROR",
+    CONF_PASSWORD: "CONF_PASSWORD_ERROR",
+    EMAIL: "EMAIL_ERROR",
+    CHECKBOX: "CHECKBOX_ERROR",
+}
+
+function CustomerRegisterForm() {
 
     // useStats hook for UI
     const [hidePass, setHidePass] = useState(true);
     const [hidePassConform, setHidePassConform] = useState(true);
+    const [registerDetails, setRegisterDetails] = useState({
+        email: "",
+        password: "",
+        confPass: "",
+        first_name: "",
+        last_name: "",
+        phone_number: "",
+        accept_agreement: false,
+    });
+    const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
     // use custom hook
-    const { continueWithGoogle } = useGoogleAuth();
+    const { continueWithGoogle, googleLoginLoading } = useGoogleAuth();
+    const { registerCustomer, displayError, loading } = useUserAuth();
+
+    // Customer registration function
+    const customerRegister = async (e) => {
+        e.preventDefault();
+
+        // check password and conform password is same
+        if (registerDetails.password !== registerDetails.confPass) {
+            setErrorDetails({ category: errorCategoryList.INPUT, errorFields: { ...errorDetails.errorFields, confPass: "Passwords are not matched" } });
+            return;
+        }
+
+        try {
+            await registerCustomer(registerDetails);
+        }
+        catch (err) {
+            return err;
+        }
+    }
+
+    // use effect for design errors
+    useEffect(() => {
+        function formatFunction() {
+
+            // reset all error details before install errors
+            setErrorDetails({ category: null, errorFields: null, errorFrom: null });
+
+            const errorCat = getErrorCategory(displayError || null);
+
+            // get error category
+            getErrorCategory(displayError);
+            setErrorDetails({ category: errorCat || null, errorFields: displayError?.fieldErrors || null, errorFrom: displayError?.message || null });
+        }
+
+        formatFunction();
+
+    }, [displayError]);
+
+    // clickTerms function 
+    const clickTerms = (e) => {
+        setRegisterDetails({ ...registerDetails, accept_agreement: e.target.checked });
+        setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, termsAccepted: null }, errorFrom: null });
+    }
 
     return (
         <>
@@ -31,13 +98,17 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
 
                 <div className={styles.socialAuth}>
                     <button className={styles.socialButton} onClick={() => continueWithGoogle()}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                        </svg>
-                        Continue with Google
+                        {(loading || googleLoginLoading) ? <span className={styles.spinner} aria-label="Logging in" /> :
+                            <>
+                                <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                                </svg>
+                                Continue with Google
+                            </>
+                        }
                     </button>
                 </div>
 
@@ -48,26 +119,40 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                 <form>
                     <div className={styles.formGrid}>
 
-                        <div className={styles.inputGroup}>
+                        <div className={`${styles.inputGroup} ${styles.nameInputGroup}`}>
                             <span className={styles.inputIcon}>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </span>
                             <input
                                 type="text"
                                 placeholder="First Name"
+                                aria-invalid={errorDetails.errorFields?.first_name ? true : false}
+                                aria-describedby={errorDetails.errorFields?.first_name ? inputErrors.FIRST_NAME : undefined}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, first_name: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, first_name: null } })}
                             />
+                            {
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.first_name) &&
+                                <p id={inputErrors.FIRST_NAME} className={styles.errorText}>{errorDetails.errorFields?.first_name}</p>
+                            }
                         </div>
 
-                        <div className={styles.inputGroup}>
+                        <div className={`${styles.inputGroup} ${styles.nameInputGroup}`}>
                             <span className={styles.inputIcon}>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </span>
                             <input
                                 type="text"
                                 placeholder="Last Name"
+                                aria-invalid={errorDetails.errorFields?.last_name ? true : false}
+                                aria-describedby={errorDetails.errorFields?.last_name ? inputErrors.LAST_NAME : undefined}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, last_name: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, last_name: null }, errorFrom: null })}
                             />
+                            {
+                                (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.last_name) &&
+                                <p id={inputErrors.LAST_NAME} className={styles.errorText}>{errorDetails.errorFields?.last_name}</p>
+                            }
                         </div>
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -77,9 +162,16 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                             <input
                                 type="email"
                                 placeholder="Email Address"
+                                aria-invalid={errorDetails.errorFields?.email ? true : false}
+                                aria-describedby={errorDetails.errorFields?.email ? inputErrors.EMAIL : undefined}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, email: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, email: null }, errorFrom: null })}
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) &&
+                            <p id={inputErrors.EMAIL} className={styles.errorText}>{errorDetails.errorFields?.email}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -88,9 +180,16 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                             <input
                                 type="tel"
                                 placeholder="+94 70 123 4567"
+                                aria-invalid={errorDetails.errorFields?.phone_number ? true : false}
+                                aria-describedby={errorDetails.errorFields?.phone_number ? inputErrors.PHONE_NUMBER : undefined}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, phone_number: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, phone_number: null }, errorFrom: null })}
                             />
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.phone_number) &&
+                            <p id={inputErrors.PHONE_NUMBER} className={styles.errorText}>{errorDetails.errorFields?.phone_number}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -99,7 +198,10 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                             <input
                                 type={hidePass ? "password" : 'text'}
                                 placeholder="Password"
+                                aria-invalid={errorDetails.errorFields?.password ? true : false}
+                                aria-describedby={errorDetails.errorFields?.password ? inputErrors.PASSWORD : undefined}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, password: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, password: null }, errorFrom: null })}
                             />
                             {
                                 !hidePass ?
@@ -113,6 +215,10 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                     </button>
                             }
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.password) &&
+                            <p id={inputErrors.PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.password}</p>
+                        }
 
                         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                             <span className={styles.inputIcon}>
@@ -121,7 +227,10 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                             <input
                                 type={hidePassConform ? "password" : 'text'}
                                 placeholder="Confirm Password"
+                                aria-invalid={errorDetails.errorFields?.confPass ? true : false}
+                                aria-describedby={errorDetails.errorFields?.confPass ? inputErrors.CONF_PASSWORD : undefined}
                                 onChange={(e) => setRegisterDetails({ ...registerDetails, confPass: e.target.value })}
+                                onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, confPass: null }, errorFrom: null })}
                             />
                             {
                                 !hidePassConform ?
@@ -135,20 +244,50 @@ function CustomerRegisterForm({ setRegisterDetails, registerDetails, customerReg
                                     </button>
                             }
                         </div>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.confPass) &&
+                            <p id={inputErrors.CONF_PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.confPass}</p>
+                        }
 
                     </div>
 
-                    <label className={styles.termsGroup}>
-                        <input
-                            type="checkbox"
-                            defaultChecked={registerDetails.agreement}
-                            onClick={(e) => setRegisterDetails({ ...registerDetails, agreement: e.target.checked })}
-                        />
-                        <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
-                    </label>
+                    <div className={styles.termsField}>
+                        <label className={styles.termsGroup}>
+                            <input
+                                type="checkbox"
+                                defaultChecked={registerDetails.accept_agreement}
+                                aria-invalid={errorDetails.errorFields?.termsAccepted ? true : false}
+                                aria-describedby={errorDetails.errorFields?.termsAccepted ? inputErrors.CHECKBOX : undefined}
+                                onClick={(e) => clickTerms(e)}
+                            />
+                            <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+                        </label>
+                        {
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.termsAccepted) &&
+                            <p id={inputErrors.CHECKBOX} className={`${styles.errorText} ${styles.termsError}`}>{errorDetails.errorFields.termsAccepted}</p>
+                        }
+                    </div>
 
-                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading}>
-                        {loading ? <span className={styles.spinner} aria-label="Logging in" /> :
+                    {/* Error message here */}
+                    {
+                        errorDetails?.errorFrom &&
+                        <ErrorLayout
+                            displayError={displayError}
+                            hasInlineFieldError={
+                                errorDetails.category === errorCategoryList.INPUT &&
+                                (errorDetails.errorFields?.first_name ||
+                                    errorDetails.errorFields?.last_name ||
+                                    errorDetails.errorFields?.email ||
+                                    errorDetails.errorFields?.phone_number ||
+                                    errorDetails.errorFields?.password ||
+                                    errorDetails.errorFields?.confPass ||
+                                    errorDetails.errorFields?.termsAccepted)
+                            }
+                        />
+                    }
+
+                    <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading || googleLoginLoading}>
+                        {(loading || googleLoginLoading) ? <span className={styles.spinner} aria-label="Logging in" /> :
                             <>
                                 Create Account
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
