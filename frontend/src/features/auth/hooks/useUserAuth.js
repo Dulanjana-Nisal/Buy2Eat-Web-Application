@@ -48,16 +48,17 @@ export const useUserAuth = () => {
             const result = await customerRegistrationApi(credentials);
 
             // navigate OTP verification page
-            localStorage.setItem('expiredAt', result.expiresAt);
-            localStorage.setItem('user', result.expiresAt);
-            navigate('/verify-otp', {
-                state: {
-                    verification_id: result.verification_id,
-                    maskEmail: result.masked_email,
-                    expiresAt: result.expiresAt,
-                    register_with: result.register_with || ''
-                }
-            })
+            if (result.success) {
+                localStorage.setItem('expiredAt', result.expiresAt);
+                navigate('/verify-otp', {
+                    state: {
+                        verification_id: result.verification_id,
+                        maskEmail: result.masked_email,
+                        expiresAt: result.expiresAt,
+                        register_with: result.register_with || ''
+                    }
+                });
+            }
 
             return result;
         }
