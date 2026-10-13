@@ -4,7 +4,7 @@ import left_transparent_banner from '../../../../assets/images/otp-background.sv
 import { useOtpAuth } from '../../hooks/useOtpAuth';
 import { useHandleOtp } from '../../hooks/useHandelOtp';
 import { useEffect, useState } from 'react';
-import { errorCategoryList, getErrorCategory } from '../../../../utils/error/errorCategories';
+import { getErrorCategory } from '../../../../utils/error/errorCategories';
 import ErrorLayout from '../../../../shared/layouts/ErrorLayout/ErrorLayout';
 
 function OTPForm({ secondsLeft, setSecondsLeft, setExpire, registerWith, maskedEmail, location }) {
@@ -143,8 +143,8 @@ function OTPForm({ secondsLeft, setSecondsLeft, setExpire, registerWith, maskedE
 
                     {/* Error message here */}
                     {
-                        (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
-                        <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!. Please try again."} />
+                        errorDetails?.errorFrom &&
+                        <ErrorLayout displayError={otpErrors} />
                     }
 
                     <button
