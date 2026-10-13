@@ -83,6 +83,13 @@ export const getErrorCategory = (err) => {
         case "SERVER_ERROR":
             return errorCategoryList.SYSTEM;
 
+        // ─────────────────────────────────────────────
+        // NETWORK FAIL
+        // ─────────────────────────────────────────────
+
+        case "NETWORK_ERROR":
+                return errorCategoryList.NETWORK;
+
 
         // ─────────────────────────────────────────────
         // Unknown backend category
