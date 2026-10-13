@@ -271,7 +271,19 @@ function SellerRegisterForm() {
                     {/* Error message here */}
                     {
                         errorDetails?.errorFrom &&
-                        <ErrorLayout displayError={displayError} />
+                        <ErrorLayout
+                            displayError={displayError}
+                            hasInlineFieldError={
+                                errorDetails.category === errorCategoryList.INPUT &&
+                                (errorDetails.errorFields?.first_name ||
+                                    errorDetails.errorFields?.last_name ||
+                                    errorDetails.errorFields?.email ||
+                                    errorDetails.errorFields?.phone_number ||
+                                    errorDetails.errorFields?.password ||
+                                    errorDetails.errorFields?.confPass ||
+                                    errorDetails.errorFields?.termsAccepted)
+                            }
+                        />
                     }
 
                     <button type="submit" className={styles.submitBtn} onClick={(e) => customerRegister(e)} disabled={loading || googleLoginLoading}>

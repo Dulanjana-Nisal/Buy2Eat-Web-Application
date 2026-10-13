@@ -229,7 +229,15 @@ function GoogleRegisterForm({ navigate, location }) {
                     {/* Error message here */}
                     {
                         errorDetails?.errorFrom &&
-                        <ErrorLayout displayError={googleLoginError} />
+                        <ErrorLayout
+                            displayError={googleLoginError}
+                            hasInlineFieldError={
+                                errorDetails.category === errorCategoryList.INPUT &&
+                                (errorDetails.errorFields?.role ||
+                                    errorDetails.errorFields?.phone_number ||
+                                    errorDetails.errorFields?.termsAccepted)
+                            }
+                        />
                     }
 
                     {

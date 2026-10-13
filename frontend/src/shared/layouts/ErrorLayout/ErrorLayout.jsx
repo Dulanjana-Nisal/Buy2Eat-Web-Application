@@ -1,6 +1,6 @@
 import styles from './ErrorLayout.module.css';
 
-function ErrorLayout({displayError}) {
+function ErrorLayout({ displayError, hasInlineFieldError = false }) {
 
     // check errors exist
     if(!displayError){
@@ -10,7 +10,7 @@ function ErrorLayout({displayError}) {
     return (
         <>
             { 
-             Object.keys(displayError?.fieldErrors).length == 0 &&
+             !hasInlineFieldError &&
                 <div className={styles.errorMessages}>
                     <p>{displayError?.message || "Something went wrong!. Please try again later."}</p>
                 </div>

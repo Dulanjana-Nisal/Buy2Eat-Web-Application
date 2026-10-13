@@ -177,7 +177,13 @@ function ResetPasswordForm({ resetData, setResetData, passwordStrength }) {
                         {/* Error message here */}
                         {
                             errorDetails?.errorFrom &&
-                            <ErrorLayout displayError={displayError} />
+                            <ErrorLayout
+                                displayError={displayError}
+                                hasInlineFieldError={
+                                    errorDetails.category === errorCategoryList.INPUT &&
+                                    (errorDetails.errorFields?.newPassword || errorDetails.errorFields?.confPass)
+                                }
+                            />
                         }
                         
                         <button type="submit" className={styles.submitButton} disabled={loading}>
