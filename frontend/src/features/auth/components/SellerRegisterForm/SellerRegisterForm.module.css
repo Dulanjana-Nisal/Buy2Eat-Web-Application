@@ -125,7 +125,7 @@
 }
 
 .inputGroup.nameInputGroup p {
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
 .nameInputGroup .inputIcon {
@@ -176,7 +176,7 @@
     text-align: start;
     font-weight: var(--font-weight-semibold);
     color: var(--color-error);
-    margin-top: -8px;
+    margin-top: -12px;
 }
 
 .nameInputGroup .errorText {
