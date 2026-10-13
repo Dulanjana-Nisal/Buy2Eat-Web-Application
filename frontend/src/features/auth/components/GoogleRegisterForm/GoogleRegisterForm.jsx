@@ -228,8 +228,8 @@ function GoogleRegisterForm({ navigate, location }) {
 
                     {/* Error message here */}
                     {
-                        (errorDetails?.category && errorDetails?.errorFrom && errorDetails?.category !== errorCategoryList.INPUT && errorDetails?.category !== errorCategoryList.UNKNOWN) &&
-                        <ErrorLayout message={errorDetails?.errorFrom ?? "Something wrong!"} />
+                        errorDetails?.errorFrom &&
+                        <ErrorLayout displayError={googleLoginError} />
                     }
 
                     {
