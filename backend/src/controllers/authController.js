@@ -1716,8 +1716,6 @@ const refreshToken = asyncHandler(async (req, res) => {
 		return res.status(StatusCode.OK).json({
 			success: true,
 			message: 'Tokens refreshed successfully!',
-			newAccessToken: newAccessToken,
-			newRefreshToken: newRefreshToken,
 		});
 
 	} catch (error) {
