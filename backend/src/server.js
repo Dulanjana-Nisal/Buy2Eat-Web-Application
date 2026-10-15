@@ -1,9 +1,13 @@
 const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
+const helmet = require("helmet");
 const connectDatabase = require('./databases/db');
-const { PORT, CLIENT_URL } = require('./config/env');
+const { PORT, CLIENT_URL, NODE_ENV } = require('./config/env');
 const cookieParser = require("cookie-parser");
+
+// check application environment
+const isProduction = (NODE_ENV === 'development') ? false : true;
 
 // middlewares
 const errorHandlerMiddleware = require('./errors/errorHandlerMiddleware');
@@ -16,9 +20,40 @@ const customerRouter = require('./routes/customerRouter');
 
 const app = express();
 
+// disable technology log
+app.disable("x-powered-by");
+
+// security middlewares
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", process.env.API_URL || ""].filter(Boolean),
+        fontSrc: ["'self'", "https:", "data:"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'same-origin' },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    strictTransportSecurity: isProduction ? {
+      maxAge: 31536000,
+      includeSubDomains: false,
+      preload: false,
+    } : false,
+    frameguard: { action: 'deny' },
+    noSniff: true,
+  })
+);
+
 // middlewares
 app.use(cors({
-  origin: CLIENT_URL,
+  origin: CLIENT_URL || "http://localhost:5173/",
   credentials: true
 }));
 app.use(express.json());
