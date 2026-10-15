@@ -18,9 +18,10 @@ const authRouter = require('./routes/authRouter');
 const usersRouter = require('./routes/usersRouter');
 const customerRouter = require('./routes/customerRouter');
 
+// create app
 const app = express();
 
-// disable technology log
+// hide technology information
 app.disable("x-powered-by");
 
 // security middlewares
@@ -66,6 +67,7 @@ app.get('/', (_request, response) => {
 
 // routers
 app.use(requestIDMiddleware);
+app.use('/api');
 app.use('/api/v1/buy2eat/auth', authRouter);
 app.use('/api/v1/buy2eat/customers', customerRouter);
 app.use('/api/v1/buy2eat/users', usersRouter);
