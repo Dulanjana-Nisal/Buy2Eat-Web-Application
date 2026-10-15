@@ -20,7 +20,7 @@ const handler = (message) => (req, res, next) => {
         `user=${req.user?.id ?? 'anon'} ` +
         `method=${req.method} path=${req.path}`
     );
-    
+
     next(
         new AppError(
             ErrorCode.RATE_LIMIT_EXCEEDED,
@@ -69,7 +69,7 @@ const loginLimiter = createLimiter({
 const sensitiveLimiter = createLimiter({
     windowMs: 15 * MINUTE,
     limit: 6,
-    skipSuccessfulRequests: false,
+    skipSuccessfulRequests: true,
 })
 
 module.exports = {

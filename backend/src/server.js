@@ -12,6 +12,7 @@ const isProduction = (NODE_ENV === 'development') ? false : true;
 // middlewares
 const errorHandlerMiddleware = require('./errors/errorHandlerMiddleware');
 const requestIDMiddleware = require('./middleware/requestIDMiddleware');
+const { globalLimiter } = require('./middleware/rateLimitMiddleware');
 
 // import routers
 const authRouter = require('./routes/authRouter');
@@ -67,7 +68,7 @@ app.get('/', (_request, response) => {
 
 // routers
 app.use(requestIDMiddleware);
-app.use('/api');
+app.use('/api', globalLimiter);
 app.use('/api/v1/buy2eat/auth', authRouter);
 app.use('/api/v1/buy2eat/customers', customerRouter);
 app.use('/api/v1/buy2eat/users', usersRouter);
