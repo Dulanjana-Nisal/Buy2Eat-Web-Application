@@ -42,6 +42,10 @@ const UserModel = mongoose.Schema({
         enum: ['admin', 'customer', 'seller'],
         required: [true, 'Role is required!']
     },
+    tokenVersion: {
+        type: Number,
+        default: 0,
+    },
     agreement: Agreement
 
 }, { timestamps: true });
