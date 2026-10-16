@@ -1597,6 +1597,9 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{
 				$set: {
 					password: hashedPassword,
+				},
+				$inc: {
+					tokenVersion: 1,
 				}
 			},
 			{ new: true, session }
