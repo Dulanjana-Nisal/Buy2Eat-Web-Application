@@ -7,7 +7,7 @@ config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 const schema = z.object({
     PORT: z.coerce.number().int().min(1).max(65535).default(5000),
     NODE_ENV: z.enum(["development", "production", "testing"]).default("development"),
-    MONGO_URI: z.string().min(1, "MONGO_URI is required!"),
+    MONGO_URI: z.string().min(1).optional(),
     AGREEMENT_VERSION: z.string().min(2, "AGREEMENT_VERSION is required!"),
     ACCESS_SECRET: z.string().min(32, 'ACCESS_SECRET must be at least 32 chars'),
     REFRESH_SECRET: z.string().min(32, 'REFRESH_SECRET must be at least 32 chars'),
