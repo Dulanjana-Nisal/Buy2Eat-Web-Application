@@ -1,7 +1,6 @@
 const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
-const mongoSanitize  = require('express-mongo-sanitize');
 const helmet = require("helmet");
 const connectDatabase = require('./databases/db');
 const { PORT, CLIENT_URL, NODE_ENV } = require('./config/env');
@@ -62,7 +61,6 @@ app.use(cors({
 app.use(express.json({ limit: "10kb" })); // allow to dealing with json with 10kb size limit
 app.use(morgan('dev')); // for better api alls logs
 app.use(cookieParser()); // add more security with http cookies 
-app.use(mongoSanitize()); // sanitize inputs for prevent NoSQL attacks
 
 app.get('/', (_request, response) => {
   response.json({ message: 'Buy2Eat API is running' });
