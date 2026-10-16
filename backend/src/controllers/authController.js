@@ -1715,7 +1715,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 		}
 
 		// check token version is correct
-		if(user.tokenVersion !== decoded.tokenVersion){
+		if((user.tokenVersion ?? 0) !== (decoded.tokenVersion ?? 0)){
 			throw new AppError(
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
 				{
