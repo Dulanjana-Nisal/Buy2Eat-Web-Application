@@ -1,6 +1,7 @@
 const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
+const mongoSanitize  = require('express-mongo-sanitize');
 const helmet = require("helmet");
 const connectDatabase = require('./databases/db');
 const { PORT, CLIENT_URL, NODE_ENV } = require('./config/env');
@@ -9,7 +10,7 @@ const cookieParser = require("cookie-parser");
 // check application environment
 const isProduction = (NODE_ENV === 'development') ? false : true;
 
-// middlewares
+// import middlewares
 const errorHandlerMiddleware = require('./errors/errorHandlerMiddleware');
 const requestIDMiddleware = require('./middleware/requestIDMiddleware');
 const { globalLimiter } = require('./middleware/rateLimitMiddleware');
@@ -57,10 +58,11 @@ app.use(
 app.use(cors({
   origin: CLIENT_URL || "http://localhost:5173/",
   credentials: true
-}));
-app.use(express.json());
-app.use(morgan('dev'));
-app.use(cookieParser());
+})); // add core policy for application
+app.use(express.json({ limit: "10kb" })); // allow to dealing with json with 10kb size limit
+app.use(morgan('dev')); // for better api alls logs
+app.use(cookieParser()); // add more security with http cookies 
+app.use(mongoSanitize()); // sanitize inputs for prevent NoSQL attacks
 
 app.get('/', (_request, response) => {
   response.json({ message: 'Buy2Eat API is running' });
