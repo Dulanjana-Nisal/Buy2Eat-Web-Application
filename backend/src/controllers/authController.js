@@ -31,6 +31,7 @@ const createTokenPair = (user) => {
 		_id: user._id,
 		email: user.email,
 		role: user.role,
+		tokenVersion: user.tokenVersion,
 	};
 
 	const accessToken = jwt.sign(jwtPayload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRED });
