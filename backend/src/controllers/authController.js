@@ -1704,7 +1704,18 @@ const refreshToken = asyncHandler(async (req, res) => {
 		const decoded = jwt.verify(incomingRefreshToken, REFRESH_SECRET);
 		const user = await Users.findById(decoded._id);
 
+		// check user is exist with decode user id
 		if (!user) {
+			throw new AppError(
+				ErrorCode.AUTH_INVALID_CREDENTIALS,
+				{
+					message: "User not Authorized!",
+				}
+			);
+		}
+
+		// check token version is correct
+		if(user.tokenVersion !== decoded.tokenVersion){
 			throw new AppError(
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
 				{
