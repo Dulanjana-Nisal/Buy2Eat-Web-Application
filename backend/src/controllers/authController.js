@@ -31,6 +31,7 @@ const createTokenPair = (user) => {
 		_id: user._id,
 		email: user.email,
 		role: user.role,
+		tokenVersion: user.tokenVersion,
 	};
 
 	const accessToken = jwt.sign(jwtPayload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRED });
@@ -1596,6 +1597,9 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{
 				$set: {
 					password: hashedPassword,
+				},
+				$inc: {
+					tokenVersion: 1,
 				}
 			},
 			{ new: true, session }
@@ -1700,7 +1704,18 @@ const refreshToken = asyncHandler(async (req, res) => {
 		const decoded = jwt.verify(incomingRefreshToken, REFRESH_SECRET);
 		const user = await Users.findById(decoded._id);
 
+		// check user is exist with decode user id
 		if (!user) {
+			throw new AppError(
+				ErrorCode.AUTH_INVALID_CREDENTIALS,
+				{
+					message: "User not Authorized!",
+				}
+			);
+		}
+
+		// check token version is correct
+		if((user.tokenVersion ?? 0) !== (decoded.tokenVersion ?? 0)){
 			throw new AppError(
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
 				{
@@ -1716,8 +1731,6 @@ const refreshToken = asyncHandler(async (req, res) => {
 		return res.status(StatusCode.OK).json({
 			success: true,
 			message: 'Tokens refreshed successfully!',
-			newAccessToken: newAccessToken,
-			newRefreshToken: newRefreshToken,
 		});
 
 	} catch (error) {
