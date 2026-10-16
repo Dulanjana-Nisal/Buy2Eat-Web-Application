@@ -5,7 +5,7 @@ config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
 // create schema object list for check env variables
 const schema = z.object({
-    PORT: z.coerce.number().default(5000),
+    PORT: z.coerce.number().int().min(1).max(65535).default(5000),
     NODE_ENV: z.enum(["development", "production", "testing"]).default("development"),
     MONGO_URI: z.string().min(1, "MONGO_URI is required!"),
     AGREEMENT_VERSION: z.string().min(2, "AGREEMENT_VERSION is required!"),
