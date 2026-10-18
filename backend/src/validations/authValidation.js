@@ -29,7 +29,7 @@ const googleRegistrationSchema = z.object(
 ).strict();
 
 // validation schema for registerCustomer
-const RegisterCustomerSchema = z.object(
+const registerCustomerSchema = z.object(
     {
         body: z.object({
             email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
@@ -50,7 +50,7 @@ const RegisterCustomerSchema = z.object(
 ).strict();
 
 // validation schema for RegisterSeller
-const RegisterSellerSchema = z.object(
+const registerSellerSchema = z.object(
     {
         body: z.object({
             email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
@@ -70,6 +70,6 @@ const RegisterSellerSchema = z.object(
 module.exports = {
     authLoginSchema,
     googleRegistrationSchema,
-    RegisterCustomerSchema,
-    RegisterSellerSchema
+    registerCustomerSchema,
+    registerSellerSchema
 };
