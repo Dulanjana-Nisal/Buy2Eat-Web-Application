@@ -11,17 +11,15 @@ const validationMiddleware = (schema) => {
 
         if (!result.success) {
             const errors = result.error.issues.map((issue) => ({
-                field: issue.path.join("."),
-                message: issue.message,
-                code: issue.code,
+                field: issue.path.join(".").replaceAll("body.", ""),
+                issue: issue.message,
             }));
-
-            console.error(errors)
-
+            
             throw new AppError(
                 ErrorCode.VALIDATION_INVALID_FORMAT,
                 {
                     message: "Invalid Input data",
+                    details: errors
                 }
             )
         }

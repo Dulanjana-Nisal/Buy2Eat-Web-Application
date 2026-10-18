@@ -4,7 +4,7 @@ const { z } = require("zod");
 const authLoginSchema = z.object(
     {
         body: z.object({
-            email: z.string().trim().min(1, "Email is required").email("Invalid email address").max(254, "Email is too long"),
+            email: z.string().trim().min(1, "Email is required").max(254, "Email is too long"),
             password: z.string().min(1, "Password is required").max(128, "Password is too long"),
         }).strict(),
 
