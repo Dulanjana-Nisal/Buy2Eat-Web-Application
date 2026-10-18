@@ -58,7 +58,7 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
-	const { email, password } = req.body;
+	const { email, password } = req.validated.body;
 
 	// get error details 
 	const details = [];

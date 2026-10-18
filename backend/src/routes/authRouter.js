@@ -13,11 +13,14 @@ const {
     resetPassword,
     verifyResetPassword
 } = require('../controllers/authController');
+
 const { loginLimiter, sensitiveLimiter } = require('../middleware/rateLimitMiddleware');
+const validationMiddleware = require('../middleware/validationMiddleware');
+const { authLoginValidateSchema } = require('../validations/authValidation');
 
 const router = express.Router();
 
-router.post('/login', loginLimiter, authLogin);
+router.post('/login', validationMiddleware(authLoginValidateSchema), loginLimiter, authLogin);
 router.post('/google', sensitiveLimiter, googleAuth);
 router.post('/google/register', sensitiveLimiter, googleRegistration);
 router.post('/register-customer', loginLimiter, registerCustomers);

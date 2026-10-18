@@ -1,7 +1,7 @@
 const { ErrorCode } = require("../constants");
 const AppError = require("../errors/AppError");
 
-const validateRequest = (schema) => {
+const validationMiddleware = (schema) => {
     return (req, res, next) => {
         const result = schema.safeParse({
             body: req.body,
@@ -33,4 +33,4 @@ const validateRequest = (schema) => {
     };
 };
 
-module.exports = validateRequest;
+module.exports = validationMiddleware;
