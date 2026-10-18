@@ -23,10 +23,10 @@ function CustomerRegisterForm() {
     // useStats hook for UI
     const [hidePass, setHidePass] = useState(true);
     const [hidePassConform, setHidePassConform] = useState(true);
+    const [confPass, setConfPass] = useState(null);
     const [registerDetails, setRegisterDetails] = useState({
         email: "",
         password: "",
-        confPass: "",
         first_name: "",
         last_name: "",
         phone_number: "",
@@ -43,7 +43,7 @@ function CustomerRegisterForm() {
         e.preventDefault();
 
         // check password and conform password is same
-        if (registerDetails.password !== registerDetails.confPass) {
+        if (registerDetails.password !== confPass) {
             setErrorDetails({ category: errorCategoryList.INPUT, errorFields: { ...errorDetails.errorFields, confPass: "Passwords are not matched" } });
             return;
         }
@@ -229,7 +229,7 @@ function CustomerRegisterForm() {
                                 placeholder="Confirm Password"
                                 aria-invalid={errorDetails.errorFields?.confPass ? true : false}
                                 aria-describedby={errorDetails.errorFields?.confPass ? inputErrors.CONF_PASSWORD : undefined}
-                                onChange={(e) => setRegisterDetails({ ...registerDetails, confPass: e.target.value })}
+                                onChange={(e) => setConfPass(e.target.value)}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, confPass: null }, errorFrom: null })}
                             />
                             {
