@@ -18,10 +18,10 @@ const googleRegistrationSchema = z.object(
     {
         body: z.object({
             registerToken: z.string().min(1, "registerToken is required").max(254, "registerToken is too long"),
-            role: z.string().min(1, "role is required").enum(['customer', 'seller']),
+            role: z.enum(['customer', 'seller']),
             phone_number: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
             accept_agreement: z.boolean(),
-        }).strict(),
+        }).strict(), 
 
         params: z.object({}).strict(),
         query: z.object({}).strict(),
