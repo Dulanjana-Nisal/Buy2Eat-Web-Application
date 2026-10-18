@@ -1,26 +1,36 @@
-const { z } = require("zod");
+const { ErrorCode } = require("../constants");
+const AppError = require("../errors/AppError");
 
-const productListSchema = z.object(
-    {
-        body: z.object({}).strict(),
+const validateRequest = (schema) => {
+    return (req, res, next) => {
+        const result = schema.safeParse({
+            body: req.body,
+            params: req.params,
+            query: req.query,
+        });
 
-        params: z.object({}).strict(),
+        if (!result.success) {
+            const errors = result.error.issues.map((issue) => ({
+                field: issue.path.join("."),
+                message: issue.message,
+                code: issue.code,
+            }));
 
-        query: z.object(
-            {
-                search: z.string().trim().max(100).optional(),
+            console.error(errors)
 
-                page: z.coerce.number().int().min(1).max(10000).default(1),
+            throw new AppError(
+                ErrorCode.VALIDATION_INVALID_FORMAT,
+                {
+                    message: "Invalid Input data",
+                }
+            )
+        }
 
-                limit: z.coerce.number().int().min(1).max(100).default(10),
+        // pass validate data in to req.validated
+        req.validated = result.data;
 
-                sort: z.enum(["price", "name", "createdAt"]).default("createdAt"),
+        next();
+    };
+};
 
-                order: z.enum(["asc", "desc"]).default("desc"),
-
-            }
-        ).strict(),
-    }
-).strict();
-
-module.exports = productListSchema;
+module.exports = validateRequest;
