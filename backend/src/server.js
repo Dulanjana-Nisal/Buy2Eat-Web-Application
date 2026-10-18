@@ -22,6 +22,9 @@ const customerRouter = require('./routes/customerRouter');
 // create app
 const app = express();
 
+// proxy settings
+app.set({'trust proxy': false});
+
 // hide technology information
 app.disable("x-powered-by");
 
