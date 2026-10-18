@@ -38,9 +38,6 @@ const normalizedError = (error) => {
 	// Malformed JSON body
 	if(error.type === "entity.parse.failed") return new AppError(ErrorCode.VALIDATION_INVALID_FORMAT, { message: "Malformed JSON body" });
 
-	// if server is down or have some bug
-	if(error.isOperational === false) return new AppError(ErrorCode.INTERNAL_SERVER_ERROR, { message: "Server Down!. Please try again later." });
-
 	// Anything else is a Unknown error
 	const unknownError = new AppError(ErrorCode.INTERNAL_SERVER_ERROR, { cause: error });
 	unknownError.isOperational = false;
