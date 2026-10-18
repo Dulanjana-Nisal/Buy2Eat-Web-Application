@@ -353,7 +353,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 // Google Registration
 const googleRegistration = asyncHandler(async (req, res) => {
-	const { registerToken, role, phone_number, accept_agreement } = req.body;
+	const { registerToken, role, phone_number, accept_agreement } = req.validated.body;
 
 	// check if registerToken is exist
 	if (!registerToken) {
@@ -565,12 +565,8 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		first_name,
 		last_name,
 		phone_number,
-		addresses = [],
-		profile_image,
-		favorite_shops = [],
-		favorite_foods = [],
 		accept_agreement,
-	} = req.body;
+	} = req.validated.body;
 
 	// variable for store details data
 	const details = []
@@ -698,10 +694,10 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const profile_data = {
 		first_name: first_name,
 		last_name: last_name,
-		addresses: addresses,
-		profile_image: profile_image,
-		favorite_shops: favorite_shops,
-		favorite_foods: favorite_foods,
+		addresses: [],
+		profile_image: "",
+		favorite_shops: [],
+		favorite_foods: [],
 		phone_number: phone_number,
 	}
 
@@ -748,7 +744,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 		phone_number,
 		profile_image,
 		accept_agreement,
-	} = req.body;
+	} = req.validated.body;
 
 	// variable for store details data
 	const details = []

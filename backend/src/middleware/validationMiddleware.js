@@ -10,11 +10,13 @@ const validationMiddleware = (schema) => {
         });
 
         if (!result.success) {
-            const errors = result.error.issues.map((issue) => ({
-                field: issue.path.join(".").replaceAll("body.", ""),
-                issue: issue.message,
-            }));
-            
+            const errors = result.error.issues.map((issue) => (
+                {
+                    field: issue.path.join(".").replaceAll("body.", "") === "body" ? "termsAccepted" : issue.path.join(".").replaceAll("body.", ""),
+                    issue: issue.message,
+                }
+            ));
+            console.log(errors)
             throw new AppError(
                 ErrorCode.VALIDATION_INVALID_FORMAT,
                 {
