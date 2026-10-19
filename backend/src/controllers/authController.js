@@ -921,17 +921,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 // resend otp controller
 const resendOtp = asyncHandler(async (req, res) => {
-	const { verification_id } = req.body;
+	const { verification_id } = req.validated.body;
 
-	if (!verification_id) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Failed to resend OTP!. Please try again later.",
-			},
-		);
-	}
-
+	// Get data from registrationOtpModel
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
 	if (!otpUser) {
 		throw new AppError(

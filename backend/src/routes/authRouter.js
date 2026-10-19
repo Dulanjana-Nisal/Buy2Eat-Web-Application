@@ -20,7 +20,9 @@ const {
     authLoginSchema,
     registerCustomerSchema,
     registerSellerSchema,
-    googleRegistrationSchema
+    googleRegistrationSchema,
+    verifyOtpSchema,
+    resendOtpSchema
 } = require('../validations/authValidation');
 
 const router = express.Router();
@@ -31,8 +33,8 @@ router.post('/google/register', sensitiveLimiter, validationMiddleware(googleReg
 router.post('/register-customer', loginLimiter, validationMiddleware(registerCustomerSchema), registerCustomers);
 router.post('/register-seller', loginLimiter, validationMiddleware(registerSellerSchema), registerSellers);
 router.post('/logout', loginLimiter, userLogout);
-router.post('/verify-otp', sensitiveLimiter, verifyOtp);
-router.post('/resend-otp', sensitiveLimiter, resendOtp);
+router.post('/verify-otp', sensitiveLimiter, validationMiddleware(verifyOtpSchema), verifyOtp);
+router.post('/resend-otp', sensitiveLimiter, validationMiddleware(resendOtpSchema), resendOtp);
 router.post('/refresh-token', sensitiveLimiter, refreshToken);
 router.post('/forgot-password', sensitiveLimiter, forgotPassword);
 router.post('/reset-password', sensitiveLimiter, resetPassword);

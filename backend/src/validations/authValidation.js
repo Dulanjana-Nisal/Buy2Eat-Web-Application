@@ -68,12 +68,24 @@ const registerSellerSchema = z.object(
     }
 ).strict();
 
-// validation schema for RegisterSeller
+// validation schema for verifyOtp
 const verifyOtpSchema = z.object(
     {
         body: z.object({
             otp: z.string().min(1, "Your OTP field is empty!"),
             verification_id: z.string().min(1, "Error while verification!, Please resend OTP and try again."),
+        }).strict(),
+
+        params: z.object({}).strict(),
+        query: z.object({}).strict(),
+    }
+).strict();
+
+// validation schema for resendOtp
+const resendOtpSchema = z.object(
+    {
+        body: z.object({
+            verification_id: z.string().min(1, "Failed to resend OTP!. Please try again later."),
         }).strict(),
 
         params: z.object({}).strict(),
@@ -87,4 +99,5 @@ module.exports = {
     registerCustomerSchema,
     registerSellerSchema,
     verifyOtpSchema,
+    resendOtpSchema,
 };
