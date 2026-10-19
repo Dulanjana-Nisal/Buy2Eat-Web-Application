@@ -740,33 +740,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 
 // verify otp controller
 const verifyOtp = asyncHandler(async (req, res) => {
-	const { otp, verification_id } = req.body;
-
-	// check verification_id and otp are entered
-	if (!verification_id) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Error while verification!, Please resend OTP and try again."
-			}
-		);
-	}
-
-	// check otp are entered
-	if (!otp) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Your OTP field is empty!",
-				details: [
-					{
-						field: "otp",
-						issue: "Your OTP field is empty!"
-					}
-				]
-			}
-		);
-	}
+	const { otp, verification_id } = req.validated.body;
 
 	// validate OTP with correct format
 	const normalizedOtp = String(otp).trim();

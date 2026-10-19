@@ -68,9 +68,23 @@ const registerSellerSchema = z.object(
     }
 ).strict();
 
+// validation schema for RegisterSeller
+const verifyOtpSchema = z.object(
+    {
+        body: z.object({
+            otp: z.string().min(1, "Your OTP field is empty!"),
+            verification_id: z.string().min(1, "Error while verification!, Please resend OTP and try again."),
+        }).strict(),
+
+        params: z.object({}).strict(),
+        query: z.object({}).strict(),
+    }
+).strict();
+
 module.exports = {
     authLoginSchema,
     googleRegistrationSchema,
     registerCustomerSchema,
-    registerSellerSchema
+    registerSellerSchema,
+    verifyOtpSchema,
 };
