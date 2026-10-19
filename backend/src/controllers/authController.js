@@ -333,62 +333,6 @@ const googleRegistration = asyncHandler(async (req, res) => {
 		);
 	}
 
-	// validation field required error details data
-	const details = []
-
-	// check if role
-	if (!role) {
-		const detailsData = {
-			field: 'role',
-			issue: 'Please select your role!'
-		}
-		details.push(detailsData);
-	}
-
-	// check phone_number 
-	if (!phone_number) {
-		const detailsData = {
-			field: 'phone_number',
-			issue: 'Please add your Phone Number!'
-		}
-		details.push(detailsData);
-	}
-
-	// return if have error
-	if (details.length > 0) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Role and Phone number is required!",
-				details: details
-			},
-		);
-	}
-
-	// validating phone number
-	if (phone_number.length < 6) {
-		throw new AppError(
-			ErrorCode.VALIDATION_OUT_OF_RANGE,
-			{
-				message: "Phone number must have more that 6 Numbers!",
-				details: [
-					{
-						field: 'phone_number',
-						issue: "Phone number must have more that 6 Numbers!"
-					}
-				]
-			}
-		);
-	}
-
-	// check rolls are right
-	if (!['customer', 'seller'].includes(role)) {
-		throw new AppError(
-			ErrorCode.VALIDATION_INVALID_FORMAT,
-			{ message: "Invalid role selection." }
-		);
-	}
-
 	// check if accept agreement
 	if (!accept_agreement || typeof accept_agreement !== "boolean") {
 		throw new AppError(

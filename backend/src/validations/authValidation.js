@@ -17,10 +17,10 @@ const authLoginSchema = z.object(
 const googleRegistrationSchema = z.object(
     {
         body: z.object({
-            registerToken: z.string().min(1, "registerToken is required").max(254, "registerToken is too long"),
-            role: z.enum(['customer', 'seller']),
-            phone_number: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
-            accept_agreement: z.boolean(),
+            registerToken: z.string().min(1, "RegisterToken is required").max(254, "RegisterToken is too long"),
+            role: z.enum(['customer', 'seller'], { error: "Role must be either customer or seller" }),
+            phone_number: z.string().regex(/^\+?\d{6,16}$/, { message: "Invalid phone number format" }),
+            accept_agreement: z.boolean({ error: "You must accept the terms and conditions to proceed" }),
         }).strict(),
 
         params: z.object({}).strict(),
@@ -40,8 +40,8 @@ const registerCustomerSchema = z.object(
             phone_number: z.string().regex(/^\+?\d{6,16}$/, { message: "Invalid phone number format" }),
             accept_agreement: z.boolean({ error: "You must accept the terms and conditions to proceed" }),
         })
-        .refine((data) => data.password === data.conformPass, { message: "Passwords do not match" })
-        .strict(),
+            .refine((data) => data.password === data.conformPass, { message: "Passwords do not match" })
+            .strict(),
 
         params: z.object({}).strict(),
         query: z.object({}).strict(),
@@ -60,8 +60,8 @@ const registerSellerSchema = z.object(
             phone_number: z.string().regex(/^\+?\d{6,16}$/, { message: "Invalid phone number format" }),
             accept_agreement: z.boolean({ error: "You must accept the terms and conditions to proceed" }),
         })
-        .refine((data) => data.password === data.conformPass, { message: "Passwords do not match" })
-        .strict(),
+            .refine((data) => data.password === data.conformPass, { message: "Passwords do not match" })
+            .strict(),
 
         params: z.object({}).strict(),
         query: z.object({}).strict(),
