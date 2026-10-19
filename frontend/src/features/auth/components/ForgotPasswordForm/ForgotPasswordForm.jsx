@@ -69,7 +69,6 @@ function ForgotPasswordForm() {
         formatFunction();
 
     }, [displayError]);
-
     return (
         <>
             {/* Form */}
