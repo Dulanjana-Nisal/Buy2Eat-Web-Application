@@ -19,14 +19,15 @@ const validationMiddleware = require('../middleware/validationMiddleware');
 const {
     authLoginSchema,
     registerCustomerSchema,
-    registerSellerSchema
+    registerSellerSchema,
+    googleRegistrationSchema
 } = require('../validations/authValidation');
 
 const router = express.Router();
 
 router.post('/login', validationMiddleware(authLoginSchema), loginLimiter, authLogin);
 router.post('/google', sensitiveLimiter, googleAuth);
-router.post('/google/register', sensitiveLimiter, googleRegistration);
+router.post('/google/register', sensitiveLimiter, validationMiddleware(googleRegistrationSchema), googleRegistration);
 router.post('/register-customer', loginLimiter, validationMiddleware(registerCustomerSchema), registerCustomers);
 router.post('/register-seller', loginLimiter, validationMiddleware(registerSellerSchema), registerSellers);
 router.post('/logout', loginLimiter, userLogout);
