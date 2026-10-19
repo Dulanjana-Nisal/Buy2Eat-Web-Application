@@ -23,14 +23,14 @@ function SellerRegisterForm() {
     // useStats hook for UI
     const [hidePass, setHidePass] = useState(true);
     const [hidePassConform, setHidePassConform] = useState(true);
-    const [confPass, setConfPass] = useState(null);
     const [registerDetails, setRegisterDetails] = useState({
-        email: "",
-        password: "",
         first_name: "",
         last_name: "",
+        email: "",
+        password: "",
+        conformPass: "",
         phone_number: "",
-        agreement: false,
+        accept_agreement: false,
     });
     const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
@@ -42,12 +42,6 @@ function SellerRegisterForm() {
     // Customer registration function
     const customerRegister = async (e) => {
         e.preventDefault();
-
-        // check password and conform password is same
-        if (registerDetails.password !== confPass) {
-            setErrorDetails({ category: errorCategoryList.INPUT, errorFields: { ...errorDetails.errorFields, confPass: "Passwords are not matched" } });
-            return;
-        }
 
         // call seller register api
         try {
@@ -230,7 +224,7 @@ function SellerRegisterForm() {
                                 placeholder="Confirm Password"
                                 aria-invalid={errorDetails.errorFields?.confPass ? true : false}
                                 aria-describedby={errorDetails.errorFields?.confPass ? inputErrors.CONF_PASSWORD : undefined}
-                                onChange={(e) => setConfPass(e.target.value)}
+                                onChange={(e) => setRegisterDetails({ ...registerDetails, conformPass: e.target.value })}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, confPass: null }, errorFrom: null })}
                             />
                             {
