@@ -60,45 +60,15 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 const authLogin = asyncHandler(async (req, res) => {
 	const { email, password } = req.validated.body;
 
-	// get error details 
-	const details = [];
-
-	// check email is entered
-	if (!email?.trim()) {
-		const detailsData = {
-			field: 'email',
-			issue: 'Emails field is required'
-		}
-		details.push(detailsData);
-	}
-
-	// check password is entered
-	if (!password?.trim()) {
-		const detailsData = {
-			field: 'password',
-			issue: 'Password field is required'
-		}
-		details.push(detailsData);
-	}
-
-	// if have any errors throw error
-	if (details.length > 0) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{ details: details }
-		);
-	}
-
-
-	// check password have more that 6 characters
-	if (password.length < 6) {
+	// check password have more that 8 characters
+	if (password.length < 8) {
 		throw new AppError(
 			ErrorCode.PASSWORD_TOO_WEAK,
 			{
 				details: [
 					{
 						field: 'password',
-						issue: "Password must have at least 6 characters"
+						issue: "Password must have at least 8 characters"
 					}
 				]
 			}
@@ -560,83 +530,41 @@ const googleRegistration = asyncHandler(async (req, res) => {
 // Register auth for customers
 const registerCustomers = asyncHandler(async (req, res) => {
 	const {
-		email,
-		password,
 		first_name,
 		last_name,
+		email,
+		password,
+		conformPass,
 		phone_number,
 		accept_agreement,
 	} = req.validated.body;
 
-	// variable for store details data
-	const details = []
-
-	// check email fields are filled
-	if (!email) {
-		const detailsData = {
-			field: "email",
-			issue: 'Email field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check password fields are filled
-	if (!password) {
-		const detailsData = {
-			field: "password",
-			issue: 'password field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check first_name fields are filled
-	if (!first_name) {
-		const detailsData = {
-			field: "first_name",
-			issue: 'First Name is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check last_name fields are filled
-	if (!last_name) {
-		const detailsData = {
-			field: "last_name",
-			issue: 'Last Name is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check phone_number fields are filled
-	if (!phone_number) {
-		const detailsData = {
-			field: "phone_number",
-			issue: 'Phone Number is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check all required fields are filled
-	if (details.length > 0) {
+	// check password have more that 8 characters
+	if (password.length < 8) {
 		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			ErrorCode.PASSWORD_TOO_WEAK,
 			{
-				message: "Please provide email, password, first name, last name and phone number!",
-				details: details
+				message: "Password must have more that 8 Numbers!",
+				details: [
+					{
+						field: 'password',
+						issue: 'Password must have more that 8 Numbers!'
+					}
+				]
 			}
 		);
 	}
 
-	// check password have more that 6 characters
-	if (password.length < 6) {
+	// check password and conform password are same 
+	if (password !== conformPass) {
 		throw new AppError(
-			ErrorCode.PASSWORD_TOO_WEAK,
+			ErrorCode.VALIDATION_INVALID_FORMAT,
 			{
-				message: "Password must have more that 6 Numbers!",
+				message: "Passwords do not match",
 				details: [
 					{
-						field: 'password',
-						issue: 'Password must have more that 6 Numbers!'
+						field: 'confPass',
+						issue: 'Passwords do not match'
 					}
 				]
 			}
@@ -737,84 +665,41 @@ const registerCustomers = asyncHandler(async (req, res) => {
 // Register auth for sellers
 const registerSellers = asyncHandler(async (req, res) => {
 	const {
-		email,
-		password,
 		first_name,
 		last_name,
+		email,
+		password,
+		conformPass,
 		phone_number,
-		profile_image,
 		accept_agreement,
 	} = req.validated.body;
 
-	// variable for store details data
-	const details = []
-
-	// check email fields are filled
-	if (!email) {
-		const detailsData = {
-			field: "email",
-			issue: 'Email field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check password fields are filled
-	if (!password) {
-		const detailsData = {
-			field: "password",
-			issue: 'password field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check first_name fields are filled
-	if (!first_name) {
-		const detailsData = {
-			field: "first_name",
-			issue: 'First Name is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check last_name fields are filled
-	if (!last_name) {
-		const detailsData = {
-			field: "last_name",
-			issue: 'Last Name is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check phone_number fields are filled
-	if (!phone_number) {
-		const detailsData = {
-			field: "phone_number",
-			issue: 'Phone Number is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check all required fields are filled
-	if (details.length > 0) {
+	// check password have more that 8 characters
+	if (password.length < 8) {
 		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			ErrorCode.PASSWORD_TOO_WEAK,
 			{
-				message: "Please provide email, password, first name, last name and phone number!",
-				details: details
+				message: "Password must have more that 8 Numbers!",
+				details: [
+					{
+						field: "password",
+						issue: "Password must have more that 8 Numbers!"
+					}
+				]
 			}
 		);
 	}
 
-	// check password have more that 6 characters
-	if (password.length < 6) {
+	// check password and conform password are same 
+	if (password !== conformPass) {
 		throw new AppError(
-			ErrorCode.PASSWORD_TOO_WEAK,
+			ErrorCode.VALIDATION_INVALID_FORMAT,
 			{
-				message: "Password must have more that 6 Numbers!",
+				message: "Passwords do not match",
 				details: [
 					{
-						field: "password",
-						issue: "Password must have more that 6 Numbers!"
+						field: 'confPass',
+						issue: 'Passwords do not match'
 					}
 				]
 			}
@@ -872,7 +757,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const profile_data = {
 		first_name: first_name,
 		last_name: last_name,
-		profile_image: profile_image,
+		profile_image: "",
 		phone_number: phone_number,
 	}
 
@@ -1711,7 +1596,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 		}
 
 		// check token version is correct
-		if((user.tokenVersion ?? 0) !== (decoded.tokenVersion ?? 0)){
+		if ((user.tokenVersion ?? 0) !== (decoded.tokenVersion ?? 0)) {
 			throw new AppError(
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
 				{

@@ -32,13 +32,16 @@ const googleRegistrationSchema = z.object(
 const registerCustomerSchema = z.object(
     {
         body: z.object({
-            email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
-            password: z.string().min(1, "Password is required!").max(128, "Password is too long!"),
             first_name: z.string().min(1, "First Name is required!").max(50, "First Name is too long!"),
             last_name: z.string().min(1, "Last Name is required!").max(50, "Last Name is too long!"),
-            phone_number: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
+            email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
+            password: z.string().min(1, "Password is required!").max(128, "Password is too long!"),
+            conformPass: z.string(),
+            phone_number: z.string().regex(/^\+?\d{6,16}$/, { message: "Invalid phone number format" }),
             accept_agreement: z.boolean({ error: "You must accept the terms and conditions to proceed" }),
-        }).strict(),
+        })
+        .refine((data) => data.password === data.conformPass, { message: "Passwords do not match" })
+        .strict(),
 
         params: z.object({}).strict(),
         query: z.object({}).strict(),
@@ -49,14 +52,16 @@ const registerCustomerSchema = z.object(
 const registerSellerSchema = z.object(
     {
         body: z.object({
-            email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
-            password: z.string().min(1, "Password is required!").max(128, "Password is too long!"),
             first_name: z.string().min(1, "First Name is required!").max(50, "First Name is too long!"),
             last_name: z.string().min(1, "Last Name is required!").max(50, "Last Name is too long!"),
-            phone_number: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
-            profile_image: z.string(),
-            accept_agreement: z.boolean(),
-        }).strict(),
+            email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
+            password: z.string().min(1, "Password is required!").max(128, "Password is too long!"),
+            conformPass: z.string(),
+            phone_number: z.string().regex(/^\+?\d{6,16}$/, { message: "Invalid phone number format" }),
+            accept_agreement: z.boolean({ error: "You must accept the terms and conditions to proceed" }),
+        })
+        .refine((data) => data.password === data.conformPass, { message: "Passwords do not match" })
+        .strict(),
 
         params: z.object({}).strict(),
         query: z.object({}).strict(),
