@@ -1280,50 +1280,18 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 // reset password controller
 const resetPassword = asyncHandler(async (req, res) => {
-	const { token, newPassword } = req.body
-
-	// create array for store field errors
-	const details = [];
-
-	// check token is entered
-	if (!token) {
-		const detailsData = {
-			field: "token",
-			issue: 'Please provide token value!'
-		}
-		details.push(detailsData);
-	}
-
-	// check newPassword is entered
-	if (!newPassword) {
-		const detailsData = {
-			field: "newPassword",
-			issue: 'New Password field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// if any field error exist, return errors
-	if (details.length > 0) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Please provide token and New password values!",
-				details: details
-			},
-		);
-	}
+	const { token, newPassword } = req.validated.body;
 
 	// check password have enough characters
-	if (newPassword.length <= 6) {
+	if (newPassword.length < 8) {
 		throw new AppError(
 			ErrorCode.PASSWORD_TOO_WEAK,
 			{
-				message: "New Password must have more that 6 Numbers!",
+				message: "New Password must have more that 8 Numbers!",
 				details: [
 					{
 						field: 'newPassword',
-						issue: "New Password must have more that 6 Numbers!"
+						issue: "New Password must have more that 8 Numbers!"
 					}
 				]
 			}
@@ -1422,17 +1390,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 // verify reset password controller
 const verifyResetPassword = asyncHandler(async (req, res) => {
-	const { token } = req.params;
-
-	// check if token value exist
-	if (!token) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Wrong reset password URL!. Please try again.",
-			}
-		);
-	}
+	const { token } = req.validated.params;
 
 	// hashed token
 	const hashResetToken = crypto.createHash("sha256").update(token).digest("hex");

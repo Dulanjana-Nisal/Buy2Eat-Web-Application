@@ -105,6 +105,32 @@ const forgotPasswordSchema = z.object(
     }
 ).strict();
 
+// validation schema for resetPassword
+const resetPasswordSchema = z.object(
+    {
+        body: z.object({
+            token: z.string().min(1, "Please provide token value!"),
+            newPassword: z.string().min(1, "New Password field is required!"),
+        }).strict(),
+
+        params: z.object({}).strict(),
+        query: z.object({}).strict(),
+    }
+).strict();
+
+// validation schema for verifyResetPassword
+const verifyResetPasswordSchema = z.object(
+    {
+        body: z.object({}).strict().optional(),
+
+        params: z.object({
+            token: z.string().min(1, "Wrong reset password URL!. Please try again."),
+        }).strict(),
+        
+        query: z.object({}).strict(),
+    }
+).strict();
+
 module.exports = {
     authLoginSchema,
     googleRegistrationSchema,
@@ -113,4 +139,6 @@ module.exports = {
     verifyOtpSchema,
     resendOtpSchema,
     forgotPasswordSchema,
+    resetPasswordSchema,
+    verifyResetPasswordSchema,
 };
