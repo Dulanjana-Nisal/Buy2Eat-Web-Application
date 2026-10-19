@@ -1126,24 +1126,7 @@ const userLogout = asyncHandler(async (req, res) => {
 
 // forgot password controller
 const forgotPassword = asyncHandler(async (req, res) => {
-	const { email } = req.body;
-
-	// check if email is entered
-	if (!email) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Please provide email address!",
-				details: [
-					{
-						field: "email",
-						issue: "Email field is required!"
-					}
-				]
-			}
-
-		);
-	}
+	const { email } = req.validated.body;
 
 	// check email is exits
 	const normalizedEmail = email.trim().toLowerCase();

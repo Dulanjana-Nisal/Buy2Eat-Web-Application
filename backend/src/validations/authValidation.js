@@ -1,6 +1,6 @@
 const { z } = require("zod");
 
-// validation schema for auth login
+// validation schema for authLogin
 const authLoginSchema = z.object(
     {
         body: z.object({
@@ -93,6 +93,18 @@ const resendOtpSchema = z.object(
     }
 ).strict();
 
+// validation schema for forgotPassword
+const forgotPasswordSchema = z.object(
+    {
+        body: z.object({
+            email: z.string().trim().min(1, "Email field is required!").email("Invalid email address").max(254, "Email is too long!"),
+        }).strict(),
+
+        params: z.object({}).strict(),
+        query: z.object({}).strict(),
+    }
+).strict();
+
 module.exports = {
     authLoginSchema,
     googleRegistrationSchema,
@@ -100,4 +112,5 @@ module.exports = {
     registerSellerSchema,
     verifyOtpSchema,
     resendOtpSchema,
+    forgotPasswordSchema,
 };
