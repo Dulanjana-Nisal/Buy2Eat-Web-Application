@@ -14,6 +14,7 @@ async function connectDatabase() {
   }
   catch (err) {
     console.error('Database Connection failed!', err)
+    throw err
   }
 }
 
