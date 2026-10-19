@@ -101,7 +101,7 @@ function ForgotPasswordForm() {
                             />
                         </div>
                         {
-                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) && 
+                            (errorDetails.category === errorCategoryList.INPUT && errorDetails.errorFields?.email) &&
                             <p id={inputErrors.EMAIL} className={styles.errorText}>{errorDetails.errorFields?.email}</p>
                         }
 
