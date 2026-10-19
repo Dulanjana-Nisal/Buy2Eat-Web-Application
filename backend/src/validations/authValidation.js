@@ -32,8 +32,16 @@ const googleRegistrationSchema = z.object(
 const registerCustomerSchema = z.object(
     {
         body: z.object({
-            first_name: z.string().min(1, "First Name is required!").max(50, "First Name is too long!"),
-            last_name: z.string().min(1, "Last Name is required!").max(50, "Last Name is too long!"),
+            first_name: z.string()
+                        .min(1, "First Name is required!")
+                        .max(50, "First Name is too long!")
+                        .regex(/^[^<>/*=+\][?"\\]*$/,{ path: ["first_name"], error: "Input filed have wrong symbols" }),
+
+            last_name: z.string()
+                        .min(1, "Last Name is required!")
+                        .max(50, "Last Name is too long!")
+                        .regex(/^[^<>/*=+\][?"\\]*$/,{ path: ["last_name"], error: "Input filed have wrong symbols" }),
+
             email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
             password: z.string().min(1, "Password is required!").max(128, "Password is too long!"),
             conformPass: z.string(),
@@ -52,8 +60,16 @@ const registerCustomerSchema = z.object(
 const registerSellerSchema = z.object(
     {
         body: z.object({
-            first_name: z.string().min(1, "First Name is required!").max(50, "First Name is too long!"),
-            last_name: z.string().min(1, "Last Name is required!").max(50, "Last Name is too long!"),
+            first_name: z.string()
+                        .min(1, "First Name is required!")
+                        .max(50, "First Name is too long!")
+                        .regex(/^[^<>/*=+\][?"\\]*$/,{ path: ["first_name"], error: "Input filed have wrong symbols" }),
+
+            last_name: z.string()
+                        .min(1, "Last Name is required!")
+                        .max(50, "Last Name is too long!")
+                        .regex(/^[^<>/*=+\][?"\\]*$/,{ path: ["last_name"], error: "Input filed have wrong symbols" }),
+
             email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
             password: z.string().min(1, "Password is required!").max(128, "Password is too long!"),
             conformPass: z.string(),
