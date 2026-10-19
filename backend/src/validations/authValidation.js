@@ -72,7 +72,7 @@ const registerSellerSchema = z.object(
 const verifyOtpSchema = z.object(
     {
         body: z.object({
-            otp: z.string().min(1, "Your OTP field is empty!"),
+            otp: z.string().min(1, "Your OTP field is empty!").regex(/^\d{6}$/, { message: "OTP in wrong format!" }),
             verification_id: z.string().min(1, "Error while verification!, Please resend OTP and try again."),
         }).strict(),
 
@@ -126,7 +126,7 @@ const verifyResetPasswordSchema = z.object(
         params: z.object({
             token: z.string().min(1, "Wrong reset password URL!. Please try again."),
         }).strict(),
-        
+
         query: z.object({}).strict(),
     }
 ).strict();
