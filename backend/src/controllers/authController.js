@@ -1,4 +1,4 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID, AGREEMENT_VERSION } = require('../config/env');
+const { REFRESH_SECRET, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID, AGREEMENT_VERSION } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
@@ -16,42 +16,7 @@ const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants');
 const AppError = require('../errors/AppError');
-
-// cookie options
-const cookieOptions = {
-	httpOnly: true,
-	sameSite: 'Lax',
-	path: '/',
-	secure: process.env.NODE_ENV !== 'development',
-};
-
-// function for create jwt token
-const createTokenPair = (user) => {
-	const jwtPayload = {
-		_id: user._id,
-		email: user.email,
-		role: user.role,
-		tokenVersion: user.tokenVersion,
-	};
-
-	const accessToken = jwt.sign(jwtPayload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRED });
-	const refreshToken = jwt.sign(jwtPayload, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRED });
-
-	return { accessToken, refreshToken };
-};
-
-// function for save tokens in http only cookies
-const setAuthCookies = (res, accessToken, refreshToken) => {
-	res.cookie('accessToken', accessToken, {
-		...cookieOptions,
-		maxAge: 15 * 60 * 1000,
-	});
-
-	res.cookie('refreshToken', refreshToken, {
-		...cookieOptions,
-		maxAge: 7 * 24 * 60 * 60 * 1000,
-	});
-};
+const { createTokenPair, setAuthCookies } = require('../utils/tokenCreation');
 
 // get google client
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -118,6 +83,7 @@ const authLogin = asyncHandler(async (req, res) => {
 			_id: user._id,
 			email: user.email,
 			role: user.role,
+			accessToken: accessToken
 		}
 	});
 });
