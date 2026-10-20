@@ -488,11 +488,11 @@ const registerCustomers = asyncHandler(async (req, res) => {
 		throw new AppError(
 			ErrorCode.PASSWORD_TOO_WEAK,
 			{
-				message: "Password must have more that 8 Numbers!",
+				message: "Password must have at least 8 characters",
 				details: [
 					{
 						field: 'password',
-						issue: 'Password must have more that 8 Numbers!'
+						issue: 'Password must have at least 8 characters'
 					}
 				]
 			}
