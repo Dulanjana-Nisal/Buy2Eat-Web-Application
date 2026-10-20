@@ -73,7 +73,12 @@ const authLogin = asyncHandler(async (req, res) => {
 
 	// create jwt tokens and save it into cookie
 	const { accessToken, refreshToken } = createTokenPair(user);
-	setAuthCookies(res, accessToken, refreshToken);
+	try {
+		await setAuthCookies(req, res, user, refreshToken);
+	}
+	catch (err) {
+		throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!" });
+	}
 
 	// send response
 	return res.status(StatusCode.OK).json({
@@ -271,7 +276,12 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 	// create jwt tokens and save it into cookie
 	const { accessToken, refreshToken } = createTokenPair(user);
-	setAuthCookies(res, accessToken, refreshToken);
+	try {
+		await setAuthCookies(req, res, user, refreshToken);
+	}
+	catch (err) {
+		throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!" });
+	}
 
 	// send response
 	return res.status(StatusCode.OK).json({
@@ -282,6 +292,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			_id: user._id,
 			email: user.email,
 			role: user.role,
+			accessToken: accessToken
 		}
 	});
 
