@@ -1,4 +1,6 @@
 const express = require('express');
+
+// import controllers
 const {
     authLogin,
     googleAuth,
@@ -14,8 +16,11 @@ const {
     verifyResetPassword
 } = require('../controllers/authController');
 
+// import middlewares
 const { loginLimiter, sensitiveLimiter } = require('../middleware/rateLimitMiddleware');
 const validationMiddleware = require('../middleware/validationMiddleware');
+
+// import validations schema
 const {
     authLoginSchema,
     registerCustomerSchema,
@@ -30,6 +35,7 @@ const {
 
 const router = express.Router();
 
+// all routers implementations
 router.post('/login', validationMiddleware(authLoginSchema), loginLimiter, authLogin);
 router.post('/google', sensitiveLimiter, googleAuth);
 router.post('/google/register', sensitiveLimiter, validationMiddleware(googleRegistrationSchema), googleRegistration);
