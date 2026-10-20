@@ -10,6 +10,11 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 
 	const error = normalizedError(err);
 
+	// if server is down or have some bug
+	if (error.isOperational === false) {
+		console.error(`[${req.id}] ${req.method} ${req.originalUrl}`, error.stack);
+	}
+
 	// if not return in err, initialized default errs
 	const status = error.status || StatusCode.INTERNAL_SERVER_ERROR;
 	const category = error.category || GetErrorCodes[ErrorCode.INTERNAL_SERVER_ERROR];
@@ -24,12 +29,12 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 	{
 	   "success": false,
 	   "error": {
-	     "code": "VALIDATION_FIELD_REQUIRED",
-	     "category": "VALIDATION_ERROR",
-	     "message": "Email is required",
-	     "details": [{ "field": "email", "issue": "Email is required" }],
-	     "requestId": "b7e1c2a4-...",
-	     "timestamp": "2026-10-02T10:15:30.000Z"
+		 "code": "VALIDATION_FIELD_REQUIRED",
+		 "category": "VALIDATION_ERROR",
+		 "message": "Email is required",
+		 "details": [{ "field": "email", "issue": "Email is required" }],
+		 "requestId": "b7e1c2a4-...",
+		 "timestamp": "2026-10-02T10:15:30.000Z"
 	}
 	**/
 

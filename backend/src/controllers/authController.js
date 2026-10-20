@@ -58,47 +58,17 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
-	const { email, password } = req.body;
+	const { email, password } = req.validated.body;
 
-	// get error details 
-	const details = [];
-
-	// check email is entered
-	if (!email?.trim()) {
-		const detailsData = {
-			field: 'email',
-			issue: 'Emails field is required'
-		}
-		details.push(detailsData);
-	}
-
-	// check password is entered
-	if (!password?.trim()) {
-		const detailsData = {
-			field: 'password',
-			issue: 'Password field is required'
-		}
-		details.push(detailsData);
-	}
-
-	// if have any errors throw error
-	if (details.length > 0) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{ details: details }
-		);
-	}
-
-
-	// check password have more that 6 characters
-	if (password.length < 6) {
+	// check password have more that 8 characters
+	if (password.length < 8) {
 		throw new AppError(
 			ErrorCode.PASSWORD_TOO_WEAK,
 			{
 				details: [
 					{
 						field: 'password',
-						issue: "Password must have at least 6 characters"
+						issue: "Password must have at least 8 characters"
 					}
 				]
 			}
@@ -353,69 +323,13 @@ const googleAuth = asyncHandler(async (req, res) => {
 
 // Google Registration
 const googleRegistration = asyncHandler(async (req, res) => {
-	const { registerToken, role, phone_number, accept_agreement } = req.body;
+	const { registerToken, role, phone_number, accept_agreement } = req.validated.body;
 
 	// check if registerToken is exist
 	if (!registerToken) {
 		throw new AppError(
 			ErrorCode.VALIDATION_FIELD_REQUIRED,
 			{ message: "Google registration failed!" }
-		);
-	}
-
-	// validation field required error details data
-	const details = []
-
-	// check if role
-	if (!role) {
-		const detailsData = {
-			field: 'role',
-			issue: 'Please select your role!'
-		}
-		details.push(detailsData);
-	}
-
-	// check phone_number 
-	if (!phone_number) {
-		const detailsData = {
-			field: 'phone_number',
-			issue: 'Please add your Phone Number!'
-		}
-		details.push(detailsData);
-	}
-
-	// return if have error
-	if (details.length > 0) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Role and Phone number is required!",
-				details: details
-			},
-		);
-	}
-
-	// validating phone number
-	if (phone_number.length < 6) {
-		throw new AppError(
-			ErrorCode.VALIDATION_OUT_OF_RANGE,
-			{
-				message: "Phone number must have more that 6 Numbers!",
-				details: [
-					{
-						field: 'phone_number',
-						issue: "Phone number must have more that 6 Numbers!"
-					}
-				]
-			}
-		);
-	}
-
-	// check rolls are right
-	if (!['customer', 'seller'].includes(role)) {
-		throw new AppError(
-			ErrorCode.VALIDATION_INVALID_FORMAT,
-			{ message: "Invalid role selection." }
 		);
 	}
 
@@ -560,87 +474,41 @@ const googleRegistration = asyncHandler(async (req, res) => {
 // Register auth for customers
 const registerCustomers = asyncHandler(async (req, res) => {
 	const {
-		email,
-		password,
 		first_name,
 		last_name,
+		email,
+		password,
+		conformPass,
 		phone_number,
-		addresses = [],
-		profile_image,
-		favorite_shops = [],
-		favorite_foods = [],
 		accept_agreement,
-	} = req.body;
+	} = req.validated.body;
 
-	// variable for store details data
-	const details = []
-
-	// check email fields are filled
-	if (!email) {
-		const detailsData = {
-			field: "email",
-			issue: 'Email field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check password fields are filled
-	if (!password) {
-		const detailsData = {
-			field: "password",
-			issue: 'password field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check first_name fields are filled
-	if (!first_name) {
-		const detailsData = {
-			field: "first_name",
-			issue: 'First Name is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check last_name fields are filled
-	if (!last_name) {
-		const detailsData = {
-			field: "last_name",
-			issue: 'Last Name is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check phone_number fields are filled
-	if (!phone_number) {
-		const detailsData = {
-			field: "phone_number",
-			issue: 'Phone Number is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check all required fields are filled
-	if (details.length > 0) {
+	// check password have more that 8 characters
+	if (password.length < 8) {
 		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			ErrorCode.PASSWORD_TOO_WEAK,
 			{
-				message: "Please provide email, password, first name, last name and phone number!",
-				details: details
+				message: "Password must have at least 8 characters",
+				details: [
+					{
+						field: 'password',
+						issue: 'Password must have at least 8 characters'
+					}
+				]
 			}
 		);
 	}
 
-	// check password have more that 6 characters
-	if (password.length < 6) {
+	// check password and conform password are same 
+	if (password !== conformPass) {
 		throw new AppError(
-			ErrorCode.PASSWORD_TOO_WEAK,
+			ErrorCode.VALIDATION_INVALID_FORMAT,
 			{
-				message: "Password must have more that 6 Numbers!",
+				message: "Passwords do not match",
 				details: [
 					{
-						field: 'password',
-						issue: 'Password must have more that 6 Numbers!'
+						field: 'confPass',
+						issue: 'Passwords do not match'
 					}
 				]
 			}
@@ -698,10 +566,10 @@ const registerCustomers = asyncHandler(async (req, res) => {
 	const profile_data = {
 		first_name: first_name,
 		last_name: last_name,
-		addresses: addresses,
-		profile_image: profile_image,
-		favorite_shops: favorite_shops,
-		favorite_foods: favorite_foods,
+		addresses: [],
+		profile_image: "",
+		favorite_shops: [],
+		favorite_foods: [],
 		phone_number: phone_number,
 	}
 
@@ -741,84 +609,41 @@ const registerCustomers = asyncHandler(async (req, res) => {
 // Register auth for sellers
 const registerSellers = asyncHandler(async (req, res) => {
 	const {
-		email,
-		password,
 		first_name,
 		last_name,
+		email,
+		password,
+		conformPass,
 		phone_number,
-		profile_image,
 		accept_agreement,
-	} = req.body;
+	} = req.validated.body;
 
-	// variable for store details data
-	const details = []
-
-	// check email fields are filled
-	if (!email) {
-		const detailsData = {
-			field: "email",
-			issue: 'Email field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check password fields are filled
-	if (!password) {
-		const detailsData = {
-			field: "password",
-			issue: 'password field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check first_name fields are filled
-	if (!first_name) {
-		const detailsData = {
-			field: "first_name",
-			issue: 'First Name is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check last_name fields are filled
-	if (!last_name) {
-		const detailsData = {
-			field: "last_name",
-			issue: 'Last Name is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check phone_number fields are filled
-	if (!phone_number) {
-		const detailsData = {
-			field: "phone_number",
-			issue: 'Phone Number is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// check all required fields are filled
-	if (details.length > 0) {
+	// check password have more that 8 characters
+	if (password.length < 8) {
 		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
+			ErrorCode.PASSWORD_TOO_WEAK,
 			{
-				message: "Please provide email, password, first name, last name and phone number!",
-				details: details
+				message: "Password must have more that 8 Numbers!",
+				details: [
+					{
+						field: "password",
+						issue: "Password must have more that 8 Numbers!"
+					}
+				]
 			}
 		);
 	}
 
-	// check password have more that 6 characters
-	if (password.length < 6) {
+	// check password and conform password are same 
+	if (password !== conformPass) {
 		throw new AppError(
-			ErrorCode.PASSWORD_TOO_WEAK,
+			ErrorCode.VALIDATION_INVALID_FORMAT,
 			{
-				message: "Password must have more that 6 Numbers!",
+				message: "Passwords do not match",
 				details: [
 					{
-						field: "password",
-						issue: "Password must have more that 6 Numbers!"
+						field: 'confPass',
+						issue: 'Passwords do not match'
 					}
 				]
 			}
@@ -876,7 +701,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 	const profile_data = {
 		first_name: first_name,
 		last_name: last_name,
-		profile_image: profile_image,
+		profile_image: "",
 		phone_number: phone_number,
 	}
 
@@ -915,33 +740,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 
 // verify otp controller
 const verifyOtp = asyncHandler(async (req, res) => {
-	const { otp, verification_id } = req.body;
-
-	// check verification_id and otp are entered
-	if (!verification_id) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Error while verification!, Please resend OTP and try again."
-			}
-		);
-	}
-
-	// check otp are entered
-	if (!otp) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Your OTP field is empty!",
-				details: [
-					{
-						field: "otp",
-						issue: "Your OTP field is empty!"
-					}
-				]
-			}
-		);
-	}
+	const { otp, verification_id } = req.validated.body;
 
 	// validate OTP with correct format
 	const normalizedOtp = String(otp).trim();
@@ -1122,17 +921,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 // resend otp controller
 const resendOtp = asyncHandler(async (req, res) => {
-	const { verification_id } = req.body;
+	const { verification_id } = req.validated.body;
 
-	if (!verification_id) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Failed to resend OTP!. Please try again later.",
-			},
-		);
-	}
-
+	// Get data from registrationOtpModel
 	const otpUser = await registrationOtpModel.findOne({ verification_id: verification_id });
 	if (!otpUser) {
 		throw new AppError(
@@ -1335,24 +1126,7 @@ const userLogout = asyncHandler(async (req, res) => {
 
 // forgot password controller
 const forgotPassword = asyncHandler(async (req, res) => {
-	const { email } = req.body;
-
-	// check if email is entered
-	if (!email) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Please provide email address!",
-				details: [
-					{
-						field: "email",
-						issue: "Email field is required!"
-					}
-				]
-			}
-
-		);
-	}
+	const { email } = req.validated.body;
 
 	// check email is exits
 	const normalizedEmail = email.trim().toLowerCase();
@@ -1506,50 +1280,18 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 // reset password controller
 const resetPassword = asyncHandler(async (req, res) => {
-	const { token, newPassword } = req.body
-
-	// create array for store field errors
-	const details = [];
-
-	// check token is entered
-	if (!token) {
-		const detailsData = {
-			field: "token",
-			issue: 'Please provide token value!'
-		}
-		details.push(detailsData);
-	}
-
-	// check newPassword is entered
-	if (!newPassword) {
-		const detailsData = {
-			field: "newPassword",
-			issue: 'New Password field is required!'
-		}
-		details.push(detailsData);
-	}
-
-	// if any field error exist, return errors
-	if (details.length > 0) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Please provide token and New password values!",
-				details: details
-			},
-		);
-	}
+	const { token, newPassword } = req.validated.body;
 
 	// check password have enough characters
-	if (newPassword.length <= 6) {
+	if (newPassword.length < 8) {
 		throw new AppError(
 			ErrorCode.PASSWORD_TOO_WEAK,
 			{
-				message: "New Password must have more that 6 Numbers!",
+				message: "New Password must have more that 8 Numbers!",
 				details: [
 					{
 						field: 'newPassword',
-						issue: "New Password must have more that 6 Numbers!"
+						issue: "New Password must have more that 8 Numbers!"
 					}
 				]
 			}
@@ -1648,17 +1390,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 // verify reset password controller
 const verifyResetPassword = asyncHandler(async (req, res) => {
-	const { token } = req.params;
-
-	// check if token value exist
-	if (!token) {
-		throw new AppError(
-			ErrorCode.VALIDATION_FIELD_REQUIRED,
-			{
-				message: "Wrong reset password URL!. Please try again.",
-			}
-		);
-	}
+	const { token } = req.validated.params;
 
 	// hashed token
 	const hashResetToken = crypto.createHash("sha256").update(token).digest("hex");
@@ -1715,7 +1447,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 		}
 
 		// check token version is correct
-		if((user.tokenVersion ?? 0) !== (decoded.tokenVersion ?? 0)){
+		if ((user.tokenVersion ?? 0) !== (decoded.tokenVersion ?? 0)) {
 			throw new AppError(
 				ErrorCode.AUTH_INVALID_CREDENTIALS,
 				{
