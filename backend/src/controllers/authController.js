@@ -16,7 +16,8 @@ const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants');
 const AppError = require('../errors/AppError');
-const { createTokenPair, setAuthCookies } = require('../utils/tokenCreation');
+const { createTokenPair, setAuthCookies, hash } = require('../utils/tokenCreation');
+const refreshTokenModel = require('../models/refreshTokenModel');
 
 // get google client
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -1086,13 +1087,28 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 // User logout 
 const userLogout = asyncHandler(async (req, res) => {
-	res.clearCookie('accessToken', {
-		httpOnly: true,
-		sameSite: 'Lax',
-		path: '/',
-		secure: process.env.NODE_ENV !== 'development',
-	})
+	const token = req.cookies?.accessToken;
 
+	if(!token){
+		throw new AppError(
+			ErrorCode.AUTH_MISSING_TOKEN,
+			{
+				message: "Your Authentication token is missing!"
+			}
+		)
+	}
+
+	// clear refresh token database data
+	await refreshTokenModel.findOneAndUpdate(
+		{
+			hashToken: hash(token),
+		},
+		{
+			isRevoked: true,
+		}
+	)
+
+	// clear refresh token cookies
 	res.clearCookie('refreshToken', {
 		httpOnly: true,
 		sameSite: 'Lax',

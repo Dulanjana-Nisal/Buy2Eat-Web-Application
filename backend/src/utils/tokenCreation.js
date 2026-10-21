@@ -5,6 +5,9 @@ const refreshTokenModel = require("../models/refreshTokenModel");
 const AppError = require("../errors/AppError");
 const { ErrorCode } = require("../constants");
 
+// hash token pair
+export const hash = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
 // cookie options
 const cookieOptions = {
     httpOnly: true,
@@ -15,7 +18,6 @@ const cookieOptions = {
 
 // calculate date
 const DAY = 24 * 60 * 60 * 1000;
-const hash = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
 // function for create jwt token
 const createTokenPair = (user) => {
