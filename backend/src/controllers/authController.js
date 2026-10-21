@@ -23,7 +23,7 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
-	const { email, password } = req.validated.body;
+	const { email, password, rememberMe } = req.validated.body;
 
 	// check password have more that 8 characters
 	if (password.length < 8) {
@@ -74,7 +74,7 @@ const authLogin = asyncHandler(async (req, res) => {
 	// create jwt tokens and save it into cookie
 	const { accessToken, refreshToken } = createTokenPair(user);
 	try {
-		await setAuthCookies(req, res, user, refreshToken);
+		await setAuthCookies(req, res, user, refreshToken, rememberMe);
 	}
 	catch (err) {
 		throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!" });
