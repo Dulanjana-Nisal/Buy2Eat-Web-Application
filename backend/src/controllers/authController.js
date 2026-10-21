@@ -277,7 +277,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	// create jwt tokens and save it into cookie
 	const { accessToken, refreshToken } = createTokenPair(user);
 	try {
-		await setAuthCookies(req, res, user, refreshToken);
+		await setAuthCookies(req, res, user, refreshToken, rememberMe=true);
 	}
 	catch (err) {
 		throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!" });
