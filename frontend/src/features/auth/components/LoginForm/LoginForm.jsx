@@ -21,7 +21,7 @@ function LoginForm() {
 
     // useStates hooks
     const [hidePassword, setHidePassword] = useState(true);
-    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "" });
+    const [loginDetails, setLoginDetails] = useState({ "email": "", "password": "", "rememberMe": false });
     const [errorDetails, setErrorDetails] = useState({ category: null, errorFields: null, errorFrom: null });
 
     // user login function. This function execute when user submit the login form
@@ -146,7 +146,11 @@ function LoginForm() {
                             <p id={inputErrors.PASSWORD} className={styles.errorText}>{errorDetails.errorFields?.password}</p>
                         }
                         <div className={styles.checkboxGroup}>
-                            <input type="checkbox" id="remember" />
+                            <input 
+                                type="checkbox" 
+                                id="remember" 
+                                onClick={(e) => setLoginDetails({ ...loginDetails, rememberMe: e.target.checked })}
+                            />
                             <label htmlFor="remember">Remember me </label>
                         </div>
 
