@@ -49,8 +49,8 @@ const setAuthCookies = async (req, res, user, refreshToken, rememberMe = false) 
             familyId: family_id,
             hashToken: hashedRefreshToken,
             deviceInfo: {
-                userAgent: req.headers['user-agent'],
-                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'] || "UNKNOWN",
+                ipAddress: req.ip || "UNKNOWN",
             },
             rememberMe: rememberMe,
             expiresAt: new Date(Date.now() + expiredTime),

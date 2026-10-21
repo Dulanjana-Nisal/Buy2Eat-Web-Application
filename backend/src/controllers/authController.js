@@ -868,9 +868,14 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 		await session.commitTransaction();
 
-		// create jwt token and save it in to cookie
-		const { accessToken, refreshToken } = createTokenPair(user)
-		setAuthCookies(res, accessToken, refreshToken)
+		// create jwt tokens and save it into cookie
+		const { accessToken, refreshToken } = createTokenPair(user);
+		try {
+			await setAuthCookies(req, res, user, refreshToken);
+		}
+		catch (err) {
+			throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!" });
+		}
 
 		// send response
 		return res.status(201).json({
@@ -880,6 +885,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 				_id: user._id,
 				email: user.email,
 				role: user.role,
+				accessToken: accessToken
 			},
 			userProfile,
 		});
