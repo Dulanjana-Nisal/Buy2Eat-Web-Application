@@ -276,7 +276,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 	}
 
 	// create jwt tokens and save it into cookie
-	const { accessToken, refreshToken } = createTokenPair(user, { rememberMe: rememberMe});
+	const { accessToken, refreshToken } = createTokenPair(user, { rememberMe: rememberMe });
 	try {
 		await setAuthCookies(req, res, user, refreshToken, { rememberMe: true });
 	}
@@ -717,7 +717,7 @@ const registerSellers = asyncHandler(async (req, res) => {
 });
 
 // verify otp controller
-const verifyOtp = asyncHandler(async (req, res) => { 
+const verifyOtp = asyncHandler(async (req, res) => {
 	const { otp, verification_id } = req.validated.body;
 
 	// validate OTP with correct format
@@ -1450,12 +1450,14 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 	// check if refresh token exit in database
 	const storedRefreshToken = await refreshTokenModel.findOneAndUpdate(
-		{ 
-			hashToken: hash(incomingRefreshToken), 
-			isRevoked: false, 
-			expiresAt: { $gt: new Date() } 
+		{
+			hashToken: hash(incomingRefreshToken),
+			isRevoked: false,
+			expiresAt: { $gt: new Date() }
 		},
-		{ isRevoked: true }
+		{ 
+			$set: { isRevoked: true }
+		}
 	);
 
 	// if have not refresh token in refreshTokenModel
@@ -1481,7 +1483,9 @@ const refreshToken = asyncHandler(async (req, res) => {
 			// logout all users belong to same family id
 			await refreshTokenModel.updateMany(
 				{ familyId: tokenData.familyId, isRevoked: false },
-				{ isRevoked: true }
+				{
+					$set: { isRevoked: true },
+				}
 			);
 
 			throw new AppError(
@@ -1512,7 +1516,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 	}
 
 	// check that refresh token id and database refresh token id is match or not
-	if(String(storedRefreshToken.user_id) !== String(decoded._id)){
+	if (String(storedRefreshToken.user_id) !== String(decoded._id)) {
 
 		//clear cookie
 		clearCookie(res);
@@ -1548,8 +1552,8 @@ const refreshToken = asyncHandler(async (req, res) => {
 	// create new jwt tokens and save it into cookie
 	const refreshRemaining = Math.floor((newRefreshExpire.getTime() - Date.now()) / 1000);
 	const { accessToken, refreshToken } = createTokenPair(
-		user, 
-		{refreshExpire: refreshRemaining, rememberMe: refreshTokenModel.rememberMe}
+		user,
+		{ refreshExpire: refreshRemaining, rememberMe: storedRefreshToken.rememberMe }
 	);
 	try {
 		await setAuthCookies(

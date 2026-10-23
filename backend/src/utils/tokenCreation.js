@@ -26,7 +26,6 @@ const clearCookie = (res) => {
     });
 }
 
-// if with old family id = remaining time, if not and remember me checked = 60 days and if not check remember me = 1 day
 // calculate date
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -35,17 +34,21 @@ const createTokenPair = (user, { refreshExpire=null, rememberMe=false }) => {
 
     // calculate expires in value for new users
     let expiresInValue;
-    if(!refreshExpire){
+    if(refreshExpire !== null){
+
+        // check have remaining time for store token in jwt
+        if (refreshExpire <= 0) {
+            ErrorCode.AUTH_EXPIRED_TOKEN,
+            {
+                message: "Token is Expired!. Please login back"
+            }
+        }
+        expiresInValue = refreshExpire;
+    }
+    else{
         expiresInValue = rememberMe ? REFRESH_EXPIRED : '1d'
     }
     
-    // check have remaining time for store token in jwt
-    if (refreshExpire <= 0) {
-        ErrorCode.AUTH_EXPIRED_TOKEN,
-        {
-            message: "Token is Expired!. Please login back"
-        }
-    }
     
     // create jwt payload
     const jwtPayload = {
@@ -74,7 +77,9 @@ const setAuthCookies = async (
 ) => {
 
     // calculate expired times
-    const remainingTimeMs = (refreshExpiry.getTime() - Date.new())
+    const now = new Date();
+    const expiresAt = refreshExpiry ?? new Date( now + (rememberMe ? 60 * DAY : DAY)  );
+    const remainingTimeMs = expiresAt.getTime() - now;
     if (remainingTimeMs <= 0) {
         throw new AppError(
             ErrorCode.AUTH_EXPIRED_TOKEN,
@@ -88,9 +93,6 @@ const setAuthCookies = async (
     const hashedRefreshToken = hash(refreshToken);
     const family_id = crypto.randomUUID();
 
-    // calculate duration for expired
-    const expiredTime = rememberMe ? 60 * DAY : DAY
-
     try {
         // store refresh token in to database
         await refreshTokenModel.create({
@@ -101,14 +103,14 @@ const setAuthCookies = async (
                 userAgent: req.headers['user-agent'] || "UNKNOWN",
                 ipAddress: req.ip || "UNKNOWN",
             },
-            rememberMe: rememberMe,
-            expiresAt: refreshExpiry || new Date(Date.now() + expiredTime),
+            rememberMe,
+            expiresAt,
         });
 
         // store refresh token in http only cookie
         res.cookie('refreshToken', refreshToken, {
             ...cookieOptions,
-            maxAge: remainingTimeMs || expiredTime,
+            maxAge: remainingTimeMs,
         });
 
     }
