@@ -1,30 +1,28 @@
 const jwt = require('jsonwebtoken');
 const { ACCESS_SECRET } = require('../config/env');
+const { ErrorCode } = require('../constants');
 
 const authenticationMiddleware = (req, res, next) => {
 	const authorizationHeader = req.get('Authorization');
-	const bearerToken = authorizationHeader?.startsWith('Bearer ')
+	const accessToken = authorizationHeader?.startsWith('Bearer ')
 		? authorizationHeader.slice(7).trim()
 		: null;
-	const accessToken = bearerToken || req.cookies?.accessToken;
 
 	if (!accessToken) {
-		return res.status(401).json({
-			success: false,
-			message: 'Access token is required.'
-		});
+		throw new AppError(
+			ErrorCode.AUTH_MISSING_TOKEN,
+			{ message: "Access Token is missing!" },
+		);
 	}
 
 	try {
 		req.user = jwt.verify(accessToken, ACCESS_SECRET);
 		next();
 	} catch (error) {
-		return res.status(401).json({
-			success: false,
-			message: error.name === 'TokenExpiredError'
-				? 'Access token has expired.'
-				: 'Access token is invalid.'
-		});
+		throw new AppError(
+			ErrorCode.AUTH_INVALID_TOKEN,
+			{ message: "Access Token is expired or invalid." },
+		);
 	}
 };
 
