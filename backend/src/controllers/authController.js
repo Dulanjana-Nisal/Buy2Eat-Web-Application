@@ -1376,7 +1376,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 		)
 
 		// if refresh token not found
-		if(!storedRefreshToken){
+		if (!storedRefreshToken) {
 			throw new AppError(
 				ErrorCode.AUTH_MISSING_TOKEN,
 				{
