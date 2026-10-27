@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { ACCESS_SECRET } = require('../config/env');
 const { ErrorCode } = require('../constants');
+const AppError = require('../errors/AppError');
 
 const authenticationMiddleware = (req, res, next) => {
 	const authorizationHeader = req.get('Authorization');
