@@ -842,14 +842,9 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 	// == Start Transaction ==
 	const session = await mongoose.startSession();
-	let result = null;
-	let tokens = null;
+
 	try {
 		session.startTransaction();
-
-		// add default value as null
-		result = null;
-		tokens = null;
 
 		// create user 
 		const [user] = await Users.create([{
