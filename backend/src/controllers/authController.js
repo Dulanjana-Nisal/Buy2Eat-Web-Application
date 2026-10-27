@@ -1365,12 +1365,60 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{ session }
 		);
 
+		// update refresh token data in database
+		const storedRefreshToken = await refreshTokenModel.findOneAndUpdate(
+			{ user_id: updateUser._id },
+			{
+				$set: {
+					isRevoked: true,
+				}
+			}
+		)
+
+		// if refresh token not found
+		if(!storedRefreshToken){
+			throw new AppError(
+				ErrorCode.AUTH_MISSING_TOKEN,
+				{
+					message: "Cant Reset your Password!. Please try again later.",
+				}
+			);
+		}
+
+		// get valid time zone
+		const newRefreshExpire = storedRefreshToken.expiresAt;
+
+		// create jwt tokens
+		const refreshRemaining = Math.floor((newRefreshExpire.getTime() - Date.now()) / 1000);
+		const { accessToken, refreshToken } = createTokenPair(
+			updateUser,
+			{ refreshExpire: refreshRemaining, rememberMe: storedRefreshToken.rememberMe }
+		);
+
+		// save refresh token in to database
+		await createRefreshToken(
+			req,
+			updateUser,
+			refreshToken,
+			{
+				rememberMe: storedRefreshToken.rememberMe,
+				oldFamilyId: storedRefreshToken.familyId,
+				refreshExpiry: newRefreshExpire,
+				session,
+			}
+		);
+
 		// commit transaction
 		await session.commitTransaction();
+
+		// crete cookies for refresh token
+		createCookies(res, refreshToken, { refreshExpiry: storedRefreshToken.expiresAt, rememberMe: storedRefreshToken.rememberMe });
+
 
 		// send success response
 		return res.status(StatusCode.OK).json({
 			success: true,
+			accessToken: accessToken,
 			message: 'Password Reset successfully'
 		})
 	}
