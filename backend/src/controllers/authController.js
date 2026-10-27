@@ -1,4 +1,4 @@
-const { ACCESS_SECRET, ACCESS_EXPIRED, REFRESH_SECRET, REFRESH_EXPIRED, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID, AGREEMENT_VERSION } = require('../config/env');
+const { REFRESH_SECRET, CLIENT_URL, GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID, AGREEMENT_VERSION } = require('../config/env');
 const asyncHandler = require('../middleware/asyncHandler');
 const Users = require('../models/userModel');
 const CustomerProfile = require('../models/customerProfileModel');
@@ -16,49 +16,15 @@ const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants');
 const AppError = require('../errors/AppError');
-
-// cookie options
-const cookieOptions = {
-	httpOnly: true,
-	sameSite: 'Lax',
-	path: '/',
-	secure: process.env.NODE_ENV !== 'development',
-};
-
-// function for create jwt token
-const createTokenPair = (user) => {
-	const jwtPayload = {
-		_id: user._id,
-		email: user.email,
-		role: user.role,
-		tokenVersion: user.tokenVersion,
-	};
-
-	const accessToken = jwt.sign(jwtPayload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRED });
-	const refreshToken = jwt.sign(jwtPayload, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRED });
-
-	return { accessToken, refreshToken };
-};
-
-// function for save tokens in http only cookies
-const setAuthCookies = (res, accessToken, refreshToken) => {
-	res.cookie('accessToken', accessToken, {
-		...cookieOptions,
-		maxAge: 15 * 60 * 1000,
-	});
-
-	res.cookie('refreshToken', refreshToken, {
-		...cookieOptions,
-		maxAge: 7 * 24 * 60 * 60 * 1000,
-	});
-};
+const { createTokenPair, hash, clearCookie, createCookies, createRefreshToken } = require('../utils/tokenCreation');
+const refreshTokenModel = require('../models/refreshTokenModel');
 
 // get google client
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
-	const { email, password } = req.validated.body;
+	const { email, password, rememberMe } = req.validated.body;
 
 	// check password have more that 8 characters
 	if (password.length < 8) {
@@ -107,8 +73,14 @@ const authLogin = asyncHandler(async (req, res) => {
 	}
 
 	// create jwt tokens and save it into cookie
-	const { accessToken, refreshToken } = createTokenPair(user);
-	setAuthCookies(res, accessToken, refreshToken);
+	const { accessToken, refreshToken } = createTokenPair(user, { rememberMe: rememberMe });
+	try {
+		await createRefreshToken(req, user, refreshToken, { rememberMe });
+		createCookies(res, refreshToken, { rememberMe });
+	}
+	catch (err) {
+		throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!. Try again later." });
+	}
 
 	// send response
 	return res.status(StatusCode.OK).json({
@@ -118,6 +90,7 @@ const authLogin = asyncHandler(async (req, res) => {
 			_id: user._id,
 			email: user.email,
 			role: user.role,
+			accessToken: accessToken
 		}
 	});
 });
@@ -304,8 +277,14 @@ const googleAuth = asyncHandler(async (req, res) => {
 	}
 
 	// create jwt tokens and save it into cookie
-	const { accessToken, refreshToken } = createTokenPair(user);
-	setAuthCookies(res, accessToken, refreshToken);
+	const { accessToken, refreshToken } = createTokenPair(user, { rememberMe: true });
+	try {
+		await createRefreshToken(req, user, refreshToken, { rememberMe: true });
+		createCookies(res, refreshToken, { rememberMe: true });
+	}
+	catch (err) {
+		throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!" });
+	}
 
 	// send response
 	return res.status(StatusCode.OK).json({
@@ -316,6 +295,7 @@ const googleAuth = asyncHandler(async (req, res) => {
 			_id: user._id,
 			email: user.email,
 			role: user.role,
+			accessToken: accessToken
 		}
 	});
 
@@ -889,11 +869,23 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			{ session }
 		);
 
+		// create jwt token for user and save it in database
+		const { accessToken, refreshToken } = createTokenPair(user, { rememberMe: false });
+		await createRefreshToken(
+			req,
+			user,
+			refreshToken,
+			{
+				rememberMe: false,
+				session,
+			}
+		);
+
+		// commit transaction
 		await session.commitTransaction();
 
-		// create jwt token and save it in to cookie
-		const { accessToken, refreshToken } = createTokenPair(user)
-		setAuthCookies(res, accessToken, refreshToken)
+		// save token in to cookies			
+		createCookies(res, refreshToken, { rememberMe: false });
 
 		// send response
 		return res.status(201).json({
@@ -903,6 +895,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 				_id: user._id,
 				email: user.email,
 				role: user.role,
+				accessToken: accessToken
 			},
 			userProfile,
 		});
@@ -1103,19 +1096,29 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 // User logout 
 const userLogout = asyncHandler(async (req, res) => {
-	res.clearCookie('accessToken', {
-		httpOnly: true,
-		sameSite: 'Lax',
-		path: '/',
-		secure: process.env.NODE_ENV !== 'development',
-	})
+	const token = req.cookies?.accessToken;
 
-	res.clearCookie('refreshToken', {
-		httpOnly: true,
-		sameSite: 'Lax',
-		path: '/',
-		secure: process.env.NODE_ENV !== 'development',
-	})
+	if (!token) {
+		throw new AppError(
+			ErrorCode.AUTH_MISSING_TOKEN,
+			{
+				message: "Your Authentication token is missing!"
+			}
+		)
+	}
+
+	// clear refresh token database data
+	await refreshTokenModel.findOneAndUpdate(
+		{
+			hashToken: hash(token),
+		},
+		{
+			isRevoked: true,
+		}
+	)
+
+	// clear refresh token cookies
+	clearCookie(res);
 
 	// send response
 	res.status(StatusCode.OK).json({
@@ -1339,9 +1342,6 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{
 				$set: {
 					password: hashedPassword,
-				},
-				$inc: {
-					tokenVersion: 1,
 				}
 			},
 			{ new: true, session }
@@ -1365,12 +1365,60 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{ session }
 		);
 
+		// update refresh token data in database
+		const storedRefreshToken = await refreshTokenModel.findOneAndUpdate(
+			{ user_id: updateUser._id },
+			{
+				$set: {
+					isRevoked: true,
+				}
+			}
+		)
+
+		// if refresh token not found
+		if (!storedRefreshToken) {
+			throw new AppError(
+				ErrorCode.AUTH_MISSING_TOKEN,
+				{
+					message: "Can't Reset your Password!. Please try again later.",
+				}
+			);
+		}
+
+		// get valid time zone
+		const newRefreshExpire = storedRefreshToken.expiresAt;
+
+		// create jwt tokens
+		const refreshRemaining = Math.floor((newRefreshExpire.getTime() - Date.now()) / 1000);
+		const { accessToken, refreshToken } = createTokenPair(
+			updateUser,
+			{ refreshExpire: refreshRemaining, rememberMe: storedRefreshToken.rememberMe }
+		);
+
+		// save refresh token in to database
+		await createRefreshToken(
+			req,
+			updateUser,
+			refreshToken,
+			{
+				rememberMe: storedRefreshToken.rememberMe,
+				oldFamilyId: storedRefreshToken.familyId,
+				refreshExpiry: newRefreshExpire,
+				session,
+			}
+		);
+
 		// commit transaction
 		await session.commitTransaction();
+
+		// crete cookies for refresh token
+		createCookies(res, refreshToken, { refreshExpiry: storedRefreshToken.expiresAt, rememberMe: storedRefreshToken.rememberMe });
+
 
 		// send success response
 		return res.status(StatusCode.OK).json({
 			success: true,
+			accessToken: accessToken,
 			message: 'Password Reset successfully'
 		})
 	}
@@ -1432,50 +1480,175 @@ const refreshToken = asyncHandler(async (req, res) => {
 		);
 	}
 
+	let decoded;
 	try {
-		const decoded = jwt.verify(incomingRefreshToken, REFRESH_SECRET);
-		const user = await Users.findById(decoded._id);
-
-		// check user is exist with decode user id
-		if (!user) {
-			throw new AppError(
-				ErrorCode.AUTH_INVALID_CREDENTIALS,
-				{
-					message: "User not Authorized!",
-				}
-			);
-		}
-
-		// check token version is correct
-		if ((user.tokenVersion ?? 0) !== (decoded.tokenVersion ?? 0)) {
-			throw new AppError(
-				ErrorCode.AUTH_INVALID_CREDENTIALS,
-				{
-					message: "User not Authorized!",
-				}
-			);
-		}
-
-		// generate new token
-		const { accessToken: newAccessToken, refreshToken: newRefreshToken } = createTokenPair(user);
-		setAuthCookies(res, newAccessToken, newRefreshToken);
-
-		return res.status(StatusCode.OK).json({
-			success: true,
-			message: 'Tokens refreshed successfully!',
-		});
-
-	} catch (error) {
-		// rethrow if it's already an AppError
-		if (error instanceof AppError) throw error;
+		// Decode refresh token
+		decoded = jwt.verify(incomingRefreshToken, REFRESH_SECRET);
+	}
+	catch (err) {
+		// clear cookie
+		clearCookie(res);
 
 		throw new AppError(
-			ErrorCode.AUTH_REVOKED_TOKEN,
+			ErrorCode.AUTH_INVALID_REFRESH_TOKEN,
 			{
-				message: "Invalid Refresh token or Token was expired!.",
+				message: "Invalid Session!",
 			},
 		);
 	}
+
+	// ======== Start Transaction ======== //
+	const session = await mongoose.startSession();
+	let result = null;
+	let tokens = null;
+
+	try {
+		await session.withTransaction(async () => {
+
+			// add default value as null
+			result = null;
+			tokens = null;
+
+			// check if refresh token exit in database
+			const storedRefreshToken = await refreshTokenModel.findOneAndUpdate(
+				{
+					hashToken: hash(incomingRefreshToken),
+					isRevoked: false,
+					expiresAt: { $gt: new Date() }
+				},
+				{
+					$set: { isRevoked: true }
+				},
+				{ session }
+			);
+
+			// if storedRefreshToken is failed
+			if (!storedRefreshToken) return;
+
+			// find user with belong to jwt token
+			const user = await Users.findById(decoded._id);
+
+			// check user is exist with decode user id
+			if (!user) {
+				throw new AppError(
+					ErrorCode.AUTH_INVALID_CREDENTIALS,
+					{
+						message: "User not Authorized!",
+					}
+				);
+			}
+
+			// check that refresh token id and database refresh token id is match or not
+			if (String(storedRefreshToken.user_id) !== String(decoded._id)) {
+				throw new AppError(
+					ErrorCode.AUTH_INVALID_CREDENTIALS,
+					{
+						message: "Invalid session!. Please login back.",
+					}
+				);
+			}
+
+			// get valid time zone
+			const newRefreshExpire = storedRefreshToken.expiresAt;
+
+			// create new jwt tokens and save it into cookie
+			const refreshRemaining = Math.floor((newRefreshExpire.getTime() - Date.now()) / 1000);
+			tokens = createTokenPair(
+				user,
+				{ refreshExpire: refreshRemaining, rememberMe: storedRefreshToken.rememberMe }
+			);
+
+			// create cookies
+			await createRefreshToken(
+				req,
+				user,
+				tokens.refreshToken,
+				{
+					rememberMe: storedRefreshToken.rememberMe,
+					oldFamilyId: storedRefreshToken.familyId,
+					refreshExpiry: newRefreshExpire,
+					session,
+				}
+			);
+
+			result = storedRefreshToken;
+		});
+	}
+	catch (err) {
+		if (err instanceof AppError) { clearCookie(res) }
+		throw err;
+	}
+	finally {
+		// ======== end Transaction ======== //
+		await session.endSession();
+	}
+	// ======== =============== ======== //
+
+	// if have not refresh token in refreshTokenModel
+	if (!result) {
+
+		// clear cookie
+		clearCookie(res);
+
+		// Get token data from refreshTokenModel
+		const tokenData = await refreshTokenModel.findOne({ hashToken: hash(incomingRefreshToken) });
+		if (!tokenData) {
+			throw new AppError(
+				ErrorCode.AUTH_INVALID_REFRESH_TOKEN,
+				{
+					message: "Invalid Session or Session expired!. Please login back.",
+				}
+			);
+		}
+
+		// if refresh token is revoked or detect stolen
+		if (tokenData.isRevoked) {
+
+			// logout all users belong to same family id
+			await refreshTokenModel.updateMany(
+				{ familyId: tokenData.familyId, isRevoked: false },
+				{
+					$set: { isRevoked: true },
+				}
+			);
+
+			throw new AppError(
+				ErrorCode.AUTH_REFRESH_TOKEN_REUSED,
+				{
+					message: "Session is revoked!. Please login back",
+				}
+			);
+		}
+
+		// if refresh token is expired
+		if (tokenData.expiresAt < new Date()) {
+			throw new AppError(
+				ErrorCode.AUTH_EXPIRED_TOKEN,
+				{
+					message: "Session expired!. Please login back.",
+				}
+			);
+		}
+
+		// if happened anything else
+		throw new AppError(
+			ErrorCode.AUTH_INVALID_REFRESH_TOKEN,
+			{
+				message: "Invalid Session. Please login back.",
+			}
+		);
+	}
+
+	// crete cookies for refresh token
+	createCookies(res, tokens.refreshToken, { refreshExpiry: result.expiresAt, rememberMe: result.rememberMe });
+
+	// send response
+	return res.status(StatusCode.OK).json({
+		success: true,
+		accessToken: tokens.accessToken,
+		message: 'Sessions refreshed successfully!',
+	});
+
 });
 
 module.exports = {

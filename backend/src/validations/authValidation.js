@@ -6,6 +6,7 @@ const authLoginSchema = z.object(
         body: z.object({
             email: z.string().trim().min(1, "Email is required!").email("Invalid email address").max(254, "Email is too long!"),
             password: z.string().min(1, "Password is required").max(128, "Password is too long"),
+            rememberMe: z.boolean().default(false),
         }).strict(),
 
         params: z.object({}).strict(),
