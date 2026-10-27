@@ -1380,7 +1380,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 			throw new AppError(
 				ErrorCode.AUTH_MISSING_TOKEN,
 				{
-					message: "Cant Reset your Password!. Please try again later.",
+					message: "Can't Reset your Password!. Please try again later.",
 				}
 			);
 		}
