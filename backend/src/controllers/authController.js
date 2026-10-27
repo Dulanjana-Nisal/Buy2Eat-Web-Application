@@ -16,7 +16,7 @@ const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants');
 const AppError = require('../errors/AppError');
-const { createTokenPair, setAuthCookies, hash, clearCookie, createCookies, createRefreshToken } = require('../utils/tokenCreation');
+const { createTokenPair, hash, clearCookie, createCookies, createRefreshToken } = require('../utils/tokenCreation');
 const refreshTokenModel = require('../models/refreshTokenModel');
 
 // get google client
@@ -277,9 +277,10 @@ const googleAuth = asyncHandler(async (req, res) => {
 	}
 
 	// create jwt tokens and save it into cookie
-	const { accessToken, refreshToken } = createTokenPair(user, { rememberMe: rememberMe });
+	const { accessToken, refreshToken } = createTokenPair(user, { rememberMe: true });
 	try {
-		await setAuthCookies(req, res, user, refreshToken, { rememberMe: true });
+		await createRefreshToken(req, user, refreshToken, { rememberMe: true });
+		createCookies(res, refreshToken, { rememberMe: true });
 	}
 	catch (err) {
 		throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!" });
@@ -841,9 +842,14 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 	// == Start Transaction ==
 	const session = await mongoose.startSession();
-
+	let result = null;
+	let tokens = null;
 	try {
 		session.startTransaction();
+
+		// add default value as null
+		result = null;
+		tokens = null;
 
 		// create user 
 		const [user] = await Users.create([{
@@ -868,17 +874,23 @@ const verifyOtp = asyncHandler(async (req, res) => {
 			{ session }
 		);
 
+		// create jwt token for user and save it in database
+		const { accessToken, refreshToken } = createTokenPair(user, { rememberMe: false });
+		await createRefreshToken(
+			req,
+			user,
+			refreshToken,
+			{
+				rememberMe: false,
+				session,
+			}
+		);
+
+		// commit transaction
 		await session.commitTransaction();
 
-		// create jwt tokens and save it into cookie
-		const { accessToken, refreshToken } = createTokenPair(user);
-		try {
-			await createRefreshToken(req, user, refreshToken);
-			createCookies(res, refreshToken);
-		}
-		catch (err) {
-			throw new AppError(ErrorCode.WRITE_CONFLICT_ERROR, { message: "Error while generating token!. Try again later." });
-		}
+		// save token in to cookies			
+		createCookies(res, refreshToken, { rememberMe: false });
 
 		// send response
 		return res.status(201).json({
@@ -1335,9 +1347,6 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{
 				$set: {
 					password: hashedPassword,
-				},
-				$inc: {
-					tokenVersion: 1,
 				}
 			},
 			{ new: true, session }
