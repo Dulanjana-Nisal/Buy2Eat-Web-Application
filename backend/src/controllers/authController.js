@@ -16,7 +16,7 @@ const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants');
 const AppError = require('../errors/AppError');
-const { createTokenPair, hash, clearCookie, createCookies, createRefreshToken } = require('../utils/tokenCreation');
+const { createTokenPair, hash, clearCookie, createCookies, createRefreshToken } = require('../services/tokenCreationService');
 const refreshTokenModel = require('../models/refreshTokenModel');
 
 // get google client
