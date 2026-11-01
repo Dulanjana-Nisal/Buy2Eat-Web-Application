@@ -3,6 +3,8 @@ const crypto = require('crypto');
 const registrationOtpModel = require('../models/registrationOtpModel');
 const maskEmail = require('../utils/maskEmail');
 const { sendEmailOTP } = require('../utils/sendEmails');
+const { ErrorCode } = require('../constants');
+const AppError = require('../errors/AppError');
 
 // OTPHelper Service function
 const OTPHelper = async ({
@@ -107,7 +109,12 @@ const OTPHelper = async ({
             }
         );
 
-        throw new Error('Error while sending OTP!')
+        throw new AppError(
+            ErrorCode.OTP_SEND_FAILED,
+            {
+                message: "Error while sending OTP! Please try again later.",
+            }
+        );
     }
 }
 

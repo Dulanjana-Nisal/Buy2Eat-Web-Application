@@ -76,8 +76,19 @@ const createTokenPair = (user, { refreshExpire = null, rememberMe = false } = {}
         role: user.role,
     };
 
-    const accessToken = jwt.sign(jwtPayload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRED });
-    const refreshToken = jwt.sign({ ...jwtPayload, jti: crypto.randomUUID() }, REFRESH_SECRET, { expiresIn: expiresInValue });
+    // create access token pair
+    const accessToken = jwt.sign(
+        jwtPayload,
+        ACCESS_SECRET,
+        { expiresIn: ACCESS_EXPIRED, algorithm: 'HS256' }
+    );
+
+    // create refresh token pair
+    const refreshToken = jwt.sign(
+        { ...jwtPayload, jti: crypto.randomUUID() },
+        REFRESH_SECRET,
+        { expiresIn: expiresInValue, algorithm: 'HS256' }
+    );
 
     return { accessToken, refreshToken };
 };

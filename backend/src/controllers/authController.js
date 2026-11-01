@@ -16,7 +16,7 @@ const OTPHelper = require('../services/OTPHelper');
 const axios = require('axios');
 const { StatusCode, ErrorCode } = require('../constants');
 const AppError = require('../errors/AppError');
-const { createTokenPair, hash, clearCookie, createCookies, createRefreshToken } = require('../utils/tokenCreation');
+const { createTokenPair, hash, clearCookie, createCookies, createRefreshToken } = require('../services/tokenCreationService');
 const refreshTokenModel = require('../models/refreshTokenModel');
 
 // get google client
@@ -1096,7 +1096,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 // User logout 
 const userLogout = asyncHandler(async (req, res) => {
-	const token = req.cookies?.accessToken;
+	const token = req.cookies?.refreshToken;
 
 	if (!token) {
 		throw new AppError(
@@ -1365,17 +1365,14 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{ session }
 		);
 
-		// update refresh token data in database
-		const storedRefreshToken = await refreshTokenModel.findOneAndUpdate(
+		// get refresh data from specific user 
+		const storedRefreshToken = await refreshTokenModel.findOne(
 			{ user_id: updateUser._id },
-			{
-				$set: {
-					isRevoked: true,
-				}
-			}
+			null,
+			{ session }
 		)
 
-		// if refresh token not found
+		// if refresh token model data not found
 		if (!storedRefreshToken) {
 			throw new AppError(
 				ErrorCode.AUTH_MISSING_TOKEN,
@@ -1384,6 +1381,17 @@ const resetPassword = asyncHandler(async (req, res) => {
 				}
 			);
 		}
+
+		// update refreshTokenModel database
+		await refreshTokenModel.updateMany(
+			{ user_id: updateUser._id },
+			{
+				$set: {
+					isRevoked: true,
+				}
+			},
+			{ session }
+		)
 
 		// get valid time zone
 		const newRefreshExpire = storedRefreshToken.expiresAt;
@@ -1483,7 +1491,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 	let decoded;
 	try {
 		// Decode refresh token
-		decoded = jwt.verify(incomingRefreshToken, REFRESH_SECRET);
+		decoded = jwt.verify(incomingRefreshToken, REFRESH_SECRET, { algorithms: ['HS256'] });
 	}
 	catch (err) {
 		// clear cookie
