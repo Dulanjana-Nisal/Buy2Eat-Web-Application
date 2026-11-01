@@ -1483,7 +1483,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 	let decoded;
 	try {
 		// Decode refresh token
-		decoded = jwt.verify(incomingRefreshToken, REFRESH_SECRET);
+		decoded = jwt.verify(incomingRefreshToken, REFRESH_SECRET, { algorithms: ['HS256'] });
 	}
 	catch (err) {
 		// clear cookie

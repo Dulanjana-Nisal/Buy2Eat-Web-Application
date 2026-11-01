@@ -17,7 +17,7 @@ const authenticationMiddleware = (req, res, next) => {
 	}
 
 	try {
-		req.user = jwt.verify(accessToken, ACCESS_SECRET);
+		req.user = jwt.verify(accessToken, ACCESS_SECRET, { algorithms: ['HS256'] });
 		next();
 	} catch (error) {
 		throw new AppError(
