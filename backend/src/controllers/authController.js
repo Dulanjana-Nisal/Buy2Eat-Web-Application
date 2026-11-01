@@ -1365,17 +1365,14 @@ const resetPassword = asyncHandler(async (req, res) => {
 			{ session }
 		);
 
-		// update refresh token data in database
-		const storedRefreshToken = await refreshTokenModel.updateMany(
+		// get refresh data from specific user 
+		const storedRefreshToken = await refreshTokenModel.findOne(
 			{ user_id: updateUser._id },
-			{
-				$set: {
-					isRevoked: true,
-				}
-			}
+			null,
+			{ session }
 		)
 
-		// if refresh token not found
+		// if refresh token model data not found
 		if (!storedRefreshToken) {
 			throw new AppError(
 				ErrorCode.AUTH_MISSING_TOKEN,
@@ -1384,6 +1381,17 @@ const resetPassword = asyncHandler(async (req, res) => {
 				}
 			);
 		}
+
+		// update refreshTokenModel database
+		await refreshTokenModel.updateMany(
+			{ user_id: updateUser._id },
+			{
+				$set: {
+					isRevoked: true,
+				}
+			},
+			{ session }
+		)
 
 		// get valid time zone
 		const newRefreshExpire = storedRefreshToken.expiresAt;
