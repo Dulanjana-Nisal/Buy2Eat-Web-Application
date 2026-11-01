@@ -1096,7 +1096,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 // User logout 
 const userLogout = asyncHandler(async (req, res) => {
-	const token = req.cookies?.accessToken;
+	const token = req.cookies?.refreshToken;
 
 	if (!token) {
 		throw new AppError(
