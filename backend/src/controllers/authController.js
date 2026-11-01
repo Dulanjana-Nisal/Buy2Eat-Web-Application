@@ -1366,7 +1366,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 		);
 
 		// update refresh token data in database
-		const storedRefreshToken = await refreshTokenModel.findOneAndUpdate(
+		const storedRefreshToken = await refreshTokenModel.updateMany(
 			{ user_id: updateUser._id },
 			{
 				$set: {
