@@ -5,9 +5,6 @@ const bcrypt = require('bcryptjs');
 const Users = require('../../models/userModel');
 const refreshTokenModel = require("../../models/refreshTokenModel");
 
-// import helpers
-const OTPHelper = require("../../services/OTPHelper");
-
 // import error handlers
 const asyncHandler = require("../../middleware/asyncHandler");
 const AppError = require("../../errors/AppError");
@@ -18,6 +15,7 @@ const { StatusCode } = require("../../constants");
 const { createTokenPair, createRefreshToken, createCookies } = require("../../services/tokenCreationService");
 const { hash } = require("../../utils/hash");
 const { clearCookie } = require("../../utils/cookie");
+const OTPHelper = require("../../services/OTPHelper");
 const { AGREEMENT_VERSION } = require("../../config/env");
 
 // login auth for all role
