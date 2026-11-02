@@ -195,7 +195,7 @@ const googleAuth = asyncHandler(async (req, res) => {
         }
         catch (err) {
             if (linkedNow) {
-                await Users.updateOne({ _id: user._id }, { $unset: { google_id: 1 } });
+                await Users.updateOne({ _id: user._id, google_id: sub }, { $unset: { google_id: 1 } });
             }
 
             // send response
