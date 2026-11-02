@@ -43,6 +43,15 @@ function SellerRegisterForm() {
     const customerRegister = async (e) => {
         e.preventDefault();
 
+        // check password and conform password is same
+        if (registerDetails.password !== registerDetails.conformPass) {
+            setErrorDetails({ 
+                category: errorCategoryList.INPUT, 
+                errorFields: { ...errorDetails.errorFields, confPass: "Passwords are not matched" } 
+            });
+            return;
+        }
+
         // call seller register api
         try {
             await registerSeller(registerDetails);

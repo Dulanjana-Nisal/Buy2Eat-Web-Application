@@ -42,6 +42,15 @@ function CustomerRegisterForm() {
     const customerRegister = async (e) => {
         e.preventDefault();
 
+        // check password and conform password is same
+        if (registerDetails.password !== registerDetails.conformPass) {
+            setErrorDetails({ 
+                category: errorCategoryList.INPUT, 
+                errorFields: { ...errorDetails.errorFields, confPass: "Passwords are not matched" }
+            });
+            return;
+        }
+
         try {
             await registerCustomer(registerDetails);
         }
@@ -223,7 +232,7 @@ function CustomerRegisterForm() {
                                 placeholder="Confirm Password"
                                 aria-invalid={errorDetails.errorFields?.confPass ? true : false}
                                 aria-describedby={errorDetails.errorFields?.confPass ? inputErrors.CONF_PASSWORD : undefined}
-                                onChange={(e) => setRegisterDetails({...registerDetails, conformPass: e.target.value})}
+                                onChange={(e) => setRegisterDetails({ ...registerDetails, conformPass: e.target.value })}
                                 onClick={() => setErrorDetails({ ...errorDetails, errorFields: { ...errorDetails.errorFields, confPass: null }, errorFrom: null })}
                             />
                             {
