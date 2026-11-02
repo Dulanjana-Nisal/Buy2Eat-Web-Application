@@ -1,24 +1,22 @@
 // import third party libraries
-const crypto = require("crypto");
-const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
+const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 
 // import database models 
-const Users = require("../../models/user.model");
-const CustomerProfile = require("../../models/customerProfile.model");
-const SellerProfile = require("../../models/sellerProfile.model");
-const registrationOtpModel = require("../../models/registrationOtp.model");
+const Users = require("../../models/userModel");
+const CustomerProfile = require("../../models/customerProfileModel");
+const SellerProfile = require("../../models/sellerProfileModel");
+const registrationOtpModel = require("../../models/registrationOtpModel");
 
 // import error handlers
 const asyncHandler = require("../../middleware/asyncHandler");
 const AppError = require("../../errors/AppError");
-const { ErrorCode } = require("../../constants");
-const { StatusCode } = require("../../constants");
+const { ErrorCode, StatusCode } = require("../../constants");
 
 // import token and cookie utilities
-const { createCookies } = require("../../utils/cookies");
-const { resendEmailOTP } = require("../../utils/email");
-const { createTokenPair, createRefreshToken } = require("../../utils/jwt");
+const { createCookies, createTokenPair, createRefreshToken } = require("../../services/tokenCreationService");
+const { resendEmailOTP } = require("../../utils/sendEmails");
 const { AGREEMENT_VERSION } = require("../../config/env");
 
 // verify otp controller
@@ -191,7 +189,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
         createCookies(res, refreshToken, { rememberMe: false });
 
         // send response
-        return res.status(201).json({
+        return res.status(StatusCode.CREATED).json({
             success: true,
             message: `${user.role} registered successfully!`,
             user: {

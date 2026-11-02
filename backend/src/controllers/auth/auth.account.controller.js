@@ -12,9 +12,7 @@ const { ErrorCode } = require("../../constants");
 const { StatusCode } = require("../../constants");
 
 // import token creation services
-const { createTokenPair, createRefreshToken, createCookies } = require("../../services/tokenCreationService");
-const { hash } = require("../../utils/hash");
-const { clearCookie } = require("../../utils/cookie");
+const { createTokenPair, createRefreshToken, createCookies, hash, clearCookie } = require("../../services/tokenCreationService");
 const OTPHelper = require("../../services/OTPHelper");
 const { AGREEMENT_VERSION } = require("../../config/env");
 

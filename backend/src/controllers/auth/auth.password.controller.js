@@ -9,7 +9,7 @@ const resetPasswordModel = require("../../models/resetPasswordModel");
 const refreshTokenModel = require("../../models/refreshTokenModel");
 
 // import error handler and constants
-const asyncHandler = require("express-async-handler");
+const asyncHandler = require("../../middleware/asyncHandler");
 const AppError = require("../../errors/AppError");
 const { StatusCode, ErrorCode } = require("../../constants");
 

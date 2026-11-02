@@ -15,7 +15,7 @@ const SellerProfile = require('../../models/sellerProfileModel');
 
 // import errors handlers
 const AppError = require("../../errors/AppError");
-const { ErrorCode } = require("../../constants");
+const { ErrorCode, StatusCode } = require("../../constants");
 const asyncHandler = require("../../middleware/asyncHandler");
 
 // import token creation service
@@ -135,7 +135,7 @@ const googleAuth = asyncHandler(async (req, res) => {
         }
 
         // register user
-        return res.status(201).json({
+        return res.status(StatusCode.CREATED).json({
             success: true,
             isRegistered: false,
             register_token: registerToken
