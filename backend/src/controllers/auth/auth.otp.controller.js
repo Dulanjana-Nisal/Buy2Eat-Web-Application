@@ -284,22 +284,22 @@ const resendOtp = asyncHandler(async (req, res) => {
     if (!reservedOtpUser) {
         const latestOtpUser = await registrationOtpModel.findOne({ verification_id });
 
-        // check cooldown time is competed 
-        if (latestOtpUser?.lastResendAt && (now - latestOtpUser.lastResendAt.getTime()) < cooldownPeriod) {
-            throw new AppError(
-                ErrorCode.RATE_LIMIT_EXCEEDED,
-                {
-                    message: "You can only request a new OTP once per minute. Please wait before trying again.",
-                }
-            );
-        }
-
         // check resend count is exceeded
         if (latestOtpUser?.resendCount >= 4) {
             throw new AppError(
                 ErrorCode.RATE_LIMIT_EXCEEDED,
                 {
                     message: "You have reached the maximum number of OTP resend attempts. Please try again later.",
+                }
+            );
+        }
+
+        // check cooldown time is competed 
+        if (latestOtpUser?.lastResendAt && (now - latestOtpUser.lastResendAt.getTime()) < cooldownPeriod) {
+            throw new AppError(
+                ErrorCode.RATE_LIMIT_EXCEEDED,
+                {
+                    message: "You can only request a new OTP once per minute. Please wait before trying again.",
                 }
             );
         }
