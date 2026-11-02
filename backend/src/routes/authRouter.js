@@ -1,3 +1,4 @@
+// import express
 const express = require('express');
 
 // import controllers
@@ -14,7 +15,7 @@ const {
     forgotPassword,
     resetPassword,
     verifyResetPassword
-} = require('../controllers/authController');
+} = require('../controllers/auth');
 
 // import middlewares
 const { loginLimiter, sensitiveLimiter } = require('../middleware/rateLimitMiddleware');
