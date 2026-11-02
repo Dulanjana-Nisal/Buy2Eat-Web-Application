@@ -1,11 +1,24 @@
-const { ErrorCode } = require("../../constants");
-const AppError = require("../../errors/AppError");
-const Users = require('../../models/userModel');
-const asyncHandler = require("../../middleware/asyncHandler");
+// import third party libraries
 const bcrypt = require('bcryptjs');
-const { createTokenPair, createRefreshToken, createCookies } = require("../../services/tokenCreationService");
-const { AGREEMENT_VERSION } = require("../../config/env");
+
+// import database models
+const Users = require('../../models/userModel');
+const refreshTokenModel = require("../../models/refreshTokenModel");
+
+// import helpers
 const OTPHelper = require("../../services/OTPHelper");
+
+// import error handlers
+const asyncHandler = require("../../middleware/asyncHandler");
+const AppError = require("../../errors/AppError");
+const { ErrorCode } = require("../../constants");
+const { StatusCode } = require("../../constants");
+
+// import token creation services
+const { createTokenPair, createRefreshToken, createCookies } = require("../../services/tokenCreationService");
+const { hash } = require("../../utils/hash");
+const { clearCookie } = require("../../utils/cookie");
+const { AGREEMENT_VERSION } = require("../../config/env");
 
 // login auth for all role
 const authLogin = asyncHandler(async (req, res) => {
@@ -347,8 +360,42 @@ const registerSellers = asyncHandler(async (req, res) => {
 
 });
 
+// User logout 
+const userLogout = asyncHandler(async (req, res) => {
+    const token = req.cookies?.refreshToken;
+
+    if (!token) {
+        throw new AppError(
+            ErrorCode.AUTH_MISSING_TOKEN,
+            {
+                message: "Your Authentication token is missing!"
+            }
+        )
+    }
+
+    // clear refresh token database data
+    await refreshTokenModel.findOneAndUpdate(
+        {
+            hashToken: hash(token),
+        },
+        {
+            isRevoked: true,
+        }
+    )
+
+    // clear refresh token cookies
+    clearCookie(res);
+
+    // send response
+    res.status(StatusCode.OK).json({
+        success: true,
+        message: 'User successfully logout...'
+    })
+});
+
 module.exports = {
     authLogin,
     registerCustomers,
     registerSellers,
+    userLogout,
 }
