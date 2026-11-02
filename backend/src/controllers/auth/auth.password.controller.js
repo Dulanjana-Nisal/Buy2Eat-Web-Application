@@ -123,7 +123,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
             throw new AppError(
                 ErrorCode.RATE_LIMIT_EXCEEDED,
                 {
-                    message: "You can only resend OTP once per minute. Please wait before trying again.",
+                    message: "You can only request a new password reset link once per minute. Please wait before trying again.",
                 }
             );
         }
