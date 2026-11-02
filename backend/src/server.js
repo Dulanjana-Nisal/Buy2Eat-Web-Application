@@ -16,8 +16,6 @@ const { globalLimiter } = require('./middleware/rateLimitMiddleware');
 
 // import routers
 const authRouter = require('./routes/authRouter');
-const usersRouter = require('./routes/usersRouter');
-const customerRouter = require('./routes/customerRouter');
 
 // create app
 const app = express();
@@ -73,8 +71,6 @@ app.get('/', (_request, response) => {
 app.use(requestIDMiddleware);
 app.use('/api', globalLimiter);
 app.use('/api/v1/buy2eat/auth', authRouter);
-app.use('/api/v1/buy2eat/customers', customerRouter);
-app.use('/api/v1/buy2eat/users', usersRouter);
 app.use(errorHandlerMiddleware);
 
 async function startServer() {
