@@ -60,7 +60,7 @@ export const ErrorHandler = (error) => {
             status: null,
             category: "NETWORK_ERROR",
             code: "NETWORK_ERROR",
-            message: "Unable to connect to the server. Please check your internet connection.",
+            message: "Unable to connect to the server. Please check your internet connection and try again later.",
             fieldErrors: {}
         }
     }
