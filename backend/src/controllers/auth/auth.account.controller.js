@@ -12,8 +12,8 @@ const { ErrorCode } = require("../../constants");
 const { StatusCode } = require("../../constants");
 
 // import token creation services
-const { createTokenPair, createRefreshToken, createCookies, hash, clearCookie } = require("../../services/tokenCreationService");
-const OTPHelper = require("../../services/OTPHelper");
+const { createTokenPair, createRefreshToken, createCookies, hash, clearCookie } = require("../../services/token.service");
+const OTPHelper = require("../../services/otp.service");
 const { AGREEMENT_VERSION } = require("../../config/env");
 
 // login auth for all role

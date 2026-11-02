@@ -19,8 +19,8 @@ const { ErrorCode, StatusCode } = require("../../constants");
 const asyncHandler = require("../../middleware/asyncHandler");
 
 // import token creation service
-const { createRefreshToken, createTokenPair, createCookies } = require("../../services/tokenCreationService");
-const OTPHelper = require("../../services/OTPHelper");
+const { createRefreshToken, createTokenPair, createCookies } = require("../../services/token.service");
+const OTPHelper = require("../../services/otp.service");
 
 // get google client
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);

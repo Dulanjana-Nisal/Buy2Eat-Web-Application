@@ -15,7 +15,7 @@ const { StatusCode, ErrorCode } = require("../../constants");
 
 // import token creation service and email service
 const { sendEmailResetPassword } = require("../../utils/sendEmails");
-const { createTokenPair, createRefreshToken, createCookies } = require("../../services/tokenCreationService");
+const { createTokenPair, createRefreshToken, createCookies } = require("../../services/token.service");
 const { CLIENT_URL } = process.env;
 
 // forgot password controller

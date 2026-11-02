@@ -15,7 +15,7 @@ const AppError = require("../../errors/AppError");
 const { ErrorCode, StatusCode } = require("../../constants");
 
 // import token and cookie utilities
-const { createCookies, createTokenPair, createRefreshToken } = require("../../services/tokenCreationService");
+const { createCookies, createTokenPair, createRefreshToken } = require("../../services/token.service");
 const { resendEmailOTP } = require("../../utils/sendEmails");
 const { AGREEMENT_VERSION } = require("../../config/env");
 

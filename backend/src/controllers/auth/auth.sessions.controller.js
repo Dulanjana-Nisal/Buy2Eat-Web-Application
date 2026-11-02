@@ -12,7 +12,7 @@ const AppError = require('../../errors/AppError');
 const { StatusCode, ErrorCode } = require('../../constants');
 
 // import token creation services and environment variables
-const { createTokenPair, hash, clearCookie, createCookies, createRefreshToken } = require('../../services/tokenCreationService');
+const { createTokenPair, hash, clearCookie, createCookies, createRefreshToken } = require('../../services/token.service');
 const { REFRESH_SECRET } = require('../../config/env');
 
 
