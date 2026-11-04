@@ -2,7 +2,7 @@
 
 # Buy2Eat Backend ( In development stage )
 
-</dev>
+</div>
 
 REST API for **Buy2Eat**, a food marketplace connecting customers with home-style sellers. It handles authentication (email + OTP, Google sign-in), customer profiles, and favorites. Shops, foods, menus, orders and reviews have data models ready but no endpoints yet.
 and full auth system is already developed.
