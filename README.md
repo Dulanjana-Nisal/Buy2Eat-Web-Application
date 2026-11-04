@@ -29,7 +29,7 @@ A production-style authentication service built with Node.js, Express 5, MongoDB
 
 ### Prerequisites
 
-- Node.js 20+ and npm
+- Node.js 22+ and npm
 - A MongoDB deployment that supports **transactions** (a replica set, or MongoDB Atlas). Registration, password reset and token refresh use multi-document transactions, so a standalone `mongod` will fail.
 - A Gmail account with an [App Password](https://support.google.com/accounts/answer/185833) for sending emails
 - A Google OAuth client ID and secret (Google Cloud Console)
@@ -61,7 +61,7 @@ Config is loaded from `.env.<NODE_ENV>.local` inside `backend/` (defaults to `.e
 | --- | --- | --- |
 | `PORT` | No | Default `5000` |
 | `NODE_ENV` | No | `development` (default), `production`, `testing`. Must be set in the shell to pick the right env file |
-| `MONGO_URI` | Yes | MongoDB connection string. If empty, the server not starts without a database |
+| `MONGO_URI` | No | MongoDB connection string. If unset, the server logs a warning and starts without a database connection. If set but empty, startup fails validation |
 | `AGREEMENT_VERSION` | Yes | Terms/Privacy version stored when a user registers |
 | `ACCESS_SECRET` | Yes | Min 32 chars. Signs access tokens |
 | `REFRESH_SECRET` | Yes | Min 32 chars. Signs refresh tokens. Use a different value from `ACCESS_SECRET` |
