@@ -86,3 +86,5 @@ async function startServer() {
 }
 
 startServer();
+
+module.exports = app; // Export the app for testing purposes
