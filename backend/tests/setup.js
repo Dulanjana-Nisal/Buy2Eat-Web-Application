@@ -1,0 +1,10 @@
+process.env.NODE_ENV = 'testing';
+process.env.JWT_SECRET = 'test-secret';
+process.env.AGREEMENT_VERSION= '1.0.0';
+process.env.ACCESS_SECRET= 'sample-access-secret-and-should-be-longer-than-32-characters';
+process.env.REFRESH_SECRET= 'sample-refresh-secret-and-should-be-longer-than-32-characters';
+process.env.EMAIL_USER= 'sample@gmail.com';
+process.env.EMAIL_APP_PASSWORD = 'test-email-app-password';
+process.env.GOOGLE_CLIENT_SECRET = 'sample-google-client-secret';
+process.env.GOOGLE_CLIENT_ID = 'sample-google-client-id-and-should-be-longer-than-32-characters';
+process.env.CLIENT_URL = 'http://localhost:5173';
