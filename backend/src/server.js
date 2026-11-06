@@ -85,6 +85,7 @@ async function startServer() {
   }
 }
 
-startServer();
+// start the server if this file is run directly not run in test mode
+if(require.main === module) startServer(); 
 
 module.exports = app; // Export the app for testing purposes
