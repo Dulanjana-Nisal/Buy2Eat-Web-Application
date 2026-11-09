@@ -1,6 +1,26 @@
+const { z } = require('zod');
 // Mask Email
 function maskEmail(email) {
-    const [localPart, domain] = email.split('@');
+
+    // check email using zod
+    const emailSchema = z.string().email().min(3);
+    const result = emailSchema.safeParse(email || undefined)
+
+    // check email is exist
+    if (!result.success) {
+        return false;
+    }
+
+    let [localPart, domain] = email.split('@');
+
+    // check if local and domain part have enough characters
+    if (localPart.length < 6) {
+        localPart = "******";
+    }
+    if (domain.length < 6) {
+        domain = "******.***";
+    }
+
     const domainParts = domain.split('.');
     const domainName = domainParts[0];
     const domainExt = domainParts.slice(1).join('.');

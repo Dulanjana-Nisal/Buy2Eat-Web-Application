@@ -4,12 +4,12 @@ const { ACCESS_EXPIRED, REFRESH_EXPIRED, ACCESS_SECRET, REFRESH_SECRET, NODE_ENV
 const refreshTokenModel = require("../models/refreshTokenModel");
 const AppError = require("../errors/AppError");
 const { ErrorCode } = require("../constants");
+const calculateExpired = require("../utils/calculateRefreshExpired");
 
 // hash token pair
-const hash = (token) => crypto.createHash('sha256').update(token).digest('hex');
-
-// calculate date
-const DAY = 24 * 60 * 60 * 1000;
+const self = {
+    hash: (token) => crypto.createHash('sha256').update(token).digest('hex')
+}
 
 // cookie options
 const cookieOptions = {
@@ -18,23 +18,6 @@ const cookieOptions = {
     path: '/',
     secure: NODE_ENV !== 'development',
 };
-
-// calculate expired times
-const calculateExpired = (refreshExpiry, rememberMe) => {
-    const now = new Date();
-    const expiresAt = refreshExpiry ?? new Date(now.getTime() + (rememberMe ? 60 * DAY : DAY));
-    const remainingTimeMs = expiresAt.getTime() - now.getTime();
-    if (!Number.isFinite(remainingTimeMs) || remainingTimeMs <= 0) {
-        throw new AppError(
-            ErrorCode.AUTH_EXPIRED_TOKEN,
-            {
-                message: "Token is Expired!. Please login back"
-            }
-        )
-    }
-
-    return { remainingTimeMs, expiresAt }
-}
 
 // clear refresh token cookies
 const clearCookie = (res) => {
@@ -60,7 +43,7 @@ const createTokenPair = (user, { refreshExpire = null, rememberMe = false } = {}
                 {
                     message: "Token is Expired!. Please login back"
                 }
-            )
+            );
         }
         expiresInValue = refreshExpire;
     }
@@ -68,13 +51,12 @@ const createTokenPair = (user, { refreshExpire = null, rememberMe = false } = {}
         expiresInValue = rememberMe ? REFRESH_EXPIRED : '1d'
     }
 
-
     // create jwt payload
     const jwtPayload = {
         _id: user._id,
         email: user.email,
         role: user.role,
-    };
+    }
 
     // create access token pair
     const accessToken = jwt.sign(
@@ -103,14 +85,24 @@ const createRefreshToken = async (
         oldFamilyId = null,
         refreshExpiry = null,
         session = null
-    }
+    } = {}
 ) => {
 
     // calculate expired times
     const { expiresAt } = calculateExpired(refreshExpiry, rememberMe);
 
+    // check argument is correctly passed
+    if (!req || !user || !refreshToken) {
+        throw new AppError(
+            ErrorCode.VALIDATION_FIELD_REQUIRED,
+            {
+                message: "Error while generating token."
+            }
+        )
+    }
+
     // hash refresh token and family id
-    const hashedRefreshToken = hash(refreshToken);
+    const hashedRefreshToken = self.hash(refreshToken); // use self for helping spy in testing
     const family_id = crypto.randomUUID();
 
     // create payload and session keyword
@@ -151,7 +143,7 @@ const createCookies = (res, refreshToken, { refreshExpiry = null, rememberMe = f
 module.exports = {
     createTokenPair,
     createRefreshToken,
-    hash,
+    hash: self.hash,
     createCookies,
     clearCookie,
 };
