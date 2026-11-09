@@ -60,7 +60,7 @@ const createTokenPair = (user, { refreshExpire = null, rememberMe = false } = {}
                 {
                     message: "Token is Expired!. Please login back"
                 }
-            )
+            );
         }
         expiresInValue = refreshExpire;
     }
@@ -68,13 +68,12 @@ const createTokenPair = (user, { refreshExpire = null, rememberMe = false } = {}
         expiresInValue = rememberMe ? REFRESH_EXPIRED : '1d'
     }
 
-
     // create jwt payload
     const jwtPayload = {
         _id: user._id,
         email: user.email,
         role: user.role,
-    };
+    }
 
     // create access token pair
     const accessToken = jwt.sign(
