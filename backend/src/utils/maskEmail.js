@@ -7,15 +7,17 @@ function maskEmail(email) {
     const result = emailSchema.safeParse(email || undefined)
 
     // check email is exist
-    if(!result.success){
+    if (!result.success) {
         return false;
     }
 
     let [localPart, domain] = email.split('@');
 
     // check if local and domain part have enough characters
-    if(localPart?.length < 6 || domain?.length < 6){
+    if (localPart.length < 6) {
         localPart = "******";
+    }
+    if (domain.length < 6) {
         domain = "******.***";
     }
 
