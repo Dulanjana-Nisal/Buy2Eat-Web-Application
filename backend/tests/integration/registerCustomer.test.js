@@ -31,6 +31,8 @@ describe("POST /api/v1/buy2eat/auth/register-customer", () => {
         jest.clearAllMocks();
     });
 
+    // ========== MAIN CONTROLLER ========== //
+
     // Case 1: Call register customer end point with correct credentials
     it("Should return success message with user data", async () => {
         OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
@@ -128,5 +130,52 @@ describe("POST /api/v1/buy2eat/auth/register-customer", () => {
 
         expect(response.statusCode).toBe(502); // test status code
         expect(response.body.error.message).toEqual("Send OTP Failed!"); // test return value
+    });
+
+    // ========== VALIDATIONS ========== //
+
+    // Case 7: Call register customer end point with invalid credentials
+    it("Should Throw 400 error code with validation error message", async () => {
+        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
+
+        // sample user data
+        sampleUser = {};
+
+        // call the endpoint
+        const response = await request(app).post("/api/v1/buy2eat/auth/register-customer").send(sampleUser);
+
+        expect(response.statusCode).toBe(400); // test status code
+        expect(response.body.error.message).toEqual("Invalid input data");
+        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP 
+    });
+
+    // Case 8: Call register customer end point with invalid credentials ( wrong email type )
+    it("Should Throw 400 error code with 'Invalid email address' error message", async () => {
+        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
+
+        // sample user data
+        sampleUser.email = "wrong_email";
+
+        // call the endpoint
+        const response = await request(app).post("/api/v1/buy2eat/auth/register-customer").send(sampleUser);
+
+        expect(response.statusCode).toBe(400); // test status code
+        expect(response.body.error.details[0].issue).toEqual("Invalid email address");
+        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP 
+    });
+
+    // Case 9: Call register customer end point with invalid credentials ( wrong phone number type )
+    it("Should Throw 400 error code with 'Invalid phone number format' error message", async () => {
+        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
+
+        // sample user data
+        sampleUser.phone_number = "wrong123";
+
+        // call the endpoint
+        const response = await request(app).post("/api/v1/buy2eat/auth/register-customer").send(sampleUser);
+
+        expect(response.statusCode).toBe(400); // test status code
+        expect(response.body.error.details[0].issue).toEqual("Invalid phone number format");
+        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP 
     });
 });

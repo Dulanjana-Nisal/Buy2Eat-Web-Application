@@ -16,11 +16,11 @@ const validationMiddleware = (schema) => {
                     issue: issue.message,
                 }
             ));
-            console.log(errors)
+            
             throw new AppError(
                 ErrorCode.VALIDATION_INVALID_FORMAT,
                 {
-                    message: "Invalid Input data",
+                    message: "Invalid input data",
                     details: errors
                 }
             )
