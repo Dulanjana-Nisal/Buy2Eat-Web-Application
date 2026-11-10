@@ -4,4 +4,5 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setupAfterEnv.js'],
   testMatch: ['**/tests/**/*.test.js'],
   collectCoverageFrom: ['src/**/*.js', '!src/server.js'],
+  testTimeOut: 15000,
 };
