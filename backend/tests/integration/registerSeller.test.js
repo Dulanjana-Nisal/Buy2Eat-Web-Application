@@ -1,4 +1,3 @@
-// import otp service for mock
 jest.mock('../../src/services/otp.service', () => {
     return jest.fn()
 });
@@ -9,11 +8,31 @@ const app = require('../../src/server');
 const OTPHelper = require('../../src/services/otp.service');
 const User = require("../../src/models/userModel");
 
-describe("POST /api/v1/buy2eat/auth/register-seller", () => {
-    // sample user data
-    let sampleUser;
+//  ===== Helpers for test cases ===== //
+const URL = "/api/v1/buy2eat/auth/register-seller";
 
-    // before each should execute original Sample user data set
+let sampleUser;
+
+const responseSuite = (overWrites = {}) => request(app).post(URL).send({...sampleUser, ...overWrites});
+
+const userCreationSuite = async () => {
+    await User.create({
+        email: "existuser@example.com",
+        password: "password123",
+        role: "customer",
+        agreement: {
+            accepted: true,
+            version: process.env.AGREEMENT_VERSION,
+            acceptedAt: new Date(),
+        },
+    });
+}
+
+//  ===== =================== ===== //
+
+describe("POST /api/v1/buy2eat/auth/register-seller", () => {
+
+    // before every test suite call implement sample user meta data
     beforeEach(() => {
         sampleUser = {
             first_name: "Test",
@@ -26,156 +45,115 @@ describe("POST /api/v1/buy2eat/auth/register-seller", () => {
         }
     })
 
-    // afterEach should clear all mock data
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    // ========== MAIN CONTROLLER ========== //
+    describe("With valid inputs", () => {
+        it("Should send OTP and return 200 status code with success message", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
 
-    // Case 1: Call register seller end point with correct credentials
-    it("Should return success message with user data", async () => {
-        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
+            const response = await responseSuite();
 
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
-
-        expect(response.statusCode).toBe(200); // test status code
-        expect(response.body).toEqual({ "register_with": "email", "message": "OTP send", "success": true }); // test return value
-        expect(OTPHelper).toHaveBeenCalledTimes(1);
+            expect(response.statusCode).toBe(200);
+            expect(response.body).toEqual({ "register_with": "email", "message": "OTP send", "success": true });
+            expect(response.body).not.toHaveProperty('password');
+            expect(OTPHelper).toHaveBeenCalledTimes(1);
+        });
     });
 
-    // Case 2: Call register seller end point with invalid password ( less than 8 characters )
-    it("Should Throw 400 status code with with error message", async () => {
-        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
+    describe("With invalid inputs", () => {
+        it("Should return 400 when password shorter that 8 characters", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
 
-        // sample user data
-        sampleUser.password = "123";
-        sampleUser.conformPass = "123";
+            const response = await responseSuite({ password: "123", conformPass: "123" });
 
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
-
-        expect(response.statusCode).toBe(400); // test status code
-        expect(response.body.error.message).toEqual("Password must have at least 8 characters"); // test return value
-        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP
-    });
-
-    // Case 3: Call register seller end point with invalid password ( password and confPass is not match )
-    it("Should Throw 400 error code with 'Passwords do not match' error message", async () => {
-        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
-
-        // sample user data
-        sampleUser.password = "12345678";
-        sampleUser.conformPass = "87654321";
-
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
-
-        expect(response.statusCode).toBe(400); // test status code
-        expect(response.body.error.details[0].issue).toEqual("Passwords do not match"); // test return value
-        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP
-    });
-
-    // Case 4: Call register seller end point with invalid agreement ( agreement not accepted )
-    it("Should Throw 400 error code with 'Please agree with Terms of services and Privacy Policy' error message", async () => {
-        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
-
-        // sample user data
-        sampleUser.accept_agreement = false;
-
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
-
-        expect(response.statusCode).toBe(400); // test status code
-        expect(response.body.error.details[0].issue).toEqual("Please agree with Terms of services and Privacy Policy");
-        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP 
-    });
-
-    // Case 5: Call register seller end point with already exist email
-    it("Should Throw 409 error code with 'Email is already registered!' error message", async () => {
-        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
-
-        // sample user data
-        sampleUser.email = "existuser@example.com";
-
-        await User.create({
-            email: "existuser@example.com",
-            password: "password123",
-            role: "seller",
-            agreement: {
-                accepted: true,
-                version: process.env.AGREEMENT_VERSION,
-                acceptedAt: new Date(),
-            },
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.message).toEqual("Password must have at least 8 characters");
+            expect(OTPHelper).not.toHaveBeenCalled();
         });
 
-        // call database
-        await User.findOne({ email: "existuser@example.com" });
+        it("Should return 400 error code when password and confPass mismatch", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
 
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
+            const response = await responseSuite({ password: "12345678", conformPass: "87654321" });
 
-        expect(response.statusCode).toBe(409); // test status code
-        expect(response.body.error.message).toEqual("Email is already registered!"); // test return value
-        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.details[0].issue).toEqual("Passwords do not match");
+            expect(OTPHelper).not.toHaveBeenCalled();
+        });
+
+        it("Should return 400 error code when agreement not sign", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
+
+            const response = await responseSuite({ accept_agreement: false });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.details[0].issue).toEqual("Please agree with Terms of services and Privacy Policy");
+            expect(OTPHelper).not.toHaveBeenCalled();
+        });
+
+        it("Should Throw 409 error code while email is already registered", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
+
+            await userCreationSuite();
+
+            await User.findOne({ email: "existuser@example.com" });
+
+            const response = await responseSuite({ email: "existuser@example.com" });
+
+            expect(response.statusCode).toBe(409);
+            expect(response.body.error.message).toEqual("Email is already registered!");
+            expect(OTPHelper).not.toHaveBeenCalled();
+        });
+
+        it("Should return 502 error code when Send OTP Failed", async () => {
+            OTPHelper.mockResolvedValue({ success: false, message: "OTP send failed", });
+
+            const response = await responseSuite();
+
+            expect(response.statusCode).toBe(502);
+            expect(response.body.error.message).toEqual("Send OTP Failed!");
+        });
     });
 
-    // Case 6: Call register seller end point with otp fail
-    it("Should Throw 502 error code with 'Send OTP Failed!' error message", async () => {
-        OTPHelper.mockResolvedValue({ success: false, message: "OTP send failed", }); // mock OTP helper service
+    describe("With validations", () => {
+        it("Should return 400 error code when invalid credentials", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
 
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
+            const response = await responseSuite({
+                first_name: "",
+                last_name: "",
+                email: "",
+                password: "",
+                conformPass: "",
+                phone_number: "",
+                accept_agreement: "",
+            });
 
-        expect(response.statusCode).toBe(502); // test status code
-        expect(response.body.error.message).toEqual("Send OTP Failed!"); // test return value
-    });
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.message).toEqual("Invalid input data");
+            expect(OTPHelper).not.toHaveBeenCalled();
+        });
 
-    // ========== VALIDATIONS ========== //
+        it("Should return 400 error code while entered Invalid email address", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
 
-    // Case 7: Call register seller end point with invalid credentials
-    it("Should Throw 400 error code with validation error message", async () => {
-        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
+            const response = await responseSuite({ email: "wrong_email" });
 
-        // sample user data
-        sampleUser = {};
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.details[0].issue).toEqual("Invalid email address");
+            expect(OTPHelper).not.toHaveBeenCalled();
+        });
 
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
+        it("Should return 400 error code while entered Invalid phone number format", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
 
-        expect(response.statusCode).toBe(400); // test status code
-        expect(response.body.error.message).toEqual("Invalid input data");
-        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP 
-    });
+            const response = await responseSuite({ phone_number: "wrong123" });
 
-    // Case 8: Call register seller end point with invalid credentials ( wrong email type )
-    it("Should Throw 400 error code with 'Invalid email address' error message", async () => {
-        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
-
-        // sample user data
-        sampleUser.email = "wrong_email";
-
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
-
-        expect(response.statusCode).toBe(400); // test status code
-        expect(response.body.error.details[0].issue).toEqual("Invalid email address");
-        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP 
-    });
-
-    // Case 9: Call register seller end point with invalid credentials ( wrong phone number type )
-    it("Should Throw 400 error code with 'Invalid phone number format' error message", async () => {
-        OTPHelper.mockResolvedValue({ success: true, message: "OTP send", }); // mock OTP helper service
-
-        // sample user data
-        sampleUser.phone_number = "wrong123";
-
-        // call the endpoint
-        const response = await request(app).post("/api/v1/buy2eat/auth/register-seller").send(sampleUser);
-
-        expect(response.statusCode).toBe(400); // test status code
-        expect(response.body.error.details[0].issue).toEqual("Invalid phone number format");
-        expect(OTPHelper).not.toHaveBeenCalled(); // test send OTP 
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.details[0].issue).toEqual("Invalid phone number format");
+            expect(OTPHelper).not.toHaveBeenCalled();
+        });
     });
 });
