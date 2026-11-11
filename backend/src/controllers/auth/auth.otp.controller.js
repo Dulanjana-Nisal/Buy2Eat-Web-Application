@@ -84,7 +84,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
                     }
                 ]
             }
-        )
+        );
     }
 
     // check if agreement version is existed
