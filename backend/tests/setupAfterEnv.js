@@ -7,7 +7,7 @@ let mongoServer;
 beforeAll(async () => {
 
     if (mongoose.connection.readyState !== 0) {
-        return;
+        throw new Error('DB already connected, refusing to run tests');
     }
 
     mongoServer = await MongoMemoryServer.create();
