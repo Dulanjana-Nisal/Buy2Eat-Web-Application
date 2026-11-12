@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { MongoMemoryReplSet } = require('mongodb-memory-server');
 
-let mongoServer;
+let replSet;
 
 //Before any test files start executing
 beforeAll(async () => {

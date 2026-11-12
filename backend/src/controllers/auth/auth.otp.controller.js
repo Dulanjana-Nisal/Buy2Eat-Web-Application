@@ -147,7 +147,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
     try {
         session.startTransaction();
 
-        // create user 
+        // create user
         const [user] = await Users.create([{
             email: otpUser.email,
             password: otpUser.hash_password || undefined,
@@ -204,7 +204,17 @@ const verifyOtp = asyncHandler(async (req, res) => {
     }
     catch (error) {
         await session.abortTransaction();
-        throw error;
+        
+        if(error instanceof AppError){
+            throw error;
+        }
+
+        throw new AppError(
+            ErrorCode.INTERNAL_SERVER_ERROR,
+            {
+                message: "Something went wrong!. please try again later.",
+            }
+        );
     }
     finally {
         await session.endSession();
