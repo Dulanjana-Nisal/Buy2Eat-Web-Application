@@ -44,14 +44,14 @@ const createRegistrationOtp = async (overWrites = {}) => {
 
 // helper function for catch refresh token in inside cookie and return true if cookie exist 
 const cookieChecking = (response) => {
-    const cookies = response?.headers['set-cookie'] ? response.headers['set-cookie'] : null;
-    const cookieTokenData = cookies ? cookies.some(cookie => cookie.includes("refreshToken=")) : null;
+    const cookies = response?.headers['set-cookie'] ? response.headers['set-cookie'] : false;
+    const cookieTokenData = cookies ? cookies.some(cookie => cookie.includes("refreshToken=")) : false;
 
     return { cookies, cookieTokenData }
 }
 
 const triggerResponse = async (otpData) => {
-    return response = await request(app).post(URL).send(otpData);
+    return await request(app).post(URL).send(otpData);
 }
 
 describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
@@ -63,7 +63,7 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
     describe("With valid credentials", () => {
         it("should be return with 201 status code when valid credentials", async () => {
             const otpCreate = await createRegistrationOtp();
-            bcrypt.compare.mockResolvedValue("123456");
+            bcrypt.compare.mockResolvedValue(true);
 
             const response = await triggerResponse({ otp: "123456", verification_id: "verification_id_value" });
             const { cookies, cookieTokenData } = cookieChecking(response);
@@ -93,8 +93,8 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
             expect(response.body.error.details[0].issue).toEqual("OTP in wrong format!");
             expect(response.statusCode).toEqual(400);
-            expect(cookies).toBe(null);
-            expect(cookieTokenData).toBe(null);
+            expect(cookies).toBe(false);
+            expect(cookieTokenData).toBe(false);
         });
 
         it("Should return 404 status code when otp is not exist", async () => {
@@ -103,8 +103,8 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
             expect(response.body.error.message).toEqual("OTP is not exist!");
             expect(response.statusCode).toEqual(404);
-            expect(cookies).toBe(null);
-            expect(cookieTokenData).toBe(null);
+            expect(cookies).toBe(false);
+            expect(cookieTokenData).toBe(false);
         });
 
         it("Should return 400 status code when otp is expired", async () => {
@@ -115,8 +115,8 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
             expect(response.body.error.message).toEqual("OTP is Expired!, Please request a new OTP");
             expect(response.statusCode).toEqual(400);
-            expect(cookies).toBe(null);
-            expect(cookieTokenData).toBe(null);
+            expect(cookies).toBe(false);
+            expect(cookieTokenData).toBe(false);
         });
 
         it("Should return 400 status code when agreement have not signed", async () => {
@@ -127,11 +127,11 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
             expect(response.body.error.message).toEqual("You'r not agree with Terms of services and Privacy Policy!");
             expect(response.statusCode).toEqual(400);
-            expect(cookies).toBe(null);
-            expect(cookieTokenData).toBe(null);
+            expect(cookies).toBe(false);
+            expect(cookieTokenData).toBe(false);
         });
 
-        it("Should return 429 status code when trigger too many requests", async () => {
+        it("Should return 429 status code when attempts exceeded", async () => {
             await createRegistrationOtp({ attempts: 0 });
 
             const response = await triggerResponse({ otp: "123456", verification_id: "verification_id_value" });
@@ -139,11 +139,11 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
             expect(response.body.error.message).toEqual("Maximum attempts exceeded!. Please try again later.");
             expect(response.statusCode).toEqual(429);
-            expect(cookies).toBe(null);
-            expect(cookieTokenData).toBe(null);
+            expect(cookies).toBe(false);
+            expect(cookieTokenData).toBe(false);
         });
 
-        it("Should return 400 status code when invalid otp entered", async () => {
+        it("Should return 401 status code when invalid otp entered", async () => {
             await createRegistrationOtp();
             bcrypt.compare.mockResolvedValue(false);
 
@@ -152,8 +152,8 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
             expect(response.body.error.message).toEqual("Invalid OTP!. Please try again.");
             expect(response.statusCode).toEqual(401);
-            expect(cookies).toBe(null);
-            expect(cookieTokenData).toBe(null);
+            expect(cookies).toBe(false);
+            expect(cookieTokenData).toBe(false);
         });
     });
 
@@ -161,9 +161,9 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
         it("Should throw error when failed to create user", async () => {
             const otpCreate = await createRegistrationOtp();
             jest.spyOn(Users, 'create').mockRejectedValue(new Error("User creation error"));
-            bcrypt.compare.mockResolvedValue("123456");
+            bcrypt.compare.mockResolvedValue(true);
 
-            const response = await triggerResponse( { otp: "654321", verification_id: "verification_id_value" });
+            const response = await triggerResponse( { otp: "123456", verification_id: "verification_id_value" });
 
             const storedOtpData = await registrationOtpModel.findOne({ "_id": otpCreate._id });
             const profileReadCustomer = await customerProfileModel.countDocuments();
@@ -180,9 +180,9 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
         it("Should throw error when failed to create customer profile", async () => {
             const otpCreate = await createRegistrationOtp();
             jest.spyOn(customerProfileModel, 'create').mockRejectedValue(new Error("profile creation error"));
-            bcrypt.compare.mockResolvedValue("123456");
+            bcrypt.compare.mockResolvedValue(true);
 
-            const response = await triggerResponse({ otp: "654321", verification_id: "verification_id_value" });
+            const response = await triggerResponse({ otp: "123456", verification_id: "verification_id_value" });
 
             const storedOtpData = await registrationOtpModel.findOne({ "_id": otpCreate._id });
             const profileReadCustomer = await customerProfileModel.countDocuments();
@@ -199,9 +199,9 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
         it("Should throw error when failed to create seller profile", async () => {
             const otpCreate = await createRegistrationOtp();
             jest.spyOn(sellerProfileModel, 'create').mockRejectedValue(new Error("profile creation error"));
-            bcrypt.compare.mockResolvedValue("123456");
+            bcrypt.compare.mockResolvedValue(true);
 
-            const response = await triggerResponse({ otp: "654321", verification_id: "verification_id_value" });
+            const response = await triggerResponse({ otp: "123456", verification_id: "verification_id_value" });
 
             const storedOtpData = await registrationOtpModel.findOne({ "_id": otpCreate._id });
             const profileReadCustomer = await customerProfileModel.countDocuments();
