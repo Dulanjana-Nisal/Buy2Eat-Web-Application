@@ -44,10 +44,15 @@ const createRegistrationOtp = async (overWrites = {}) => {
 
 // helper function for catch refresh token in inside cookie and return true if cookie exist 
 const cookieChecking = (response) => {
+    let securityData = false;
     const cookies = response?.headers['set-cookie'] ? response.headers['set-cookie'] : false;
     const cookieTokenData = cookies ? cookies.some(cookie => cookie.includes("refreshToken=")) : false;
 
-    return { cookies, cookieTokenData }
+    if (response?.headers['set-cookie']) {
+        securityData = response?.headers['set-cookie'].find(e => e.startsWith("refreshToken=")) || false;
+    }
+
+    return { cookies, cookieTokenData, securityData }
 }
 
 const triggerResponse = async (otpData) => {
@@ -57,22 +62,24 @@ const triggerResponse = async (otpData) => {
 describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
     afterEach(() => {
-        jest.clearAllMocks();
+        jest.restoreAllMocks();
     });
 
     describe("With valid credentials", () => {
-        it("should be return with 201 status code when valid credentials", async () => {
+        it("Should be return with 201 status code when valid credentials", async () => {
             const otpCreate = await createRegistrationOtp();
             bcrypt.compare.mockResolvedValue(true);
 
             const response = await triggerResponse({ otp: "123456", verification_id: "verification_id_value" });
-            const { cookies, cookieTokenData } = cookieChecking(response);
+            const { cookies, cookieTokenData, securityData } = cookieChecking(response);
 
             expect(response.statusCode).toEqual(201);
             expect(response.body.user).toBeDefined();
             expect(response.body.userProfile).toBeDefined();
             expect(cookies).toBeDefined();
             expect(cookieTokenData).toBe(true);
+            expect(securityData).toMatch(/HttpOnly/i);
+            expect(securityData).toMatch(/SameSite=(Lax|Strict)/i);
 
             const storedOtpData = await registrationOtpModel.findOne({ "_id": otpCreate._id });
             const profileReadCustomer = await customerProfileModel.countDocuments();
@@ -83,6 +90,10 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
             expect(profileReadCustomer).toEqual(1);
             expect(profileReadUser).toEqual(1);
             expect(profileReadSeller).toEqual(0);
+
+            expect(response.body.user.password).toBeUndefined();
+            expect(response.body.user.hash_password).toBeUndefined();
+            expect(response.body.user.accessToken).toBeDefined();
         });
     });
 
@@ -163,7 +174,7 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
             jest.spyOn(Users, 'create').mockRejectedValue(new Error("User creation error"));
             bcrypt.compare.mockResolvedValue(true);
 
-            const response = await triggerResponse( { otp: "123456", verification_id: "verification_id_value" });
+            const response = await triggerResponse({ otp: "123456", verification_id: "verification_id_value" });
 
             const storedOtpData = await registrationOtpModel.findOne({ "_id": otpCreate._id });
             const profileReadCustomer = await customerProfileModel.countDocuments();
@@ -175,6 +186,8 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
             expect(storedOtpData).not.toBeNull();
             expect(profileReadCustomer).toEqual(0);
             expect(profileReadSeller).toEqual(0);
+            expect(otpCreate.attempts > storedOtpData.attempts).toBe(true);
+
         });
 
         it("Should throw error when failed to create customer profile", async () => {
@@ -194,10 +207,11 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
             expect(storedOtpData).not.toBeNull();
             expect(profileReadCustomer).toEqual(0);
             expect(profileReadSeller).toEqual(0);
+            expect(otpCreate.attempts > storedOtpData.attempts).toBe(true);
         });
 
         it("Should throw error when failed to create seller profile", async () => {
-            const otpCreate = await createRegistrationOtp();
+            const otpCreate = await createRegistrationOtp({ role: 'seller' });
             jest.spyOn(sellerProfileModel, 'create').mockRejectedValue(new Error("profile creation error"));
             bcrypt.compare.mockResolvedValue(true);
 
