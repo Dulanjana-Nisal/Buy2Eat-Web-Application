@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+const { MongoMemoryReplSet } = require('mongodb-memory-server');
 
-let mongoServer;
+let replSet;
 
 //Before any test files start executing
 beforeAll(async () => {
@@ -10,8 +10,12 @@ beforeAll(async () => {
         throw new Error('DB already connected, refusing to run tests');
     }
 
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
+    replSet = await MongoMemoryReplSet.create({
+        replSet: {
+            count: 1,
+        }
+    });
+    const mongoUri = replSet.getUri();
 
     await mongoose.connect(mongoUri);
 });
@@ -32,7 +36,7 @@ afterAll(async () => {
 
     await mongoose.disconnect();
 
-    if (mongoServer) {
-        await mongoServer.stop();
+    if (replSet) {
+        await replSet.stop();
     }
 });

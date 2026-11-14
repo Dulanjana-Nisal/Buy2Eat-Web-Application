@@ -84,7 +84,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
                     }
                 ]
             }
-        )
+        );
     }
 
     // check if agreement version is existed
@@ -147,7 +147,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
     try {
         session.startTransaction();
 
-        // create user 
+        // create user
         const [user] = await Users.create([{
             email: otpUser.email,
             password: otpUser.hash_password || undefined,
@@ -204,7 +204,17 @@ const verifyOtp = asyncHandler(async (req, res) => {
     }
     catch (error) {
         await session.abortTransaction();
-        throw error;
+
+        if (error instanceof AppError) {
+            throw error;
+        }
+
+        throw new AppError(
+            ErrorCode.INTERNAL_SERVER_ERROR,
+            {
+                message: "Something went wrong!. please try again later.",
+            }
+        );
     }
     finally {
         await session.endSession();
@@ -391,7 +401,17 @@ const resendOtp = asyncHandler(async (req, res) => {
             },
             { new: true }
         );
-        throw error;
+
+        if (error instanceof AppError) {
+            throw error;
+        }
+
+        throw new AppError(
+            ErrorCode.WRITE_CONFLICT_ERROR,
+            {
+                message: "Failed to resend OTP!. Please try again.",
+            }
+        );
     }
 })
 
