@@ -67,9 +67,13 @@ app.get('/', (_request, response) => {
   response.json({ message: 'Buy2Eat API is running' });
 });
 
-// routers
+// routers and rate limits
 app.use(requestIDMiddleware);
-app.use('/api', globalLimiter);
+
+if(NODE_ENV !== 'testing'){ 
+  app.use('/api', globalLimiter)
+}
+
 app.use('/api/v1/buy2eat/auth', authRouter);
 app.use(errorHandlerMiddleware);
 

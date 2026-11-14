@@ -1,6 +1,7 @@
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const AppError = require('../errors/AppError');
 const { ErrorCode } = require('../constants');
+const { NODE_ENV } = require('../config/env');
 
 // create minutes for every limiter function
 const MINUTE = 60 * 1000;
@@ -40,6 +41,8 @@ const createLimiter = (
         skipSuccessfulRequests = false
     }
 ) => {
+    NODE_ENV === 'testing' ? limit = 1000 : limit;
+    
     return rateLimit({
         standardHeaders: 'draft-7',
         legacyHeaders: false,
@@ -56,25 +59,33 @@ const createLimiter = (
 const globalLimiter = createLimiter({
     windowMs: 15 * MINUTE,
     limit: 200,
-})
+});
 
 // limit for login / Register users
 const loginLimiter = createLimiter({
     windowMs: 15 * MINUTE,
+    limit: 10,
+    skipSuccessfulRequests: true,
+});
+
+// limit for refresh token rotation
+const tokenLimiter = createLimiter({
+    windowMs: 15 * MINUTE,
     limit: 8,
     skipSuccessfulRequests: true,
-})
+});
 
 // sensitive api limits
 const sensitiveLimiter = createLimiter({
     windowMs: 15 * MINUTE,
     limit: 6,
     skipSuccessfulRequests: true,
-})
+});
 
 module.exports = {
     globalLimiter,
     loginLimiter,
+    tokenLimiter,
     sensitiveLimiter,
 }
 
