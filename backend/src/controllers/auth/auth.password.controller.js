@@ -160,14 +160,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
             return res.status(StatusCode.OK).json({
                 success: true,
                 message: "If an account exists with this email, a password reset link will be sent. Check your email."
-            })
+            });
         }
 
         // send Error response 
         return res.status(StatusCode.OK).json({
             success: true,
             message: "If an account exists with this email, a password reset link will be sent. Check your email."
-        })
+        });
     }
 
 });
