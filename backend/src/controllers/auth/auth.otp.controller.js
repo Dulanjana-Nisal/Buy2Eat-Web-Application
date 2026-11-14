@@ -204,8 +204,8 @@ const verifyOtp = asyncHandler(async (req, res) => {
     }
     catch (error) {
         await session.abortTransaction();
-        
-        if(error instanceof AppError){
+
+        if (error instanceof AppError) {
             throw error;
         }
 
@@ -401,7 +401,17 @@ const resendOtp = asyncHandler(async (req, res) => {
             },
             { new: true }
         );
-        throw error;
+
+        if (error instanceof AppError) {
+            throw error;
+        }
+
+        throw new AppError(
+            ErrorCode.WRITE_CONFLICT_ERROR,
+            {
+                message: "Failed to resend OTP!. Please try again.",
+            }
+        );
     }
 })
 

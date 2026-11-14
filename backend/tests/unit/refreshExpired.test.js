@@ -3,12 +3,6 @@ const calculateExpired = require("../../src/utils/calculateRefreshExpired");
 // Test for Refresh token Expired generation
 describe("Test Refresh token expired time", () => {
 
-    // beforeEach should create fake time
-    // beforeEach(() => {
-    //     jest.useFakeTimers();
-    //     jest.setSystemTime("2026-11-10T12:00:00Z");
-    // })
-
     // after each tern back time in to real time
     afterEach(() => {
         jest.useRealTimers();
