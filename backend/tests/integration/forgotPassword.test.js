@@ -80,6 +80,7 @@ describe("POST /api/v1/buy2eat/auth/forgot-password", () => {
 
             const getResetPasswordData = await resetPasswordModel.findOne({ user_id: reset.user_id });
 
+            expect(getResetPasswordData.resetPasswordToken).toEqual('hashed_reset_token');
             expect(getResetPasswordData).toHaveProperty('createdAt');
             expect(getResetPasswordData).toHaveProperty('expiredAt');
         });
@@ -106,6 +107,20 @@ describe("POST /api/v1/buy2eat/auth/forgot-password", () => {
     });
 
     describe("With invalid request for not send any resend link users", () => {
+        it("Should return success response when entered not registered email", async () => {
+            const { reset } = await createModels();
+            await resetPasswordModel.deleteOne({ user_id: reset.user_id });
+
+            const response = await sendRequest('unregisterd@example.com');
+
+            expect(response.statusCode).toBe(200);
+            expect(sendEmailResetPassword).toHaveBeenCalledTimes(0);
+
+            const getResetPasswordData = await resetPasswordModel.findOne({ user_id: reset.user_id });
+
+            expect(getResetPasswordData).toBe(null);
+        });
+
         it("Should return success response when failed to create resetPasswordModel in database", async () => {
             const { reset } = await createModels();
             await resetPasswordModel.deleteOne({ user_id: reset.user_id });
