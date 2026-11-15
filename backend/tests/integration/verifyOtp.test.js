@@ -62,6 +62,7 @@ const triggerResponse = async (otpData) => {
 describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
     afterEach(() => {
+        jest.clearAllMocks();
         jest.restoreAllMocks();
     });
 

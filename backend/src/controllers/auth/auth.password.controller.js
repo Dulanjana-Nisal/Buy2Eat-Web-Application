@@ -29,7 +29,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         return res.status(StatusCode.OK).json({
             success: true,
             message: "If an account exists with this email, a password reset link will be sent. Check your email."
-        })
+        });
     }
 
     // generate new reset password token
@@ -39,7 +39,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     // date and time variables
     const nowDate = new Date();
     const coolDownTime = new Date(Date.now() - 60 * 1000);
-    const expiredAtTime = new Date(Date.now() + 15 * 60 * 1000)
+    const expiredAtTime = new Date(Date.now() + 15 * 60 * 1000);
 
     // generate reset link
     const resetLink = `${CLIENT_URL}/reset-password/${resetToken}` // this link should be change with frontend ( with frontend PORT )
@@ -64,7 +64,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     if (!oldForgotPassword) {
 
         // fetch forgot password data
-        const passwordUser = await resetPasswordModel.findOne({ user_id: user._id })
+        const passwordUser = await resetPasswordModel.findOne({ user_id: user._id });
 
         // check if user dose not exist
         if (!passwordUser) {
@@ -85,7 +85,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
                 return res.status(StatusCode.OK).json({
                     success: true,
                     message: "If an account exists with this email, a password reset link will be sent. Check your email."
-                })
+                });
             }
 
             try {
@@ -96,7 +96,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
                 return res.status(StatusCode.OK).json({
                     success: true,
                     message: "If an account exists with this email, a password reset link will be sent. Check your email."
-                })
+                });
             }
             catch (err) {
 
@@ -110,7 +110,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
                 return res.status(StatusCode.OK).json({
                     success: true,
                     message: "If an account exists with this email, a password reset link will be sent. Check your email."
-                })
+                });
             }
         }
 
@@ -139,7 +139,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         return res.status(StatusCode.OK).json({
             success: true,
             message: "If an account exists with this email, a password reset link will be sent. Check your email."
-        })
+        });
 
     }
     catch (err) {
