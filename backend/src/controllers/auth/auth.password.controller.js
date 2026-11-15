@@ -261,7 +261,7 @@ const resetPassword = asyncHandler(async (req, res) => {
             { user_id: updateUser._id },
             null,
             { session }
-        )
+        );
 
         // if refresh token model data not found
         if (!storedRefreshToken) {
@@ -273,7 +273,7 @@ const resetPassword = asyncHandler(async (req, res) => {
             );
         }
 
-        // update refreshTokenModel database
+        // update refreshTokenModel database ( logout form all device belong to one user )
         await refreshTokenModel.updateMany(
             { user_id: updateUser._id },
             {
@@ -282,7 +282,7 @@ const resetPassword = asyncHandler(async (req, res) => {
                 }
             },
             { session }
-        )
+        );
 
         // get valid time zone
         const newRefreshExpire = storedRefreshToken.expiresAt;
@@ -313,19 +313,28 @@ const resetPassword = asyncHandler(async (req, res) => {
         // crete cookies for refresh token
         createCookies(res, refreshToken, { refreshExpiry: storedRefreshToken.expiresAt, rememberMe: storedRefreshToken.rememberMe });
 
-
         // send success response
         return res.status(StatusCode.OK).json({
             success: true,
             accessToken: accessToken,
-            message: 'Password Reset successfully'
-        })
+            message: 'Password Reset successfully',
+        });
     }
     catch (err) {
         if (session.inTransaction()) {
             await session.abortTransaction();
         }
-        throw err
+
+        if (err instanceof AppError) {
+            throw err
+        }
+
+        throw new AppError(
+            ErrorCode.INTERNAL_SERVER_ERROR,
+            {
+                message: "Reset Password Failed!. Please try again later.",
+            }
+        );
     }
     finally {
         await session.endSession();
