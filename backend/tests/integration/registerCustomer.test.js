@@ -155,5 +155,23 @@ describe("POST /api/v1/buy2eat/auth/register-customer", () => {
             expect(response.body.error.details[0].issue).toEqual("Invalid phone number format");
             expect(OTPHelper).not.toHaveBeenCalled();
         });
+
+        it("Should return 400 error code when entered non sql injections", async () => {
+            OTPHelper.mockResolvedValue({ success: true, message: "OTP send", });
+
+            const response = await responseSuite({
+                first_name: { $ne: null },
+                last_name: { $ne: null },
+                email: { $ne: null },
+                password: { $ne: null },
+                conformPass: { $ne: null },
+                phone_number: { $ne: null },
+                accept_agreement: { $ne: null },
+            });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.message).toEqual("Invalid input data");
+            expect(OTPHelper).not.toHaveBeenCalled();
+        });
     });
 });

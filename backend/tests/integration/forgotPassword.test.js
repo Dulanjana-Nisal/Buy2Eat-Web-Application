@@ -207,5 +207,15 @@ describe("POST /api/v1/buy2eat/auth/forgot-password", () => {
             expect(response.body.error.details[0].issue).toEqual('Invalid email address');
             expect(sendEmailResetPassword).toHaveBeenCalledTimes(0);
         });
+
+        it("Should return error response when input non sql injections", async () => {
+            await createModels(null, { createdAt: new Date(Date.now() - 60 * 1000) });
+
+            const response = await sendRequest({ $ne: null });
+            
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.message).toEqual('Invalid input data');
+            expect(sendEmailResetPassword).toHaveBeenCalledTimes(0);
+        });
     })
 });
