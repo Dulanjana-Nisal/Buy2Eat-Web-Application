@@ -18,6 +18,12 @@ beforeAll(async () => {
     const mongoUri = replSet.getUri();
 
     await mongoose.connect(mongoUri);
+
+    // Disable TTL background deletions for all test files
+    await mongoose.connection.db.admin().command({
+        setParameter: 1,
+        ttlMonitorEnabled: false,
+    });
 });
 
 // Cleans up data between individual tests

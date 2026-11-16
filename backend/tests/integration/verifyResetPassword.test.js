@@ -44,7 +44,7 @@ const creteModels = async (overwrites = {}) => {
     return { reset }
 }
 
-describe("POST /api/v1/buy2eat/auth/verify-reset-password/:token", () => {
+describe("GET /api/v1/buy2eat/auth/verify-reset-password/:token", () => {
 
     afterEach(() => {
         jest.clearAllMocks();
