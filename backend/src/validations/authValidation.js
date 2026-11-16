@@ -141,7 +141,7 @@ const verifyResetPasswordSchema = z.object(
         body: z.object({}).strict().optional(),
 
         params: z.object({
-            token: z.string().min(1, "Wrong reset password URL!. Please try again."),
+            token: z.string().min(5, "Wrong reset password URL!. Please try again."),
         }).strict(),
 
         query: z.object({}).strict(),

@@ -62,6 +62,7 @@ const triggerResponse = async (otpData) => {
 describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
 
     afterEach(() => {
+        jest.clearAllMocks();
         jest.restoreAllMocks();
     });
 
@@ -251,5 +252,13 @@ describe("POST /api/v1/buy2eat/auth/verify-otp", () => {
             expect(response.statusCode).toBe(400);
             expect(response.body.error.details[0].issue).toEqual("Error while verification!, Please resend OTP and try again.");
         });
+
+        it("Should return validation error when entered non sql injections", async () => {
+            const response = await triggerResponse({ otp: { $ne: null }, verification_id: { $ne: null } });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.message).toEqual("Invalid input data");
+        });
+
     })
 });

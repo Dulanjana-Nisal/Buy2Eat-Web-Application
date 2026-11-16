@@ -171,5 +171,16 @@ describe("POST /api/v1/buy2eat/auth/login", () => {
             expect(cookies).toBe(null);
             expect(cookieTokenData).toBe(null);
         });
+
+        it("Should return 400 status code when entered non sql injections", async () => {
+            const response = await responseSuite({ email: { $ne: null }, password: { $ne: null }, role: { $ne: null }, agreement: { $ne: null } });
+            const { cookies, cookieTokenData } = cookieChecking(response);
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body.error.message).toEqual("Invalid input data");
+            expect(response.body.user).not.toBeDefined();
+            expect(cookies).toBe(null);
+            expect(cookieTokenData).toBe(null);
+        });
     });
 }); 

@@ -54,27 +54,31 @@ app.use(
   })
 );
 
-// middlewares
+// Main Middlewares
 app.use(cors({
   origin: CLIENT_URL || "http://localhost:5173/",
   credentials: true
-})); // add core policy for application
-app.use(express.json({ limit: "10kb" })); // allow to dealing with json with 10kb size limit
-app.use(morgan('dev')); // for better api alls logs
-app.use(cookieParser()); // add more security with http cookies 
+}));
+
+app.use(express.json({ limit: "10kb" }));
+app.use(morgan('dev'));
+app.use(cookieParser());
 
 app.get('/', (_request, response) => {
   response.json({ message: 'Buy2Eat API is running' });
 });
 
-// routers and rate limits
 app.use(requestIDMiddleware);
 
-if(NODE_ENV !== 'testing'){ 
-  app.use('/api', globalLimiter)
+// rate limits
+if (NODE_ENV !== 'testing') {
+  app.use('/api', globalLimiter);
 }
 
+// API routers setup
 app.use('/api/v1/buy2eat/auth', authRouter);
+
+// Global Error Handling Middleware
 app.use(errorHandlerMiddleware);
 
 async function startServer() {
@@ -90,6 +94,6 @@ async function startServer() {
 }
 
 // start the server if this file is run directly not run in test mode
-if(require.main === module) startServer(); 
+if (require.main === module) startServer();
 
 module.exports = app; // Export the app for testing purposes

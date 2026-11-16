@@ -29,7 +29,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         return res.status(StatusCode.OK).json({
             success: true,
             message: "If an account exists with this email, a password reset link will be sent. Check your email."
-        })
+        });
     }
 
     // generate new reset password token
@@ -39,7 +39,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     // date and time variables
     const nowDate = new Date();
     const coolDownTime = new Date(Date.now() - 60 * 1000);
-    const expiredAtTime = new Date(Date.now() + 15 * 60 * 1000)
+    const expiredAtTime = new Date(Date.now() + 15 * 60 * 1000);
 
     // generate reset link
     const resetLink = `${CLIENT_URL}/reset-password/${resetToken}` // this link should be change with frontend ( with frontend PORT )
@@ -64,7 +64,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     if (!oldForgotPassword) {
 
         // fetch forgot password data
-        const passwordUser = await resetPasswordModel.findOne({ user_id: user._id })
+        const passwordUser = await resetPasswordModel.findOne({ user_id: user._id });
 
         // check if user dose not exist
         if (!passwordUser) {
@@ -85,7 +85,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
                 return res.status(StatusCode.OK).json({
                     success: true,
                     message: "If an account exists with this email, a password reset link will be sent. Check your email."
-                })
+                });
             }
 
             try {
@@ -96,7 +96,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
                 return res.status(StatusCode.OK).json({
                     success: true,
                     message: "If an account exists with this email, a password reset link will be sent. Check your email."
-                })
+                });
             }
             catch (err) {
 
@@ -110,7 +110,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
                 return res.status(StatusCode.OK).json({
                     success: true,
                     message: "If an account exists with this email, a password reset link will be sent. Check your email."
-                })
+                });
             }
         }
 
@@ -139,7 +139,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         return res.status(StatusCode.OK).json({
             success: true,
             message: "If an account exists with this email, a password reset link will be sent. Check your email."
-        })
+        });
 
     }
     catch (err) {
@@ -160,14 +160,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
             return res.status(StatusCode.OK).json({
                 success: true,
                 message: "If an account exists with this email, a password reset link will be sent. Check your email."
-            })
+            });
         }
 
         // send Error response 
         return res.status(StatusCode.OK).json({
             success: true,
             message: "If an account exists with this email, a password reset link will be sent. Check your email."
-        })
+        });
     }
 
 });
@@ -261,7 +261,7 @@ const resetPassword = asyncHandler(async (req, res) => {
             { user_id: updateUser._id },
             null,
             { session }
-        )
+        );
 
         // if refresh token model data not found
         if (!storedRefreshToken) {
@@ -273,7 +273,7 @@ const resetPassword = asyncHandler(async (req, res) => {
             );
         }
 
-        // update refreshTokenModel database
+        // update refreshTokenModel database ( logout form all device belong to one user )
         await refreshTokenModel.updateMany(
             { user_id: updateUser._id },
             {
@@ -282,7 +282,7 @@ const resetPassword = asyncHandler(async (req, res) => {
                 }
             },
             { session }
-        )
+        );
 
         // get valid time zone
         const newRefreshExpire = storedRefreshToken.expiresAt;
@@ -313,19 +313,32 @@ const resetPassword = asyncHandler(async (req, res) => {
         // crete cookies for refresh token
         createCookies(res, refreshToken, { refreshExpiry: storedRefreshToken.expiresAt, rememberMe: storedRefreshToken.rememberMe });
 
-
         // send success response
         return res.status(StatusCode.OK).json({
             success: true,
             accessToken: accessToken,
-            message: 'Password Reset successfully'
-        })
+            message: 'Password Reset successfully',
+        });
     }
     catch (err) {
         if (session.inTransaction()) {
             await session.abortTransaction();
         }
-        throw err
+
+        if (err instanceof AppError) {
+            throw err
+        }
+
+        const failure=  new AppError(
+            ErrorCode.INTERNAL_SERVER_ERROR,
+            {
+                message: "Reset Password Failed!. Please try again later.",
+            }
+        );
+        
+        failure.isOperational = false;
+        failure.stack = err.stack;
+        throw failure;
     }
     finally {
         await session.endSession();
@@ -348,7 +361,8 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
             resetPasswordToken: hashResetToken,
             expiredAt: { $gt: new Date() },
         }
-    )
+    );
+
     if (!resetUser) {
         throw new AppError(
             ErrorCode.PASSWORD_RESET_TOKEN_INVALID,
@@ -362,7 +376,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
     return res.status(StatusCode.OK).json({
         success: true,
         message: 'Token is ok'
-    })
+    });
 })
 
 module.exports = {
