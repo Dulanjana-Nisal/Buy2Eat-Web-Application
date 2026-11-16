@@ -357,7 +357,8 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
             resetPasswordToken: hashResetToken,
             expiredAt: { $gt: new Date() },
         }
-    )
+    );
+    
     if (!resetUser) {
         throw new AppError(
             ErrorCode.PASSWORD_RESET_TOKEN_INVALID,
@@ -371,7 +372,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
     return res.status(StatusCode.OK).json({
         success: true,
         message: 'Token is ok'
-    })
+    });
 })
 
 module.exports = {
