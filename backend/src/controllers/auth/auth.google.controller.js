@@ -229,7 +229,7 @@ const googleAuth = asyncHandler(async (req, res) => {
         }
     });
 
-})
+});
 
 // Google Registration
 const googleRegistration = asyncHandler(async (req, res) => {
