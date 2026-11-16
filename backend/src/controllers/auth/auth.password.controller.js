@@ -329,12 +329,16 @@ const resetPassword = asyncHandler(async (req, res) => {
             throw err
         }
 
-        throw new AppError(
+        const failure=  new AppError(
             ErrorCode.INTERNAL_SERVER_ERROR,
             {
                 message: "Reset Password Failed!. Please try again later.",
             }
         );
+        
+        failure.isOperational = false;
+        failure.stack = err.stack;
+        throw failure;
     }
     finally {
         await session.endSession();
@@ -358,7 +362,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
             expiredAt: { $gt: new Date() },
         }
     );
-    
+
     if (!resetUser) {
         throw new AppError(
             ErrorCode.PASSWORD_RESET_TOKEN_INVALID,
