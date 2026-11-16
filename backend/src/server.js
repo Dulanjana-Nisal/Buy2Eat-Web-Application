@@ -58,10 +58,10 @@ app.use(
 app.use(cors({
   origin: CLIENT_URL || "http://localhost:5173/",
   credentials: true
-}));
+})); 
 
-app.use(express.json({ limit: "10kb" }));
-app.use(morgan('dev'));
+app.use(express.json({ limit: "10kb" })); 
+app.use(morgan('dev')); 
 app.use(cookieParser());
 
 app.get('/', (_request, response) => {
@@ -71,7 +71,7 @@ app.get('/', (_request, response) => {
 app.use(requestIDMiddleware);
 
 // rate limits
-if (NODE_ENV !== 'testing') {
+if(NODE_ENV !== 'testing'){ 
   app.use('/api', globalLimiter);
 }
 
@@ -94,6 +94,6 @@ async function startServer() {
 }
 
 // start the server if this file is run directly not run in test mode
-if (require.main === module) startServer();
+if(require.main === module) startServer(); 
 
 module.exports = app; // Export the app for testing purposes
