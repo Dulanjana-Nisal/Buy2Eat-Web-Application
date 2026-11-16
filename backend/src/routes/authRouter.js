@@ -18,7 +18,7 @@ const {
 } = require('../controllers/auth');
 
 // import middlewares
-const { loginLimiter, sensitiveLimiter } = require('../middleware/rateLimitMiddleware');
+const { loginLimiter, sensitiveLimiter, forgotPasswordLimiter } = require('../middleware/rateLimitMiddleware');
 const validationMiddleware = require('../middleware/validationMiddleware');
 
 // import validations schema
@@ -46,7 +46,7 @@ router.post('/logout', loginLimiter, userLogout);
 router.post('/verify-otp', sensitiveLimiter, validationMiddleware(verifyOtpSchema), verifyOtp);
 router.post('/resend-otp', sensitiveLimiter, validationMiddleware(resendOtpSchema), resendOtp);
 router.post('/refresh-token', sensitiveLimiter, refreshToken);
-router.post('/forgot-password', sensitiveLimiter, validationMiddleware(forgotPasswordSchema), forgotPassword);
+router.post('/forgot-password', forgotPasswordLimiter, validationMiddleware(forgotPasswordSchema), forgotPassword);
 router.post('/reset-password', sensitiveLimiter, validationMiddleware(resetPasswordSchema), resetPassword);
 router.get('/verify-reset-password/:token', sensitiveLimiter, validationMiddleware(verifyResetPasswordSchema), verifyResetPassword);
 

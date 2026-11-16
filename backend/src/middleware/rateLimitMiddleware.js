@@ -68,13 +68,6 @@ const loginLimiter = createLimiter({
     skipSuccessfulRequests: true,
 });
 
-// limit for refresh token rotation
-const tokenLimiter = createLimiter({
-    windowMs: 15 * MINUTE,
-    limit: 8,
-    skipSuccessfulRequests: true,
-});
-
 // sensitive api limits
 const sensitiveLimiter = createLimiter({
     windowMs: 15 * MINUTE,
@@ -82,10 +75,17 @@ const sensitiveLimiter = createLimiter({
     skipSuccessfulRequests: true,
 });
 
+// sensitive api limits
+const forgotPasswordLimiter = createLimiter({
+    windowMs: 15 * MINUTE,
+    limit: 6,
+    skipSuccessfulRequests: false,
+});
+
 module.exports = {
     globalLimiter,
     loginLimiter,
-    tokenLimiter,
     sensitiveLimiter,
+    forgotPasswordLimiter
 }
 
