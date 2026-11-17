@@ -65,7 +65,7 @@ const expectNoTokenRotation = () => {
     expect(tokenService.createCookies).not.toHaveBeenCalled();
 };
 
-describe('POST  /api/v1/buy2eat/auth/refresh-token', () => {
+describe('POST /api/v1/buy2eat/auth/refresh-token', () => {
     beforeEach(() => {
         tokenService.hash.mockReturnValue(HASHED_REFRESH_TOKEN);
         jwt.verify.mockImplementation(() => ({ _id: 'unused-user-id' }));
