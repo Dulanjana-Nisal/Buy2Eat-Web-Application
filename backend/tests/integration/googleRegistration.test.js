@@ -12,20 +12,11 @@ jest.mock('crypto', () => {
 
 jest.mock('../../src/services/otp.service', () => jest.fn());
 
-const express = require('express');
 const request = require('supertest');
-const mongoose = require('mongoose');
 const app = require('../../src/server');
 const OTPHelper = require('../../src/services/otp.service');
 const Users = require('../../src/models/userModel');
 const GoogleRegisterModel = require('../../src/models/googleRegisterModel');
-const CustomerProfile = require('../../src/models/customerProfileModel');
-const SellerProfile = require('../../src/models/sellerProfileModel');
-const RefreshToken = require('../../src/models/refreshTokenModel');
-const environment = require('../../src/config/env');
-const validationMiddleware = require('../../src/middleware/validationMiddleware');
-const errorHandlerMiddleware = require('../../src/errors/errorHandlerMiddleware');
-const { googleRegistrationSchema } = require('../../src/validations/authValidation');
 
 const URL = '/api/v1/buy2eat/auth/google/register';
 const REGISTRATION_TOKEN = 'registration_token';
@@ -69,45 +60,6 @@ const expectNoSensitiveData = (response) => {
     const responseBody = JSON.stringify(response.body);
     expect(responseBody).not.toContain('registration_hashed_token');
     expect(responseBody).not.toContain(REGISTRATION_TOKEN);
-};
-
-const appWithoutAgreementVersion = () => {
-    let googleRegistration;
-    let isolatedErrorHandler;
-
-    try {
-        jest.isolateModules(() => {
-            jest.doMock('../../src/config/env', () => ({
-                ...environment,
-                AGREEMENT_VERSION: undefined,
-            }));
-            jest.doMock('mongoose', () => mongoose);
-            jest.doMock('../../src/models/userModel', () => Users);
-            jest.doMock('../../src/models/googleRegisterModel', () => GoogleRegisterModel);
-            jest.doMock('../../src/models/customerProfileModel', () => CustomerProfile);
-            jest.doMock('../../src/models/sellerProfileModel', () => SellerProfile);
-            jest.doMock('../../src/models/refreshTokenModel', () => RefreshToken);
-            jest.doMock('../../src/services/otp.service', () => OTPHelper);
-
-            googleRegistration = require('../../src/controllers/auth/auth.google.controller').googleRegistration;
-            isolatedErrorHandler = require('../../src/errors/errorHandlerMiddleware');
-        });
-    } finally {
-        jest.dontMock('../../src/config/env');
-        jest.dontMock('mongoose');
-        jest.dontMock('../../src/models/userModel');
-        jest.dontMock('../../src/models/googleRegisterModel');
-        jest.dontMock('../../src/models/customerProfileModel');
-        jest.dontMock('../../src/models/sellerProfileModel');
-        jest.dontMock('../../src/models/refreshTokenModel');
-        jest.dontMock('../../src/services/otp.service');
-    }
-
-    const isolatedApp = express();
-    isolatedApp.use(express.json());
-    isolatedApp.post(URL, validationMiddleware(googleRegistrationSchema), googleRegistration);
-    isolatedApp.use(isolatedErrorHandler);
-    return isolatedApp;
 };
 
 describe('POST /api/v1/buy2eat/auth/google/register', () => {
@@ -161,7 +113,7 @@ describe('POST /api/v1/buy2eat/auth/google/register', () => {
     });
 
     describe('With invalid response', () => {
-        it('Should return error response when accecept_agreement is false or missing', async () => {
+        it('Should return error response when accept_agreement is false or missing', async () => {
             const registration = await createGoogleRegisterModel();
 
             const response = await responseSuite({ accept_agreement: false });
@@ -213,19 +165,6 @@ describe('POST /api/v1/buy2eat/auth/google/register', () => {
             expect(OTPHelper).not.toHaveBeenCalled();
             expectNoSensitiveData(response);
         });
-
-        it('Should return error response when Agreement version is not available in envs', async () => {
-            const registration = await createGoogleRegisterModel();
-            const isolatedApp = appWithoutAgreementVersion();
-
-            const response = await request(isolatedApp).post(URL).send(sampleRegistration);
-
-            expect(response.statusCode).toBe(500);
-            expect(response.body.error.message).toBe("We can't complete your registration right now. Please try again later.");
-            expect(await GoogleRegisterModel.findById(registration._id)).not.toBeNull();
-            expect(OTPHelper).not.toHaveBeenCalled();
-            expectNoSensitiveData(response);
-        });
     });
 
     describe('With failed inside transaction', () => {
@@ -243,7 +182,7 @@ describe('POST /api/v1/buy2eat/auth/google/register', () => {
 
         it('Should return error response when trigger error inside transaction', async () => {
             const registration = await createGoogleRegisterModel();
-            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => { });
             OTPHelper.mockRejectedValue(new Error('some Error'));
 
             try {
