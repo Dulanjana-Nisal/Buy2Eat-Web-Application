@@ -23,7 +23,7 @@ const REGISTRATION_TOKEN = 'registration_token';
 const GOOGLE_ID = 'google-user-id';
 const SAMPLE_EMAIL = 'google-user@example.com';
 const OTP_RESPONSE = {
-    success: 'true',
+    success: true,
     message: 'OTP send successfully',
     verification_id: 'verification_id',
     masked_email: 'us***23@g***l.m',
