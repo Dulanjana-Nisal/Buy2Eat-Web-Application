@@ -5,7 +5,28 @@ const AppError = require("../errors/AppError");
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = require('../config/env');
 
 // get google client
-const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+let client = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+const verifyIdToken = async (idToken) => {
+    try {
+        return await client.verifyIdToken({
+            idToken,
+            audience: GOOGLE_CLIENT_ID
+        });
+    } catch (error) {
+        if (!(error instanceof Error) || !error.message.startsWith("No pem found for envelope:")) {
+            throw error;
+        }
+
+        const refreshedClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+        const ticket = await refreshedClient.verifyIdToken({
+            idToken,
+            audience: GOOGLE_CLIENT_ID
+        });
+        client = refreshedClient;
+        return ticket;
+    }
+};
 
 const googleTokenService = async (code) => {
 
@@ -52,10 +73,7 @@ const googleTokenService = async (code) => {
     }
 
     // token verification
-    const ticket = await client.verifyIdToken({
-        idToken: id_token,
-        audience: GOOGLE_CLIENT_ID
-    });
+    const ticket = await verifyIdToken(id_token);
 
     // get payload form ticket
     return { email, email_verified, sub, picture, given_name, family_name, name } = ticket.getPayload();
