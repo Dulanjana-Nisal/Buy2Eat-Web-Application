@@ -51,3 +51,10 @@ services:
     depends_on:
       - mongodb
       - mongo-express
+
+networks :
+  buy2eat-network: 
+    driver: bridge
+
+volumes:
+  mongo_data:
