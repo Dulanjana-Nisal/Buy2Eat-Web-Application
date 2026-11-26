@@ -1,0 +1,13 @@
+# Dependencies
+node_modules
+
+# Environment variables & secrets
+.env.*.local
+!.env.*.example
+
+# Version control & editor files
+.git
+.vscode
+
+# Build outputs & test coverage
+coverage
