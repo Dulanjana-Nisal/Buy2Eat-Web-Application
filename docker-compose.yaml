@@ -6,9 +6,8 @@ services:
     restart: unless-stopped
     ports:
       - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    env_file:
+      - .env.compose.local
     networks:
       - buy2eat-network
     volumes:
@@ -19,12 +18,8 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
-      ME_CONFIG_MONGODB_SERVER: ${ME_CONFIG_MONGODB_SERVER}
-      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
+    env_file:
+      - .env.compose.local
     networks:
       - buy2eat-network
     depends_on:
@@ -37,10 +32,10 @@ services:
     ports:
       - "5000:5000"
     restart: unless-stopped
-    env_file:
-      ./backend/.env.development.local
+    env_file: 
+      - ./.env.compose.local
+      - ./backend/.env.development.local
     environment:
-      MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/buy2eat?authSource=admin
       PORT: 5000
       NODE_ENV: development
     volumes:

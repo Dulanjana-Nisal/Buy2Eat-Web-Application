@@ -1,4 +1,5 @@
 .kilo/
 .vscode/
 !.env.*.example
+.env
 .env.*.local
