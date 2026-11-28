@@ -1,0 +1,114 @@
+name: Buy2Eat Application
+
+services:
+  mongo-keyfile-init:
+    image: mongo:8.0
+    entrypoint: ["/bin/bash", "-c"]
+    command: 
+      - |
+        if [ ! -s /mongo-keyfile/mongodb-keyfile ]; then
+            openssl rand -base64 756 > /mongo-keyfile/mongodb-keyfile
+          fi
+          chown 999:999 /mongo-keyfile/mongodb-keyfile
+          chmod 400 /mongo-keyfile/mongodb-keyfile
+    networks:
+      - buy2eat-network
+    volumes:
+      - mongo_keyfile:/mongo-keyfile
+    
+  mongodb: 
+    image: mongo:8.0
+    restart: unless-stopped
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/mongo-keyfile/mongodb-keyfile", "--auth"]
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env.compose.local
+    networks:
+      - buy2eat-network
+    volumes:
+      - mongo_data:/data/db
+      - mongo_keyfile:/mongo-keyfile:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh", "--quiet", "--eval", "db.adminCommand({ hello: 1 }).isWritablePrimary ? 1 : 0"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      mongo-keyfile-init:
+        condition: service_completed_successfully
+  
+  mongo-init-replica:
+    image: mongo:8.0
+    entrypoint: ['/bin/bash', "-c"]
+    command: 
+      - |
+        until mongosh "mongodb://mongodb:27017/admin" --username "$${MONGO_INITDB_ROOT_USERNAME}" --password "$${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --quiet --eval '
+          try {
+            const status = rs.status();
+            if (status.ok !== 1) {
+              rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongodb:27017" }] });
+            }
+          } catch (error) {
+            rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongodb:27017" }] });
+          }
+          quit(rs.status().ok === 1 ? 0 : 1);
+        ' >/dev/null 2>&1; do
+          sleep 2
+        done
+        until mongosh "mongodb://mongodb:27017/admin" --username "$${MONGO_INITDB_ROOT_USERNAME}" --password "$${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --quiet --eval "quit(db.hello().isWritablePrimary ? 0 : 1)" >/dev/null 2>&1; do
+          sleep 2
+        done
+    env_file:
+      - .env.compose.local
+    networks:
+      - buy2eat-network
+    depends_on:
+      mongodb:
+        condition: service_started
+    
+  mongo-express:
+    image: mongo-express:1.0
+    restart: unless-stopped
+    ports:
+      - "8080:8081"
+    env_file:
+      - .env.compose.local
+    networks:
+      - buy2eat-network
+    depends_on:
+      mongo-init-replica:
+        condition: service_completed_successfully
+
+  api:
+    build:  
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    env_file: 
+      - ./.env.compose.local
+      - ./backend/.env.development.local
+    environment:
+      PORT: 5000
+      NODE_ENV: development
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - buy2eat-network
+    depends_on:
+      mongo-init-replica:
+        condition: service_completed_successfully
+      mongo-express:
+        condition: service_started
+
+networks :
+  buy2eat-network: 
+    driver: bridge
+
+volumes:
+  mongo_data:
+  mongo_keyfile:
