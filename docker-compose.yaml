@@ -44,7 +44,7 @@ services:
     entrypoint: ['/bin/bash', "-c"]
     command: 
       - |
-        until mongosh "mongodb://$${MONGO_INITDB_ROOT_USERNAME}:$${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/admin?authSource=admin" --quiet --eval '
+        until mongosh "mongodb://mongodb:27017/admin" --username "$${MONGO_INITDB_ROOT_USERNAME}" --password "$${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --quiet --eval '
           try {
             const status = rs.status();
             if (status.ok !== 1) {
@@ -57,7 +57,7 @@ services:
         ' >/dev/null 2>&1; do
           sleep 2
         done
-        until mongosh "mongodb://$${MONGO_INITDB_ROOT_USERNAME}:$${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/admin?authSource=admin" --quiet --eval "quit(db.hello().isWritablePrimary ? 0 : 1)" >/dev/null 2>&1; do
+        until mongosh "mongodb://mongodb:27017/admin" --username "$${MONGO_INITDB_ROOT_USERNAME}" --password "$${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --quiet --eval "quit(db.hello().isWritablePrimary ? 0 : 1)" >/dev/null 2>&1; do
           sleep 2
         done
     env_file:

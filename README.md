@@ -39,6 +39,22 @@ A production-style authentication service built with Node.js, Express 5, MongoDB
 The provided Compose stack starts MongoDB as an authenticated `rs0` replica set on a fresh volume. Replica-set initialization completes before the API is started, satisfying the transaction requirement:
 
 ```bash
+# Create the local Compose and API environment files from their templates.
+cp .env.compose.example .env.compose.local
+cp backend/.env.development.example backend/.env.development.local
+```
+
+Before starting the stack, edit both local files. In `.env.compose.local`, replace the MongoDB root username and password placeholders. In `backend/.env.development.local`, set `MONGO_URI` to use the Compose hostname `mongodb:27017` and the **same** username and password as `MONGO_INITDB_ROOT_USERNAME` and `MONGO_INITDB_ROOT_PASSWORD` in `.env.compose.local`. For example:
+
+```text
+MONGO_URI=mongodb://<same-username>:<same-password>@mongodb:27017/buy2eat?authSource=admin&replicaSet=rs0
+```
+
+Replace the remaining required placeholder values in the backend file as described under [Environment variables](#environment-variables). Keep the `.local` files private; they are git-ignored.
+
+Then start the stack from the repository root:
+
+```bash
 docker compose up --build
 ```
 
