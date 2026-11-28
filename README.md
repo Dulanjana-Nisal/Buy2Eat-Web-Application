@@ -34,6 +34,14 @@ A production-style authentication service built with Node.js, Express 5, MongoDB
 - A Gmail account with an [App Password](https://support.google.com/accounts/answer/185833) for sending emails
 - A Google OAuth client ID and secret (Google Cloud Console)
 
+### Docker Compose
+
+The provided Compose stack starts MongoDB as an authenticated `rs0` replica set on a fresh volume. Replica-set initialization completes before the API is started, satisfying the transaction requirement:
+
+```bash
+docker compose up --build
+```
+
 ### Install and run
 
 ```bash
